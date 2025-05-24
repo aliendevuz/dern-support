@@ -1,21 +1,653 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Individual</title>
-    <script src="global.js"></script>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <h1>Individual</h1>
-      <p id="data">Here is Individual account's page</p>
-      <div class="buttons">
-        <button onclick="getData()">Get My Data</button>
-        <button class="red" onclick="logout()">Logout</button>
-      </div>
-    </div>
-    <script src="app.js"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DernSupport - Individual Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --light-gray-green: #B4B8AB;
+            --dark-blue: #153243;
+            --medium-blue: #284B63;
+            --light-green: #F4F9E9;
+            --light-gray: #EEF0EB;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-green);
+            color: var(--dark-blue);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+        }
+
+        .logo-text span {
+            color: var(--medium-blue);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-list {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--dark-blue);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--medium-blue);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--medium-blue);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* User Menu */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-circle {
+            width: 40px;
+            height: 40px;
+            background-color: var(--medium-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-circle:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .user-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--dark-blue);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .dropdown-item i {
+            font-size: 1.1rem;
+            color: var(--medium-blue);
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: var(--light-gray);
+            margin: 8px 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 0 100px;
+            background: linear-gradient(rgba(21, 50, 67, 0.8), rgba(40, 75, 99, 0.7)),
+                        url('https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center/cover;
+            color: white;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--medium-blue);
+            color: white;
+            border: 2px solid var(--medium-blue);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-blue);
+            border-color: var(--dark-blue);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background-color: white;
+            color: var(--medium-blue);
+            transform: translateY(-2px);
+        }
+
+        /* Knowledge Base Section */
+        .knowledge-base {
+            padding: 100px 0;
+            background-color: white;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--dark-blue);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: var(--medium-blue);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .kb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .kb-card {
+            background-color: var(--light-gray);
+            padding: 2rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .kb-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .kb-icon {
+            font-size: 2.5rem;
+            color: var(--medium-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        .kb-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--dark-blue);
+        }
+
+        .kb-text {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Support CTA Section */
+        .support-cta {
+            padding: 80px 0;
+            background-color: var(--light-gray);
+            text-align: center;
+        }
+
+        .support-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-blue);
+        }
+
+        .support-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--medium-blue);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 60px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--light-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            background-color: var(--medium-blue);
+            transform: translateY(-3px);
+        }
+
+        .footer-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--light-gray);
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: var(--light-gray);
+        }
+
+        @media (max-width: 768px) {
+            .nav-list {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container container">
+            <a href="/" class="logo-text">Dern<span>Support</span></a>
+            <nav class="nav-menu">
+                <ul class="nav-list">
+                    <li><a href="/" class="nav-link">Dashboard</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#knowledge-base" class="nav-link">Knowledge Base</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="user-menu">
+                    <div class="user-circle" id="userMenuBtn">JS</div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-item" id="userEmail">
+                            <i class="fas fa-user"></i>
+                            <span>Loading...</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="/individual/requests" class="dropdown-item">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>My Requests</span>
+                        </a>
+                        <a href="/individual/notifications" class="dropdown-item">
+                            <i class="fas fa-bell"></i>
+                            <span>Notifications</span>
+                        </a>
+                        <a href="/individual/profile" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Edit Profile</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Having Computer Issues?</h1>
+                <p class="hero-subtitle">Our expert technicians are ready to help solve your technical problems quickly and efficiently.</p>
+                <div class="hero-buttons">
+                    <a href="/individual/support-request" class="btn btn-primary">Submit Support Request</a>
+                    <a href="#knowledge-base" class="btn btn-secondary">Browse Solutions</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="knowledge-base" id="knowledge-base">
+        <div class="container">
+            <h2 class="section-title">Quick Solutions</h2>
+            <p class="section-subtitle">Find instant solutions to common computer problems in our knowledge base</p>
+            
+            <div class="kb-grid">
+                <div class="kb-card">
+                    <div class="kb-icon">
+                        <i class="fas fa-laptop-medical"></i>
+                    </div>
+                    <h3 class="kb-title">Slow Computer</h3>
+                    <p class="kb-text">Learn how to speed up your computer and improve its performance with our step-by-step guide.</p>
+                    <a href="/kb/slow-computer" class="btn btn-primary">Read More</a>
+                </div>
+                
+                <div class="kb-card">
+                    <div class="kb-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h3 class="kb-title">Network Issues</h3>
+                    <p class="kb-text">Troubleshoot common network connectivity problems and get back online quickly.</p>
+                    <a href="/kb/network-issues" class="btn btn-primary">Read More</a>
+                </div>
+                
+                <div class="kb-card">
+                    <div class="kb-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="kb-title">Security Tips</h3>
+                    <p class="kb-text">Keep your computer safe with our essential security tips and best practices.</p>
+                    <a href="/kb/security-tips" class="btn btn-primary">Read More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="support-cta">
+        <div class="container">
+            <h2 class="support-title">Need Professional Help?</h2>
+            <p class="support-text">Our expert technicians are ready to assist you with any computer issues you're facing.</p>
+            <a href="/individual/support-request" class="btn btn-primary">Submit Support Request</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">Dern<span>Support</span></div>
+                    <p class="footer-text">Professional IT support and computer repair services for individuals and businesses.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/individual/support-request">Submit Request</a></li>
+                        <li><a href="/individual/requests">My Requests</a></li>
+                        <li><a href="#knowledge-base">Knowledge Base</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="/services/computer-repair">Computer Repair</a></li>
+                        <li><a href="/services/virus-removal">Virus Removal</a></li>
+                        <li><a href="/services/data-recovery">Data Recovery</a></li>
+                        <li><a href="/services/network-setup">Network Setup</a></li>
+                        <li><a href="/services/upgrades">Hardware Upgrades</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Contact Info</h4>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Tech Street, IT City</li>
+                        <li><i class="fas fa-phone"></i> (555) 123-4567</li>
+                        <li><i class="fas fa-envelope"></i> support@dernsupport.com</li>
+                        <li><i class="fas fa-clock"></i> Mon-Fri: 9:00 AM - 6:00 PM</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 DernSupport. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/global.js"></script>
+    <script>
+        // User Menu Toggle
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        const userEmailElement = document.getElementById('userEmail');
+        
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            userDropdown.classList.remove('active');
+        });
+
+        userDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Fetch user data
+        const getData = () => {
+        apiFetch("api/individual/about", { method: "POST" })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.email) {
+              const initials = data.email
+                .split("@")[0]
+                .split(".")
+                .map((part) => part[0].toUpperCase())
+                .join("");
+              userMenuBtn.textContent = initials;
+              userEmailElement.innerHTML = `<i class="fas fa-user"></i>${data.email}`;
+            }
+          });
+      };
+
+      getData();
+
+        // Logout function
+        function logout() {
+            fetch("/api/auth/logout", { method: "POST" })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                });
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
 </html>

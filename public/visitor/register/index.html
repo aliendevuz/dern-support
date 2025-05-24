@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DernSupport - Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --light-gray-green: #B4B8AB;
+            --dark-blue: #153243;
+            --medium-blue: #284B63;
+            --light-green: #F4F9E9;
+            --light-gray: #EEF0EB;
+            --transition: all 0.3s ease;
+            --error-red: #dc3545;
+            --success-green: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-green);
+            padding: 20px;
+        }
+
+        .register-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+        }
+
+        .logo-text span {
+            color: var(--medium-blue);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media screen and (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        .form-group {
+            flex: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-blue);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--medium-blue);
+        }
+
+        .error-message {
+            color: var(--error-red);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-group input {
+            margin-top: 0.25rem;
+            margin-right: 0.75rem;
+        }
+
+        .checkbox-group label {
+            color: var(--dark-blue);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .checkbox-group a {
+            color: var(--medium-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        .form-title {
+            font-size: 1.3rem;
+            color: var(--dark-blue);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--light-gray);
+            padding-bottom: 0.75rem;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--medium-blue);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .btn:disabled {
+            background-color: var(--light-gray-green);
+            cursor: not-allowed;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--dark-blue);
+        }
+
+        .login-link a {
+            color: var(--medium-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .password-strength {
+            display: flex;
+            height: 5px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .password-strength span {
+            flex: 1;
+            height: 100%;
+            background-color: var(--light-gray);
+            margin-right: 2px;
+            transition: var(--transition);
+        }
+
+        .password-strength span:last-child {
+            margin-right: 0;
+        }
+
+        .password-strength-text {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            color: var(--dark-blue);
+        }
+
+        .password-weak span:nth-child(1) {
+            background-color: var(--error-red);
+        }
+
+        .password-medium span:nth-child(1),
+        .password-medium span:nth-child(2) {
+            background-color: #ffc107;
+        }
+
+        .password-strong span:nth-child(1),
+        .password-strong span:nth-child(2),
+        .password-strong span:nth-child(3) {
+            background-color: var(--success-green);
+        }
+
+        .password-very-strong span {
+            background-color: var(--success-green);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .role-selector {
+            display: flex;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .role-option {
+            flex: 1;
+            border: 2px solid var(--light-gray);
+            border-radius: 4px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .role-option:hover {
+            border-color: var(--medium-blue);
+        }
+
+        .role-option.selected {
+            border-color: var(--medium-blue);
+            background-color: rgba(40, 75, 99, 0.05);
+        }
+
+        .role-option i {
+            font-size: 1.5rem;
+            color: var(--medium-blue);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .role-option h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-blue);
+        }
+
+        .role-option p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">
+            <div class="logo-text">Dern<span>Support</span></div>
+        </div>
+        
+        <h2 class="form-title">Create your account</h2>
+        
+        <form id="registerForm" novalidate>
+            <!-- Role Selection -->
+            <div class="role-selector">
+                <input type="radio" name="role" value="individual" id="individualRole" class="hidden-input" checked>
+                <label for="individualRole" class="role-option selected" id="individualOption">
+                    <i class="fas fa-user"></i>
+                    <h3>Individual</h3>
+                    <p>Personal computer support and repairs</p>
+                </label>
+                
+                <input type="radio" name="role" value="business" id="businessRole" class="hidden-input">
+                <label for="businessRole" class="role-option" id="businessOption">
+                    <i class="fas fa-building"></i>
+                    <h3>Business</h3>
+                    <p>IT support for your company</p>
+                </label>
+            </div>
+            
+            <!-- Personal Information -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name*</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                    <div class="error-message" id="firstNameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name*</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                    <div class="error-message" id="lastNameError"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address*</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error-message" id="emailError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number*</label>
+                <input type="tel" id="phone" name="phone" placeholder="+1 (123) 456-7890" required>
+                <div class="error-message" id="phoneError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Address*</label>
+                <textarea id="address" name="address" placeholder="Street, City, State, Zip Code" required></textarea>
+                <div class="error-message" id="addressError"></div>
+            </div>
+            
+            <!-- Business-specific fields (hidden by default) -->
+            <div id="businessFields" style="display: none;">
+                <div class="form-group">
+                    <label for="companyName">Company Name*</label>
+                    <input type="text" id="companyName" name="companyName">
+                    <div class="error-message" id="companyNameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="employeeCount">Number of Employees</label>
+                    <select id="employeeCount" name="employeeCount">
+                        <option value="1-10">1-10</option>
+                        <option value="11-50">11-50</option>
+                        <option value="51-200">51-200</option>
+                        <option value="201+">201+</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Password Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password*</label>
+                    <input type="password" id="password" name="password" required>
+                    <div class="password-strength">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="password-strength-text"></div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password*</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <div class="error-message" id="confirmPasswordError"></div>
+                </div>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="termsAccept" name="termsAccept" required>
+                <label for="termsAccept">
+                    I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                </label>
+            </div>
+            <div class="error-message" id="termsAcceptError"></div>
+            
+            <button type="submit" class="btn" id="registerButton">Create Account</button>
+        </form>
+        
+        <div class="login-link">
+            Already have an account? <a href="/login/">Log in</a>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const registerForm = document.getElementById('registerForm');
+        const firstNameInput = document.getElementById('firstName');
+        const lastNameInput = document.getElementById('lastName');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const addressInput = document.getElementById('address');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const termsAcceptCheckbox = document.getElementById('termsAccept');
+        const companyNameInput = document.getElementById('companyName');
+        
+        // Error elements
+        const firstNameError = document.getElementById('firstNameError');
+        const lastNameError = document.getElementById('lastNameError');
+        const emailError = document.getElementById('emailError');
+        const phoneError = document.getElementById('phoneError');
+        const addressError = document.getElementById('addressError');
+        const passwordError = document.getElementById('passwordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        const termsAcceptError = document.getElementById('termsAcceptError');
+        const companyNameError = document.getElementById('companyNameError');
+        
+        // Role selection
+        const individualRole = document.getElementById('individualRole');
+        const businessRole = document.getElementById('businessRole');
+        const individualOption = document.getElementById('individualOption');
+        const businessOption = document.getElementById('businessOption');
+        const businessFields = document.getElementById('businessFields');
+        
+        // Password strength elements
+        const passwordStrength = document.querySelector('.password-strength');
+        const passwordStrengthText = document.querySelector('.password-strength-text');
+        
+        // Button
+        const registerButton = document.getElementById('registerButton');
+
+        // Role selection toggle
+        individualOption.addEventListener('click', function() {
+            individualRole.checked = true;
+            individualOption.classList.add('selected');
+            businessOption.classList.remove('selected');
+            businessFields.style.display = 'none';
+            
+            // Remove required attribute from business fields
+            companyNameInput.removeAttribute('required');
+        });
+        
+        businessOption.addEventListener('click', function() {
+            businessRole.checked = true;
+            businessOption.classList.add('selected');
+            individualOption.classList.remove('selected');
+            businessFields.style.display = 'block';
+            
+            // Add required attribute to business fields
+            companyNameInput.setAttribute('required', '');
+        });
+
+        // Helper functions
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            element.parentElement.querySelector('input, textarea, select')?.classList.add('shake');
+            setTimeout(() => {
+                element.parentElement.querySelector('input, textarea, select')?.classList.remove('shake');
+            }, 500);
+        }
+
+        function hideError(element) {
+            element.style.display = 'none';
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function validatePhone(phone) {
+            // Basic phone validation - allows for international formats
+            const re = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+            return re.test(phone.replace(/\s+/g, ''));
+        }
+        
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength += 1;
+            
+            // Contains lowercase and uppercase
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 1;
+            
+            // Contains numbers
+            if (/[0-9]/.test(password)) strength += 1;
+            
+            // Contains special characters
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+            
+            // Update UI
+            passwordStrength.className = 'password-strength';
+            passwordStrengthText.textContent = '';
+            
+            if (password.length === 0) {
+                return;
+            }
+            
+            if (strength === 1) {
+                passwordStrength.classList.add('password-weak');
+                passwordStrengthText.textContent = 'Weak - Add numbers and special characters';
+                passwordStrengthText.style.color = 'var(--error-red)';
+            } else if (strength === 2) {
+                passwordStrength.classList.add('password-medium');
+                passwordStrengthText.textContent = 'Medium - Add special characters';
+                passwordStrengthText.style.color = '#ffc107';
+            } else if (strength === 3) {
+                passwordStrength.classList.add('password-strong');
+                passwordStrengthText.textContent = 'Strong - Good job!';
+                passwordStrengthText.style.color = 'var(--success-green)';
+            } else if (strength === 4) {
+                passwordStrength.classList.add('password-very-strong');
+                passwordStrengthText.textContent = 'Very Strong - Excellent!';
+                passwordStrengthText.style.color = 'var(--success-green)';
+            }
+            
+            return strength;
+        }
+
+        // Event listeners for password strength
+        passwordInput.addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+        });
+        
+        // Form validation
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            let isValid = true;
+            
+            // Reset errors
+            [firstNameError, lastNameError, emailError, phoneError, addressError, 
+             passwordError, confirmPasswordError, termsAcceptError, companyNameError].forEach(hideError);
+
+            // Validate first name
+            if (!firstNameInput.value.trim()) {
+                showError(firstNameError, 'First name is required');
+                isValid = false;
+            }
+            
+            // Validate last name
+            if (!lastNameInput.value.trim()) {
+                showError(lastNameError, 'Last name is required');
+                isValid = false;
+            }
+            
+            // Validate email
+            if (!emailInput.value.trim()) {
+                showError(emailError, 'Email is required');
+                isValid = false;
+            } else if (!validateEmail(emailInput.value)) {
+                showError(emailError, 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            // Validate phone
+            if (!phoneInput.value.trim()) {
+                showError(phoneError, 'Phone number is required');
+                isValid = false;
+            } else if (!validatePhone(phoneInput.value)) {
+                showError(phoneError, 'Please enter a valid phone number');
+                isValid = false;
+            }
+            
+            // Validate address
+            if (!addressInput.value.trim()) {
+                showError(addressError, 'Address is required');
+                isValid = false;
+            }
+            
+            // Validate business fields if business role is selected
+            if (businessRole.checked && !companyNameInput.value.trim()) {
+                showError(companyNameError, 'Company name is required for business accounts');
+                isValid = false;
+            }
+            
+            // Validate password
+            if (!passwordInput.value) {
+                showError(passwordError, 'Password is required');
+                isValid = false;
+            } else if (passwordInput.value.length < 8) {
+                showError(passwordError, 'Password must be at least 8 characters long');
+                isValid = false;
+            } else if (checkPasswordStrength(passwordInput.value) < 3) {
+                showError(passwordError, 'Please create a stronger password');
+                isValid = false;
+            }
+            
+            // Validate confirm password
+            if (!confirmPasswordInput.value) {
+                showError(confirmPasswordError, 'Please confirm your password');
+                isValid = false;
+            } else if (confirmPasswordInput.value !== passwordInput.value) {
+                showError(confirmPasswordError, 'Passwords do not match');
+                isValid = false;
+            }
+            
+            // Validate terms acceptance
+            if (!termsAcceptCheckbox.checked) {
+                showError(termsAcceptError, 'You must accept the terms and conditions');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Disable button and show loading state
+            registerButton.disabled = true;
+            registerButton.textContent = 'Creating Account...';
+
+            try {
+                // Prepare data for submission
+                const formData = {
+                    firstName: firstNameInput.value.trim(),
+                    lastName: lastNameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    phone: phoneInput.value.trim(),
+                    address: addressInput.value.trim(),
+                    password: passwordInput.value,
+                    confirmPassword: confirmPasswordInput.value,
+                    termsAccept: termsAcceptCheckbox.checked,
+                    role: businessRole.checked ? 'business' : 'individual'
+                };
+                
+                // Add business-specific fields if applicable
+                if (businessRole.checked) {
+                    formData.companyName = companyNameInput.value.trim();
+                    formData.employeeCount = document.getElementById('employeeCount').value;
+                }
+                
+                // Send data to the server
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed');
+                }
+
+                // Successful registration - redirect to login or confirmation page
+                window.location.href = '/';
+                
+            } catch (error) {
+                // Show appropriate error based on the server response
+                if (error.message.includes('email')) {
+                    showError(emailError, error.message || 'This email is already registered');
+                } else {
+                    showError(passwordError, error.message || 'Registration failed. Please try again.');
+                }
+                
+                registerButton.disabled = false;
+                registerButton.textContent = 'Create Account';
+            }
+        });
+
+        // Clear errors when user starts typing
+        [firstNameInput, lastNameInput, emailInput, phoneInput, addressInput, 
+         passwordInput, confirmPasswordInput, companyNameInput].forEach(input => {
+            input.addEventListener('input', () => {
+                const errorElement = document.getElementById(`${input.id}Error`);
+                if (errorElement) hideError(errorElement);
+            });
+        });
+        
+        // Clear terms error when checkbox is clicked
+        termsAcceptCheckbox.addEventListener('change', () => {
+            hideError(termsAcceptError);
+        });
+    </script>
+</body>
+</html>

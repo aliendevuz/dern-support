@@ -28,29 +28,18 @@ app.use('/404.html', (req, res) => {
     res.sendFile(filePath);
 });
 
-app.use('/404.css', (req, res) => {
-    const filePath = path.resolve(process.cwd(), 'public', '404.css');
-    res.sendFile(filePath);
-});
+const apiRoutes = require('./router/api.routes');
+const generalRoutes = require('./router/general.routes');
+const adminRoutes = require('./router/admin.routes');
 
-app.use('/404.js', (req, res) => {
-    const filePath = path.resolve(process.cwd(), 'public', '404.js');
-    res.sendFile(filePath);
-});
+app.use('/api', apiRoutes);
+app.use('/admin', adminRoutes);
+app.use('/', generalRoutes);
 
 
-// const apiRoutes = require('./router/api.routes');
-// const generalRoutes = require('./router/general.routes');
-// const adminRoutes = require('./router/admin.routes');
+const errorHandler = require('./middleware/error.middleware');
 
-// app.use('/api', apiRoutes);
-// app.use('/admin', adminRoutes);
-// app.use('/', generalRoutes);
-
-
-// const errorHandler = require('./middleware/error.middleware');
-
-// app.use(errorHandler);
+app.use(errorHandler);
 
 
 module.exports = app;
