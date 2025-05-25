@@ -1,252 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DernSupport - Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DernSupport - User Login</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        :root {
-            --light-gray-green: #B4B8AB;
-            --dark-blue: #153243;
-            --medium-blue: #284B63;
-            --light-green: #F4F9E9;
-            --light-gray: #EEF0EB;
-            --transition: all 0.3s ease;
-        }
+      :root {
+        --dark-blue: #111827;
+        --medium-blue: #2563eb;
+        --light-blue: #60a5fa;
+        --light-gray: #d1d5db;
+        --success-green: #22c55e;
+        --error-red: #ef4444;
+        --transition: all 0.3s ease;
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--light-green);
-            padding: 20px;
-        }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #111827, #374151);
+        padding: 20px;
+      }
 
-        .login-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-        }
+      .login-container {
+        background-color: #1f2a44;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        animation: fadeIn 0.5s ease;
+      }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-        .logo-text {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark-blue);
-        }
+      .logo {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
 
-        .logo-text span {
-            color: var(--medium-blue);
-        }
+      .logo-text {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #f3f4f6;
+        letter-spacing: -0.5px;
+      }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+      .logo-text span {
+        color: var(--medium-blue);
+      }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--dark-blue);
-            font-weight: 500;
-        }
+      .form-title {
+        font-size: 1.5rem;
+        color: #f3f4f6;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        text-align: center;
+        position: relative;
+      }
 
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--light-gray);
-            border-radius: 4px;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
+      .form-title::after {
+        content: "";
+        position: absolute;
+        bottom: -0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 3px;
+        background-color: var(--medium-blue);
+        border-radius: 2px;
+      }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--medium-blue);
-        }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
 
-        .error-message {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #f3f4f6;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
 
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 4px;
-            background-color: var(--medium-blue);
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
+      .form-group input {
+        width: 100%;
+        padding: 0.875rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        background-color: #374151;
+        color: #f3f4f6;
+        transition: var(--transition);
+      }
 
-        .btn:hover {
-            background-color: var(--dark-blue);
-        }
+      .form-group input:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+      }
 
-        .btn:disabled {
-            background-color: var(--light-gray-green);
-            cursor: not-allowed;
-        }
+      .error-message {
+        color: var(--error-red);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
 
-        .signup-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--dark-blue);
-        }
+      .error-message.visible {
+        display: block;
+        opacity: 1;
+      }
 
-        .signup-link a {
-            color: var(--medium-blue);
-            text-decoration: none;
-            font-weight: 600;
-        }
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        border-radius: 6px;
+        background-color: var(--medium-blue);
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+      }
 
-        .signup-link a:hover {
-            text-decoration: underline;
-        }
+      .btn:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
 
-        .shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
+      .btn:focus {
+        outline: 2px solid var(--light-blue);
+        outline-offset: 2px;
+      }
 
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+      .btn:disabled {
+        background-color: var(--light-gray);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .btn .spinner {
+        display: none;
+        margin-left: 0.5rem;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
+      }
+
+      .btn.loading .spinner {
+        display: block;
+      }
+
+      .shake {
+        animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      }
+
+      @keyframes shake {
+        10%,
+        90% {
+          transform: translate3d(-1px, 0, 0);
+        }
+        20%,
+        80% {
+          transform: translate3d(2px, 0, 0);
+        }
+        30%,
+        50%,
+        70% {
+          transform: translate3d(-4px, 0, 0);
+        }
+        40%,
+        60% {
+          transform: translate3d(4px, 0, 0);
+        }
+      }
+
+      .input-icon {
+        position: relative;
+      }
+
+      .input-icon i {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--medium-blue);
+        opacity: 0.5;
+        transition: var(--transition);
+        cursor: pointer;
+      }
+
+      .input-icon input:focus + i {
+        opacity: 1;
+      }
+
+      .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #9ca3af;
+      }
+
+      .login-link a {
+        color: var(--light-blue);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .login-link a:hover {
+        text-decoration: underline;
+      }
+
+      .success-message {
+        display: none;
+        background-color: var(--success-green);
+        color: #ffffff;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        text-align: center;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(-10px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .links {
+        text-align: center;
+        margin-top: 1.5rem;
+      }
+
+      .links a {
+        color: var(--light-blue);
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .links a:hover {
+        color: var(--medium-blue);
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        <div class="logo">
-            <div class="logo-text">Dern<span>Support</span></div>
+      <div class="logo">
+        <div class="logo-text">Dern<span>Support</span></div>
+      </div>
+
+      <h2 class="form-title">User Login</h2>
+
+      <form id="loginForm" novalidate aria-labelledby="form-title">
+        <div class="form-group">
+          <label for="email">Email Address*</label>
+          <div class="input-icon">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              aria-describedby="emailError"
+            />
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="error-message" id="emailError"></div>
         </div>
-        
-        <form id="loginForm" novalidate>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-                <div class="error-message" id="emailError"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-                <div class="error-message" id="passwordError"></div>
-            </div>
-            
-            <button type="submit" class="btn" id="loginButton">Log In</button>
-        </form>
-        
-        <div class="signup-link">
-            Don't have an account? <a href="/register/">Sign up</a>
+
+        <div class="form-group">
+          <label for="password">Password*</label>
+          <div class="input-icon">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              aria-describedby="passwordError"
+            />
+            <i class="fas fa-eye" id="togglePassword"></i>
+          </div>
+          <div class="error-message" id="passwordError"></div>
         </div>
+
+        <button type="submit" class="btn" id="loginButton">
+          Log In
+          <div class="spinner"></div>
+        </button>
+
+        <div class="login-link">
+          Don't have an account? <a href="/register">Sign Up</a>
+        </div>
+
+        <div class="success-message" id="successMessage"></div>
+      </form>
     </div>
 
     <script>
-        const loginForm = document.getElementById('loginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const emailError = document.getElementById('emailError');
-        const passwordError = document.getElementById('passwordError');
-        const loginButton = document.getElementById('loginButton');
+      // Simplified apiFetch for user login (no PIN, password-only)
+      async function apiFetch(
+        url,
+        options = {},
+        authType = "password",
+        getCredentials = null
+      ) {
+        const defaultOptions = {
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          ...options,
+        };
 
-        function showError(element, message) {
-            element.textContent = message;
-            element.style.display = 'block';
-            element.parentElement.querySelector('input').classList.add('shake');
-            setTimeout(() => {
-                element.parentElement.querySelector('input').classList.remove('shake');
-            }, 500);
+        try {
+          let response = await fetch(url, defaultOptions);
+
+          if (response.status !== 403) {
+            return response;
+          }
+
+          if (!getCredentials) {
+            throw new Error(
+              "getCredentials callback required for password authentication"
+            );
+          }
+
+          const credential = await getCredentials("password");
+          if (
+            !credential ||
+            typeof credential !== "string" ||
+            credential.length < 4
+          ) {
+            throw new Error("Invalid password provided");
+          }
+
+          const refreshResponse = await fetch("/api/auth/refresh", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password: credential }),
+          });
+
+          if (!refreshResponse.ok) {
+            window.location.href = "/login/";
+            return null;
+          }
+
+          response = await fetch(url, defaultOptions);
+          return response;
+        } catch (error) {
+          console.error("API fetch error:", error.message);
+          window.location.href = "/login/";
+          return null;
         }
+      }
 
-        function hideError(element) {
-            element.style.display = 'none';
+      // Form handling
+      const elements = {
+        form: document.getElementById("loginForm"),
+        inputs: {
+          email: document.getElementById("email"),
+          password: document.getElementById("password"),
+        },
+        errors: {
+          email: document.getElementById("emailError"),
+          password: document.getElementById("passwordError"),
+        },
+        loginButton: document.getElementById("loginButton"),
+        successMessage: document.getElementById("successMessage"),
+        togglePassword: document.getElementById("togglePassword"),
+      };
+
+      // Password toggle
+      elements.togglePassword.addEventListener("click", () => {
+        const type =
+          elements.inputs.password.type === "password" ? "text" : "password";
+        elements.inputs.password.type = type;
+        elements.togglePassword.classList.toggle("fa-eye", type === "password");
+        elements.togglePassword.classList.toggle(
+          "fa-eye-slash",
+          type !== "password"
+        );
+      });
+
+      // Validation and error handling
+      function showError(element, message) {
+        element.textContent = message;
+        element.classList.add("visible");
+        const input = element.parentElement.querySelector("input");
+        if (input) {
+          input.classList.add("shake");
+          setTimeout(() => input.classList.remove("shake"), 500);
         }
+      }
 
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
+      function hideError(element) {
+        element.classList.remove("visible");
+      }
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            let isValid = true;
-            hideError(emailError);
-            hideError(passwordError);
+      function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
 
-            if (!emailInput.value) {
-                showError(emailError, 'Email is required');
-                isValid = false;
-            } else if (!validateEmail(emailInput.value)) {
-                showError(emailError, 'Please enter a valid email address');
-                isValid = false;
-            }
+      // Credential input for apiFetch
+      async function getCredentials(authType) {
+        // Replace with a modal or form in your UI
+        return prompt(`Please enter your ${authType}:`);
+      }
 
-            if (!passwordInput.value) {
-                showError(passwordError, 'Password is required');
-                isValid = false;
-            }
+      // Form submission
+      elements.form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-            if (!isValid) return;
+        let isValid = true;
+        Object.values(elements.errors).forEach(hideError);
 
-            loginButton.disabled = true;
-            loginButton.textContent = 'Logging in...';
+        const validations = [
+          {
+            input: elements.inputs.email,
+            error: elements.errors.email,
+            message: "Email is required",
+            condition: !elements.inputs.email.value.trim(),
+          },
+          {
+            input: elements.inputs.email,
+            error: elements.errors.email,
+            message: "Please enter a valid email address",
+            condition:
+              elements.inputs.email.value.trim() &&
+              !validateEmail(elements.inputs.email.value),
+          },
+          {
+            input: elements.inputs.password,
+            error: elements.errors.password,
+            message: "Password is required",
+            condition: !elements.inputs.password.value,
+          },
+        ];
 
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: emailInput.value,
-                        password: passwordInput.value
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Login failed');
-                }
-
-                // Successful login
-                window.location.href = '/';
-                
-            } catch (error) {
-                showError(passwordError, error.message || 'Invalid email or password');
-                loginButton.disabled = false;
-                loginButton.textContent = 'Log In';
-            }
+        validations.forEach(({ input, error, message, condition }) => {
+          if (condition) {
+            showError(error, message);
+            isValid = false;
+          }
         });
 
-        // Clear errors when user starts typing
-        emailInput.addEventListener('input', () => hideError(emailError));
-        passwordInput.addEventListener('input', () => hideError(passwordError));
+        if (!isValid) return;
+
+        elements.loginButton.disabled = true;
+        elements.loginButton.classList.add("loading");
+        elements.loginButton.textContent = "Logging In...";
+
+        try {
+          const formData = {
+            email: elements.inputs.email.value.trim(),
+            password: elements.inputs.password.value,
+          };
+
+          const response = await apiFetch(
+            "/api/auth/login",
+            {
+              method: "POST",
+              body: JSON.stringify(formData),
+            },
+            "password",
+            getCredentials
+          );
+
+          if (!response) return; // Redirect handled by apiFetch
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || "Login failed");
+          }
+
+          elements.successMessage.style.display = "block";
+          elements.successMessage.textContent =
+            "Login successful! Redirecting...";
+          elements.form.reset();
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1500);
+        } catch (error) {
+          showError(
+            elements.errors.password,
+            error.message || "Invalid email or password"
+          );
+        } finally {
+          elements.loginButton.disabled = false;
+          elements.loginButton.classList.remove("loading");
+          elements.loginButton.textContent = "Log In";
+        }
+      });
+
+      // Clear errors on input
+      Object.values(elements.inputs).forEach((input) => {
+        input.addEventListener("input", () => {
+          const errorElement = elements.errors[input.id];
+          if (errorElement) hideError(errorElement);
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

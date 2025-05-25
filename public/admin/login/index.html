@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --light-gray-green: #B4B8AB;
-            --dark-blue: #153243;
-            --medium-blue: #284B63;
-            --light-green: #F4F9E9;
-            --light-gray: #EEF0EB;
+            --dark-blue: #111827;
+            --medium-blue: #2563eb;
+            --light-blue: #60a5fa;
+            --light-gray: #d1d5db;
+            --success-green: #22c55e;
+            --error-red: #ef4444;
             --transition: all 0.3s ease;
         }
 
@@ -19,7 +20,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
@@ -27,17 +28,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--light-green);
+            background: linear-gradient(135deg, #111827, #374151);
             padding: 20px;
         }
 
         .login-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #1f2a44;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .logo {
@@ -46,13 +53,35 @@
         }
 
         .logo-text {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: var(--dark-blue);
+            color: #f3f4f6;
+            letter-spacing: -0.5px;
         }
 
         .logo-text span {
             color: var(--medium-blue);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            color: #f3f4f6;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+        }
+
+        .form-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background-color: var(--medium-blue);
+            border-radius: 2px;
         }
 
         .form-group {
@@ -62,56 +91,96 @@
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--dark-blue);
-            font-weight: 500;
+            color: #f3f4f6;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--light-gray);
-            border-radius: 4px;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 6px;
             font-size: 1rem;
+            background-color: #374151;
+            color: #f3f4f6;
             transition: var(--transition);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--medium-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
         }
 
         .error-message {
-            color: #dc3545;
+            color: var(--error-red);
             font-size: 0.875rem;
             margin-top: 0.5rem;
             display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-message.visible {
+            display: block;
+            opacity: 1;
         }
 
         .btn {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            padding: 0.75rem;
+            padding: 1rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             background-color: var(--medium-blue);
-            color: white;
-            font-size: 1rem;
+            color: #ffffff;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
         }
 
         .btn:hover {
-            background-color: var(--dark-blue);
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:focus {
+            outline: 2px solid var(--light-blue);
+            outline-offset: 2px;
         }
 
         .btn:disabled {
-            background-color: var(--light-gray-green);
+            background-color: var(--light-gray);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn .spinner {
+            display: none;
+            margin-left: 0.5rem;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn.loading .spinner {
+            display: block;
         }
 
         .shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
         }
 
         @keyframes shake {
@@ -119,6 +188,42 @@
             20%, 80% { transform: translate3d(2px, 0, 0); }
             30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
             40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--medium-blue);
+            opacity: 0.5;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .input-icon input:focus + i {
+            opacity: 1;
+        }
+
+        .success-message {
+            display: none;
+            background-color: var(--success-green);
+            color: #ffffff;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -128,85 +233,195 @@
             <div class="logo-text">Dern<span>Support</span> Admin</div>
         </div>
         
-        <form id="loginForm" novalidate>
+        <h2 class="form-title">Admin Login</h2>
+        
+        <form id="loginForm" novalidate aria-labelledby="form-title">
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <label for="email">Email Address*</label>
+                <div class="input-icon">
+                    <input type="email" id="email" name="email" required aria-describedby="emailError">
+                    <i class="fas fa-envelope"></i>
+                </div>
                 <div class="error-message" id="emailError"></div>
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <label for="password">Password*</label>
+                <div class="input-icon">
+                    <input type="password" id="password" name="password" required aria-describedby="passwordError">
+                    <i class="fas fa-eye" id="togglePassword"></i>
+                </div>
                 <div class="error-message" id="passwordError"></div>
             </div>
             
-            <button type="submit" class="btn" id="loginButton">Log In</button>
+            <button type="submit" class="btn" id="loginButton">
+                Log In
+                <div class="spinner"></div>
+            </button>
+
+            <div class="success-message" id="successMessage"></div>
         </form>
     </div>
 
     <script>
-        const loginForm = document.getElementById('loginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const emailError = document.getElementById('emailError');
-        const passwordError = document.getElementById('passwordError');
-        const loginButton = document.getElementById('loginButton');
+        const AUTH_ENDPOINTS = {
+            READ: '/admin/api/auth/refresh-read',
+            PIN: '/admin/api/auth/refresh-write',
+            PASSWORD: '/admin/api/auth/refresh-super',
+        };
 
+        const AUTH_TYPES = {
+            READ: 'read',
+            PIN: 'pin',
+            PASSWORD: 'password',
+        };
+
+        async function apiFetch(url, options = {}, authType = AUTH_TYPES.READ, getCredentials = null) {
+            const defaultOptions = {
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                ...options,
+            };
+
+            try {
+                let response = await fetch(url, defaultOptions);
+
+                if (response.status !== 403) {
+                    return response;
+                }
+
+                let refreshPayload = {};
+                let refreshEndpoint = AUTH_ENDPOINTS.READ;
+
+                if (authType === AUTH_TYPES.PIN || authType === AUTH_TYPES.PASSWORD) {
+                    if (!getCredentials) {
+                        throw new Error('getCredentials callback required for PIN or password authentication');
+                    }
+
+                    const credential = await getCredentials(authType);
+                    if (!credential || typeof credential !== 'string' || credential.length < 4) {
+                        throw new Error(`Invalid ${authType} provided`);
+                    }
+
+                    refreshPayload = authType === AUTH_TYPES.PIN ? { pinCode: credential } : { password: credential };
+                    refreshEndpoint = AUTH_ENDPOINTS[authType.toUpperCase()];
+                }
+
+                const refreshResponse = await fetch(refreshEndpoint, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(refreshPayload),
+                });
+
+                if (!refreshResponse.ok) {
+                    if (authType === AUTH_TYPES.READ) {
+                        return apiFetch(url, options, AUTH_TYPES.PIN, getCredentials);
+                    } else if (authType === AUTH_TYPES.PIN) {
+                        return apiFetch(url, options, AUTH_TYPES.PASSWORD, getCredentials);
+                    } else {
+                        window.location.href = '/admin/login/';
+                        return null;
+                    }
+                }
+
+                response = await fetch(url, defaultOptions);
+                return response;
+
+            } catch (error) {
+                console.error(`API fetch error (${authType}):`, error.message);
+                window.location.href = '/admin/login/';
+                return null;
+            }
+        }
+
+        // Form handling
+        const elements = {
+            form: document.getElementById('loginForm'),
+            inputs: {
+                email: document.getElementById('email'),
+                password: document.getElementById('password'),
+            },
+            errors: {
+                email: document.getElementById('emailError'),
+                password: document.getElementById('passwordError'),
+            },
+            loginButton: document.getElementById('loginButton'),
+            successMessage: document.getElementById('successMessage'),
+            togglePassword: document.getElementById('togglePassword'),
+        };
+
+        // Password toggle
+        elements.togglePassword.addEventListener('click', () => {
+            const type = elements.inputs.password.type === 'password' ? 'text' : 'password';
+            elements.inputs.password.type = type;
+            elements.togglePassword.classList.toggle('fa-eye', type === 'password');
+            elements.togglePassword.classList.toggle('fa-eye-slash', type !== 'password');
+        });
+
+        // Validation and error handling
         function showError(element, message) {
             element.textContent = message;
-            element.style.display = 'block';
-            element.parentElement.querySelector('input').classList.add('shake');
-            setTimeout(() => {
-                element.parentElement.querySelector('input').classList.remove('shake');
-            }, 500);
+            element.classList.add('visible');
+            const input = element.parentElement.querySelector('input');
+            if (input) {
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 500);
+            }
         }
 
         function hideError(element) {
-            element.style.display = 'none';
+            element.classList.remove('visible');
         }
 
         function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
 
-        loginForm.addEventListener('submit', async (e) => {
+        // Credential input for apiFetch
+        async function getCredentials(authType) {
+            // Replace with a modal or form in your UI
+            return prompt(`Please enter your ${authType === AUTH_TYPES.PIN ? 'Pin Code' : 'Password'}:`);
+        }
+
+        // Form submission
+        elements.form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             let isValid = true;
-            hideError(emailError);
-            hideError(passwordError);
+            Object.values(elements.errors).forEach(hideError);
 
-            if (!emailInput.value) {
-                showError(emailError, 'Email is required');
-                isValid = false;
-            } else if (!validateEmail(emailInput.value)) {
-                showError(emailError, 'Please enter a valid email address');
-                isValid = false;
-            }
+            const validations = [
+                { input: elements.inputs.email, error: elements.errors.email, message: 'Email is required', condition: !elements.inputs.email.value.trim() },
+                { input: elements.inputs.email, error: elements.errors.email, message: 'Please enter a valid email address', condition: elements.inputs.email.value.trim() && !validateEmail(elements.inputs.email.value) },
+                { input: elements.inputs.password, error: elements.errors.password, message: 'Password is required', condition: !elements.inputs.password.value },
+            ];
 
-            if (!passwordInput.value) {
-                showError(passwordError, 'Password is required');
-                isValid = false;
-            }
+            validations.forEach(({ input, error, message, condition }) => {
+                if (condition) {
+                    showError(error, message);
+                    isValid = false;
+                }
+            });
 
             if (!isValid) return;
 
-            loginButton.disabled = true;
-            loginButton.textContent = 'Logging in...';
+            elements.loginButton.disabled = true;
+            elements.loginButton.classList.add('loading');
+            elements.loginButton.textContent = 'Logging In...';
 
             try {
-                const response = await fetch('/admin/api/auth/login', {
+                const formData = {
+                    email: elements.inputs.email.value.trim(),
+                    password: elements.inputs.password.value,
+                };
+
+                const response = await apiFetch('/admin/api/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: emailInput.value,
-                        password: passwordInput.value
-                    })
-                });
+                    body: JSON.stringify(formData),
+                }, AUTH_TYPES.PASSWORD, getCredentials);
+
+                if (!response) return; // Redirect handled by apiFetch
 
                 const data = await response.json();
 
@@ -214,19 +429,28 @@
                     throw new Error(data.message || 'Login failed');
                 }
 
-                // Successful login
-                window.location.href = '/admin/';
-                
+                elements.successMessage.style.display = 'block';
+                elements.successMessage.textContent = 'Login successful! Redirecting...';
+                elements.form.reset();
+                setTimeout(() => {
+                    window.location.href = '/admin/';
+                }, 1500);
             } catch (error) {
-                showError(passwordError, error.message || 'Invalid email or password');
-                loginButton.disabled = false;
-                loginButton.textContent = 'Log In';
+                showError(elements.errors.password, error.message || 'Invalid email or password');
+            } finally {
+                elements.loginButton.disabled = false;
+                elements.loginButton.classList.remove('loading');
+                elements.loginButton.textContent = 'Log In';
             }
         });
 
-        // Clear errors when user starts typing
-        emailInput.addEventListener('input', () => hideError(emailError));
-        passwordInput.addEventListener('input', () => hideError(passwordError));
+        // Clear errors on input
+        Object.values(elements.inputs).forEach(input => {
+            input.addEventListener('input', () => {
+                const errorElement = elements.errors[input.id];
+                if (errorElement) hideError(errorElement);
+            });
+        });
     </script>
 </body>
 </html>
