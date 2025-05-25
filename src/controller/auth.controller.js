@@ -135,7 +135,7 @@ const register = async (req, res) => {
     await newUser.save();
 
     // JWT Refresh Token yaratamiz
-    const refreshToken = generateRefreshToken(newUser);
+    const refreshToken = await generateRefreshToken(newUser);
 
     // Cookie orqali tokenni yuboramiz
     res.cookie("refreshToken", refreshToken, {

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DernSupport - Manager Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --light-gray-green: #B4B8AB;
+            --dark-blue: #153243;
+            --medium-blue: #284B63;
+            --light-green: #F4F9E9;
+            --light-gray: #EEF0EB;
+            --transition: all 0.3s ease;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-green);
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 2rem 1rem;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-text span {
+            color: var(--light-gray-green);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-link.active {
+            background-color: var(--medium-blue);
+        }
+
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            color: var(--dark-blue);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--medium-blue);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Task Management Section */
+        .task-management {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .task-column {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .task-column h3 {
+            color: var(--dark-blue);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-count {
+            background: var(--light-gray);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .task-card {
+            background: var(--light-gray);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .task-card h4 {
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: var(--danger);
+            color: white;
+        }
+
+        .priority-medium {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .priority-low {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Team Performance Section */
+        .team-performance {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .performance-card {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 6px;
+            background: var(--light-gray);
+        }
+
+        .performance-card h4 {
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .performance-number {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--medium-blue);
+        }
+
+        /* Inventory Overview */
+        .inventory-overview {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .inventory-list {
+            margin-top: 1rem;
+        }
+
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .inventory-item:last-child {
+            border-bottom: none;
+        }
+
+        .stock-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .stock-low {
+            background: var(--danger);
+            color: white;
+        }
+
+        .stock-medium {
+            background: var(--warning);
+            color: #000;
+        }
+
+        .stock-good {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 80px 1fr;
+            }
+
+            .logo-text, .nav-link span {
+                display: none;
+            }
+
+            .nav-link i {
+                margin-right: 0;
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .task-management {
+                grid-template-columns: 1fr;
+            }
+
+            .performance-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-text">Dern<span>Support</span></div>
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-tasks"></i>
+                            <span>Task Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <span>Team</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-box"></i>
+                            <span>Inventory</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-book"></i>
+                            <span>Knowledge Base</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1 class="welcome-text">Welcome, Manager</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        New Task
+                    </button>
+                    <button class="btn btn-danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="task-management">
+                <div class="task-column">
+                    <h3>
+                        New Requests
+                        <span class="task-count">4</span>
+                    </h3>
+                    <div class="task-card">
+                        <h4>Hardware Repair - Laptop</h4>
+                        <p>Client reported screen flickering issues</p>
+                        <div class="task-meta">
+                            <span class="priority priority-high">High Priority</span>
+                            <span>30 mins ago</span>
+                        </div>
+                    </div>
+                    <div class="task-card">
+                        <h4>Software Installation</h4>
+                        <p>Install security updates on business client systems</p>
+                        <div class="task-meta">
+                            <span class="priority priority-medium">Medium Priority</span>
+                            <span>1 hour ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-column">
+                    <h3>
+                        In Progress
+                        <span class="task-count">3</span>
+                    </h3>
+                    <div class="task-card">
+                        <h4>Network Configuration</h4>
+                        <p>Setting up new router for office network</p>
+                        <div class="task-meta">
+                            <span class="priority priority-high">High Priority</span>
+                            <span>Assigned to John</span>
+                        </div>
+                    </div>
+                    <div class="task-card">
+                        <h4>Data Recovery</h4>
+                        <p>Recovering files from damaged hard drive</p>
+                        <div class="task-meta">
+                            <span class="priority priority-medium">Medium Priority</span>
+                            <span>Assigned to Sarah</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-column">
+                    <h3>
+                        Completed
+                        <span class="task-count">2</span>
+                    </h3>
+                    <div class="task-card">
+                        <h4>RAM Upgrade</h4>
+                        <p>Upgraded memory on client workstation</p>
+                        <div class="task-meta">
+                            <span class="priority priority-low">Completed</span>
+                            <span>Today 2:30 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-performance">
+                <h3>Team Performance</h3>
+                <div class="performance-grid">
+                    <div class="performance-card">
+                        <h4>Tasks Completed</h4>
+                        <div class="performance-number">28</div>
+                        <p>This week</p>
+                    </div>
+                    <div class="performance-card">
+                        <h4>Average Response</h4>
+                        <div class="performance-number">1.8h</div>
+                        <p>Response time</p>
+                    </div>
+                    <div class="performance-card">
+                        <h4>Client Satisfaction</h4>
+                        <div class="performance-number">94%</div>
+                        <p>Based on feedback</p>
+                    </div>
+                    <div class="performance-card">
+                        <h4>Active Technicians</h4>
+                        <div class="performance-number">5</div>
+                        <p>Currently working</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inventory-overview">
+                <h3>Inventory Status</h3>
+                <div class="inventory-list">
+                    <div class="inventory-item">
+                        <div>
+                            <h4>RAM Modules (8GB DDR4)</h4>
+                            <p>15 units remaining</p>
+                        </div>
+                        <span class="stock-status stock-medium">Medium Stock</span>
+                    </div>
+                    <div class="inventory-item">
+                        <div>
+                            <h4>SSD Drives (500GB)</h4>
+                            <p>5 units remaining</p>
+                        </div>
+                        <span class="stock-status stock-low">Low Stock</span>
+                    </div>
+                    <div class="inventory-item">
+                        <div>
+                            <h4>Network Cables</h4>
+                            <p>150 units remaining</p>
+                        </div>
+                        <span class="stock-status stock-good">Good Stock</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Logout functionality
+        function logout() {
+            fetch("/admin/api/auth/logout", { 
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+        }
+
+        // Sample data update function - replace with real API calls
+        function updateDashboardData() {
+            // Fetch and update tasks
+            fetch('/manager/api/tasks')
+                .then(res => res.json())
+                .then(data => {
+                    // Update task cards with real data
+                })
+                .catch(error => {
+                    console.error('Failed to fetch tasks:', error);
+                });
+
+            // Fetch and update team performance
+            fetch('/manager/api/performance')
+                .then(res => res.json())
+                .then(data => {
+                    // Update performance metrics with real data
+                })
+                .catch(error => {
+                    console.error('Failed to fetch performance data:', error);
+                });
+
+            // Fetch and update inventory
+            fetch('/manager/api/inventory')
+                .then(res => res.json())
+                .then(data => {
+                    // Update inventory status with real data
+                })
+                .catch(error => {
+                    console.error('Failed to fetch inventory data:', error);
+                });
+        }
+
+        // Update dashboard data every 5 minutes
+        setInterval(updateDashboardData, 300000);
+    </script>
+</body>
+</html>

@@ -28,12 +28,14 @@ app.use('/404.html', (req, res) => {
     res.sendFile(filePath);
 });
 
+const adminApiRoutes = require('./router/admin.api.routes');
+const adminRoutes = require('./router/admin.routes');
 const apiRoutes = require('./router/api.routes');
 const generalRoutes = require('./router/general.routes');
-const adminRoutes = require('./router/admin.routes');
 
-app.use('/api', apiRoutes);
+app.use('/admin/api', adminApiRoutes);
 app.use('/admin', adminRoutes);
+app.use('/api', apiRoutes);
 app.use('/', generalRoutes);
 
 

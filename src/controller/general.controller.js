@@ -5,8 +5,6 @@ const generalController = (req, res) => {
     const role = req.role || "visitor";
     const baseDir = path.resolve(process.cwd(), 'public', role);
 
-    console.log(role);
-
     let reqPath = '.' + req.path;
     let filePath = path.resolve(baseDir, reqPath);
 

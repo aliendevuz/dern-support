@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DernSupport - Admin Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --light-gray-green: #B4B8AB;
+            --dark-blue: #153243;
+            --medium-blue: #284B63;
+            --light-green: #F4F9E9;
+            --light-gray: #EEF0EB;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-green);
+            padding: 20px;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+        }
+
+        .logo-text span {
+            color: var(--medium-blue);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-blue);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--medium-blue);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--medium-blue);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background-color: var(--dark-blue);
+        }
+
+        .btn:disabled {
+            background-color: var(--light-gray-green);
+            cursor: not-allowed;
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="logo-text">Dern<span>Support</span> Admin</div>
+        </div>
+        
+        <form id="loginForm" novalidate>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error-message" id="emailError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+            
+            <button type="submit" class="btn" id="loginButton">Log In</button>
+        </form>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const loginButton = document.getElementById('loginButton');
+
+        function showError(element, message) {
+            element.textContent = message;
+            element.style.display = 'block';
+            element.parentElement.querySelector('input').classList.add('shake');
+            setTimeout(() => {
+                element.parentElement.querySelector('input').classList.remove('shake');
+            }, 500);
+        }
+
+        function hideError(element) {
+            element.style.display = 'none';
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            let isValid = true;
+            hideError(emailError);
+            hideError(passwordError);
+
+            if (!emailInput.value) {
+                showError(emailError, 'Email is required');
+                isValid = false;
+            } else if (!validateEmail(emailInput.value)) {
+                showError(emailError, 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            if (!passwordInput.value) {
+                showError(passwordError, 'Password is required');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            loginButton.disabled = true;
+            loginButton.textContent = 'Logging in...';
+
+            try {
+                const response = await fetch('/admin/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: emailInput.value,
+                        password: passwordInput.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // Successful login
+                window.location.href = '/admin/';
+                
+            } catch (error) {
+                showError(passwordError, error.message || 'Invalid email or password');
+                loginButton.disabled = false;
+                loginButton.textContent = 'Log In';
+            }
+        });
+
+        // Clear errors when user starts typing
+        emailInput.addEventListener('input', () => hideError(emailError));
+        passwordInput.addEventListener('input', () => hideError(passwordError));
+    </script>
+</body>
+</html>

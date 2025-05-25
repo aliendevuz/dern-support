@@ -15,6 +15,7 @@ const generalMiddleware = async (req, res, next) => {
 
   if (!user?.role) {
     req.role = "visitor";
+    res.clearCookie("refreshToken");
     return next();
   }
 
