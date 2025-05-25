@@ -1,7 +1,7 @@
 const { verifyAdminRefreshToken } = require("../utils/jwt");
 
 const adminMiddleware = async (req, res, next) => {
-  if (req.path.startsWith("/api")) {
+  if (req.path.startsWith("/admin/api")) {
     return;
   }
   const adminRefreshToken = req.cookies.adminRefreshToken;

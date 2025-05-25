@@ -402,6 +402,16 @@
                     <div class="error-message" id="confirmPasswordError"></div>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="pinCode">PIN Code* (4 digits)</label>
+                <div class="input-icon">
+                    <input type="password" id="pinCode" name="pinCode" maxlength="4" pattern="[0-9]*" 
+                           inputmode="numeric" class="pin-input" required>
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="error-message" id="pinCodeError"></div>
+            </div>
             
             <button type="submit" class="btn" id="addButton">
                 Add Administrator
@@ -412,6 +422,7 @@
         </form>
     </div>
 
+    <script src="/admin/global.js"></script>
     <script>
         // Elements
         const registerForm = document.getElementById('registerForm');
@@ -420,6 +431,7 @@
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirmPassword');
+        const pinCodeInput = document.getElementById('pinCode');
         const successMessage = document.getElementById('successMessage');
         
         // Error elements
@@ -428,6 +440,7 @@
         const emailError = document.getElementById('emailError');
         const passwordError = document.getElementById('passwordError');
         const confirmPasswordError = document.getElementById('confirmPasswordError');
+        const pinCodeError = document.getElementById('pinCodeError');
         
         // Role selection
         const managerRole = document.getElementById('managerRole');
@@ -512,7 +525,7 @@
             e.preventDefault();
             
             let isValid = true;
-            [firstNameError, lastNameError, emailError, passwordError, confirmPasswordError].forEach(hideError);
+            [firstNameError, lastNameError, emailError, passwordError, confirmPasswordError, pinCodeError].forEach(hideError);
 
             if (!firstNameInput.value.trim()) {
                 showError(firstNameError, 'First name is required');
@@ -550,6 +563,14 @@
                 showError(confirmPasswordError, 'Passwords do not match');
                 isValid = false;
             }
+
+            if (!pinCodeInput.value) {
+                showError(pinCodeError, 'PIN code is required');
+                isValid = false;
+            } else if (pinCodeInput.value.length !== 4) {
+                showError(pinCodeError, 'PIN must be exactly 4 digits');
+                isValid = false;
+            }
             
             if (!isValid) return;
 
@@ -563,16 +584,17 @@
                     lastName: lastNameInput.value.trim(),
                     email: emailInput.value.trim(),
                     password: passwordInput.value,
-                    role: technicianRole.checked ? 'technician' : 'manager'
+                    role: technicianRole.checked ? 'technician' : 'manager',
+                    pinCode: pinCodeInput.value
                 };
                 
-                const response = await fetch('/admin/api/auth/add-admin', {
-                    method: 'POST',
+                const response = await apiFetchWithAdminPassword('/admin/api/super-admin/add-admin', {
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    method: 'POST',
                     body: JSON.stringify(formData)
-                });
+                })
 
                 const data = await response.json();
 
@@ -599,7 +621,7 @@
             }
         });
 
-        [firstNameInput, lastNameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => {
+        [firstNameInput, lastNameInput, emailInput, passwordInput, confirmPasswordInput, pinCodeInput].forEach(input => {
             input.addEventListener('input', () => {
                 const errorElement = document.getElementById(`${input.id}Error`);
                 if (errorElement) hideError(errorElement);

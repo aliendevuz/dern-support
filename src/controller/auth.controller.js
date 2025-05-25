@@ -20,7 +20,7 @@ const login = async (req, res) => {
     }
 
     // Parolni tekshiramiz
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(403).json({ error: "Invalid password!" });
     }
@@ -129,7 +129,7 @@ const register = async (req, res) => {
       address,
       companyName: role === "business" ? companyName : undefined,
       employeeCount: role === "business" ? employeeCount : undefined,
-      passwordHash,
+      password: passwordHash,
     });
 
     await newUser.save();

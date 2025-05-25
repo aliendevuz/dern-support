@@ -28,6 +28,11 @@ app.use('/404.html', (req, res) => {
     res.sendFile(filePath);
 });
 
+app.use('/admin/global.js', (req, res) => {
+    const filePath = path.resolve(process.cwd(), 'public', 'admin', 'global.js');
+    res.sendFile(filePath);
+});
+
 const adminApiRoutes = require('./router/admin.api.routes');
 const adminRoutes = require('./router/admin.routes');
 const apiRoutes = require('./router/api.routes');

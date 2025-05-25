@@ -1,26 +1,18 @@
-const jwt = require("jsonwebtoken");
-const { ACCESS_SECRET } = require("../config/env");
+const { verifyAccessToken, verifyRefreshToken } = require("../utils/jwt");
 
-const individualMiddleware = (req, res, next) => {
+const individualMiddleware = async (req, res, next) => {
   const refreshToken = req.cookies.refreshToken;
   const accessToken = req.cookies.accessToken;
 
-  if (!refreshToken) {
-    res.clearCookie("accessToken");
-  }
+  const refresh =  verifyRefreshToken(refreshToken);
+  const access = verifyAccessToken(accessToken);
   
-  if (!accessToken || !refreshToken) {
+  if (!access || !refresh) {
     return res.status(403).send({ msg: "Unauthorized" });
   }
-
-  jwt.verify(accessToken, ACCESS_SECRET, (err, user) => {
-    if (err || !user?.role) {
-      return res.sendStatus(403);
-    } else {
-      req.user = user;
-      next();
-    }
-  });
+  
+  req.user = user;
+  next();
 };
 
 module.exports = individualMiddleware;

@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   address:   { type: String, required: true },
   companyName:   { type: String },
   employeeCount: { type: String },
-  passwordHash:  { type: String, required: true },
+  password:  { type: String, required: true },
   createdAt:     { type: Date, default: Date.now }
 });
 

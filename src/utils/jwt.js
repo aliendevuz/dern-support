@@ -1,17 +1,16 @@
 const jwt = require('jsonwebtoken');
 const RefreshToken = require('../models/RefreshToken');
 const AdminRefreshToken = require('../models/AdminRefreshToken');
-const { REFRESH_SECRET, ACCESS_SECRET, ADMIN_REFRESH_SECRET, ADMIN_ACCESS_SECRET } = require('../config/env');
+const { REFRESH_SECRET, ACCESS_SECRET, ADMIN_REFRESH_SECRET, ADMIN_READ_ACCESS_SECRET, ADMIN_WRITE_ACCESS_SECRET, ADMIN_SUPER_ACCESS_SECRET } = require('../config/env');
 
 async function generateRefreshToken(user) {
-  const expiresIn = 30 * 24 * 60 * 60 * 1000; // 30 kun
+  const expiresIn = 30 * 24 * 60 * 60 * 1000;
   const refreshToken = jwt.sign(
     { id: user._id, role: user.role },
     REFRESH_SECRET,
     { expiresIn: '30d' }
   );
 
-  // Token DB'ga saqlanadi
   await RefreshToken.create({
     token: refreshToken,
     userId: user._id,
@@ -29,7 +28,6 @@ async function generateAdminRefreshToken(admin) {
     { expiresIn: '7d' }
   );
 
-  // Token DB'ga saqlanadi
   await AdminRefreshToken.create({
     token: refreshToken,
     adminId: admin._id,
@@ -83,23 +81,89 @@ function generateAccessToken(user) {
     return accessToken;
 }
 
-function generateAdminAccessToken(admin) {
+function generateAdminReadAccessToken(admin) {
     const accessToken = jwt.sign(
         {
             id: admin.id,
             role: admin.role
         },
-        ADMIN_ACCESS_SECRET,
+        ADMIN_READ_ACCESS_SECRET,
+        { expiresIn: '5m' }
+    );
+    return accessToken;
+}
+
+function generateAdminWriteAccessToken(admin) {
+    const accessToken = jwt.sign(
+        {
+            id: admin.id,
+            role: admin.role
+        },
+        ADMIN_WRITE_ACCESS_SECRET,
         { expiresIn: '2m' }
     );
     return accessToken;
+}
+
+function generateAdminSuperAccessToken(admin) {
+    const accessToken = jwt.sign(
+        {
+            id: admin.id,
+            role: admin.role
+        },
+        ADMIN_SUPER_ACCESS_SECRET,
+        { expiresIn: '1m' }
+    );
+    return accessToken;
+}
+
+function verifyAccessToken(token) {
+  try {
+    const decoded = jwt.verify(token, ACCESS_SECRET);
+    return decoded;
+  } catch (err) {
+    return null;
+  }
+}
+
+function verifyAdminReadAccessToken(token) {
+  try {
+    const decoded = jwt.verify(token, ADMIN_READ_ACCESS_SECRET);
+    return decoded;
+  } catch (err) {
+    return null;
+  }
+}
+
+function verifyAdminWriteAccessToken(token) {
+  try {
+    const decoded = jwt.verify(token, ADMIN_WRITE_ACCESS_SECRET);
+    return decoded;
+  } catch (err) {
+    return null;
+  }
+}
+
+function verifyAdminSuperAccessToken(token) {
+  try {
+    const decoded = jwt.verify(token, ADMIN_SUPER_ACCESS_SECRET);
+    return decoded;
+  } catch (err) {
+    return null;
+  }
 }
 
 module.exports = {
   generateRefreshToken,
   generateAccessToken,
   verifyRefreshToken,
+  verifyAccessToken,
   generateAdminRefreshToken,
-  generateAdminAccessToken,
-  verifyAdminRefreshToken
+  generateAdminReadAccessToken,
+  generateAdminWriteAccessToken,
+  generateAdminSuperAccessToken,
+  verifyAdminRefreshToken,
+  verifyAdminReadAccessToken,
+  verifyAdminWriteAccessToken,
+  verifyAdminSuperAccessToken
 };

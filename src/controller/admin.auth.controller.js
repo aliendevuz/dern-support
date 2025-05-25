@@ -1,11 +1,12 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const AdminRefreshToken = require("../models/AdminRefreshToken");
 const Admin = require("../models/Admin");
-const { ADMIN_REFRESH_SECRET } = require("../config/env");
+const { NODE_ENV } = require("../config/env");
 const {
   generateAdminRefreshToken,
-  generateAdminAccessToken,
+  generateAdminReadAccessToken,
+  generateAdminWriteAccessToken,
+  generateAdminSuperAccessToken,
   verifyAdminRefreshToken,
 } = require("../utils/jwt");
 
@@ -19,7 +20,7 @@ const login = async (req, res) => {
     }
 
     // Parolni tekshiramiz
-    const isValidPassword = await bcrypt.compare(password, admin.passwordHash);
+    const isValidPassword = await bcrypt.compare(password, admin.password);
     if (!isValidPassword) {
       return res.status(403).json({ error: "Invalid password!" });
     }
@@ -29,7 +30,7 @@ const login = async (req, res) => {
 
     res.cookie("adminRefreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // production muhitda true qiling
+      secure: NODE_ENV === "production", // production muhitda true qiling
       sameSite: "Strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 kun
     });
@@ -42,13 +43,19 @@ const login = async (req, res) => {
   }
 };
 
+const clearCookies = (res) => {
+  res.clearCookie("adminRefreshToken");
+  res.clearCookie("adminReadAccessToken");
+  res.clearCookie("adminWriteAccessToken");
+  res.clearCookie("adminSuperAccessToken");
+};
+
 const logout = async (req, res) => {
   try {
     const token = req.cookies.adminRefreshToken;
     if (token) {
       await AdminRefreshToken.deleteOne({ token });
-      res.clearCookie("adminRefreshToken");
-      res.clearCookie("adminAccessToken");
+      clearCookies(res);
     }
     return res.status(200).send({ redirect: "/admin/" });
   } catch (err) {
@@ -57,73 +64,98 @@ const logout = async (req, res) => {
   }
 };
 
-const refresh = async (req, res) => {
+const refreshRead = async (req, res) => {
   const refreshToken = req.cookies.adminRefreshToken;
   if (!refreshToken) {
-    res.clearCookie("adminRefreshToken");
-    res.clearCookie("adminAccessToken");
+    clearCookies(res);
     return res.sendStatus(403);
   }
 
-  admin = await verifyAdminRefreshToken(refreshToken);
+  const admin = await verifyAdminRefreshToken(refreshToken);
 
   if (!admin) {
-    console.log("Admin not found 403 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-    res.clearCookie("adminRefreshToken");
-    res.clearCookie("adminAccessToken");
+    clearCookies(res);
     return res.sendStatus(403);
   }
 
-  const accessToken = generateAdminAccessToken(admin);
-  res.cookie("adminAccessToken", accessToken, {
+  const accessToken = generateAdminReadAccessToken(admin);
+  res.cookie("adminReadAccessToken", accessToken, {
     httpOnly: true,
-    secure: false,
+    secure: NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: 5 * 60 * 1000,
+  });
+  return res.status(200).send("Success!");
+};
+
+const refreshWrite = async (req, res) => {
+  const refreshToken = req.cookies.adminRefreshToken;
+  if (!refreshToken) {
+    clearCookies(res);
+    return res.sendStatus(403);
+  }
+
+  const admin = await verifyAdminRefreshToken(refreshToken);
+
+  if (!admin) {
+    clearCookies(res);
+    return res.sendStatus(403);
+  }
+
+  const newAdmin = await Admin.findOne({ _id: admin._id });
+  const isValidPinCode = bcrypt.compareSync(req.pinCode, newAdmin.pinCode);
+
+  if (!isValidPinCode) {
+    clearCookies(res);
+    return res.sendStatus(403);
+  }
+
+  const accessToken = generateAdminWriteAccessToken(admin);
+  res.cookie("adminWriteAccessToken", accessToken, {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
     sameSite: "Strict",
     maxAge: 2 * 60 * 1000,
   });
   return res.status(200).send("Success!");
 };
 
-const addAdmin = async (req, res) => {
-  const {
-    role,
-    firstName,
-    lastName,
-    email,
-    password
-  } = req.body;
-
-  try {
-    // Avval email borligini tekshiramiz
-    const existingAdmin = await Admin.findOne({ email });
-    if (existingAdmin)
-      return res.status(409).json({ error: "Email already registered" });
-
-    // Parolni hash qilamiz
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    // Yangi foydalanuvchini yaratamiz
-    const newAdmin = new Admin({
-      role,
-      firstName,
-      lastName,
-      email,
-      passwordHash
-    });
-
-    await newAdmin.save();
-
-    // Frontendni redirect qilish uchun success qaytaramiz
-    return res.status(200).json({ message: "Success!"});
-  } catch (err) {
-    console.error("❌ Register error:", err);
-    return res.status(500).json({ error: "Something went wrong" });
+const refreshSuper = async (req, res) => {
+  const refreshToken = req.cookies.adminRefreshToken;
+  if (!refreshToken) {
+    clearCookies(res);
+    return res.sendStatus(403);
   }
+
+  const admin = await verifyAdminRefreshToken(refreshToken);
+
+  if (!admin) {
+    clearCookies(res);
+    return res.sendStatus(403);
+  }
+
+  const newAdmin = await Admin.findOne({ _id: admin.id });
+  const isValidPassword = bcrypt.compareSync(req.password, newAdmin.password);
+
+  if (!isValidPassword) {
+    clearCookies(res);
+    return res.sendStatus(403);
+  }
+  
+  const accessToken = generateAdminSuperAccessToken(admin);
+  res.cookie("adminSuperAccessToken", accessToken, {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: 1 * 60 * 1000,
+  });
+  return res.status(200).send("Success!");
 };
 
 module.exports = {
   login,
   logout,
-  refresh,
-  addAdmin,
+  refreshRead,
+  refreshWrite,
+  refreshSuper,
 };
