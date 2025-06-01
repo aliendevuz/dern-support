@@ -89,7 +89,7 @@
       const errorMessage = document.getElementById('error-message');
       const knowledgeList = document.getElementById('knowledge-list');
       try {
-        const response = await fetch('http://localhost:3000/api/random', {
+        const response = await fetch('/api/random', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
