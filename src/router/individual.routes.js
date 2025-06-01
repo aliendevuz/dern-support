@@ -3,7 +3,6 @@ const router = express.Router();
 const {
     aboutMe,
     editProfile,
-    refreshAccessToken,
     sendSupportRequest,
     getSupportRequests
 } = require('../controller/individual.controller');
@@ -14,10 +13,6 @@ router.post('/about', individualMiddleware, aboutMe);
 
 // post /edit-profile - edit user's profile
 router.post('/edit-profile', individualMiddleware, editProfile);
-
-// post /refresh-access-token - refresh access token
-// post for restricted for refresh from browser
-router.post('/refresh-access-token', individualMiddleware, refreshAccessToken);
 
 // post /send_support_request - send support request
 router.post('/send-support-request', individualMiddleware, sendSupportRequest);

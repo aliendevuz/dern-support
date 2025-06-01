@@ -1,721 +1,370 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DernSupport - Individual Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --dark-blue: #111827;
-            --medium-blue: #2563eb;
-            --light-blue: #60a5fa;
-            --light-gray: #d1d5db;
-            --success-green: #22c55e;
-            --error-red: #ef4444;
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #111827, #374151);
-            color: #f3f4f6;
-            line-height: 1.6;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header Styles */
-        header {
-            background-color: #1f2a44;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-        }
-
-        .logo-text {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #f3f4f6;
-        }
-
-        .logo-text span {
-            color: var(--medium-blue);
-        }
-
-        .nav-menu {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .nav-list {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-link {
-            color: #f3f4f6;
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .nav-link:hover {
-            color: var(--light-blue);
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background-color: var(--medium-blue);
-            transition: var(--transition);
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        /* User Menu */
-        .user-menu {
-            position: relative;
-        }
-
-        .user-circle {
-            width: 40px;
-            height: 40px;
-            background-color: var(--medium-blue);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .user-circle:hover {
-            background-color: #1d4ed8;
-            transform: scale(1.05);
-        }
-
-        .user-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background-color: #1f2a44;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            min-width: 220px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: var(--transition);
-        }
-
-        .user-dropdown.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #f3f4f6;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover {
-            background-color: #374151;
-        }
-
-        .dropdown-item i {
-            font-size: 1.1rem;
-            color: var(--medium-blue);
-            width: 20px;
-            text-align: center;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background-color: #374151;
-            margin: 8px 0;
-        }
-
-        /* Hero Section */
-        .hero {
-            padding: 120px 0 80px;
-            background: linear-gradient(rgba(17, 24, 39, 0.8), rgba(55, 65, 81, 0.8));
-            text-align: center;
-        }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero-title {
-            font-size: 2.8rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        .hero-subtitle {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-            animation: fadeInUp 0.8s ease 0.2s forwards;
-        }
-
-        .hero-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            animation: fadeInUp 0.8s ease 0.4s forwards;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.875rem 1.75rem;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .btn-primary {
-            background-color: var(--medium-blue);
-            color: #ffffff;
-            border: 2px solid var(--medium-blue);
-        }
-
-        .btn-primary:hover {
-            background-color: #1d4ed8;
-            border-color: #1d4ed8;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            color: #f3f4f6;
-            border: 2px solid #f3f4f6;
-        }
-
-        .btn-secondary:hover {
-            background-color: #f3f4f6;
-            color: var(--dark-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Knowledge Base Section */
-        .knowledge-base {
-            padding: 80px 0;
-            background-color: #1f2a44;
-        }
-
-        .section-title {
-            font-size: 2.2rem;
-            margin-bottom: 1rem;
-            text-align: center;
-            color: #f3f4f6;
-        }
-
-        .section-subtitle {
-            font-size: 1rem;
-            margin-bottom: 2.5rem;
-            text-align: center;
-            color: #9ca3af;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .kb-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .kb-card {
-            background-color: #374151;
-            padding: 1.5rem;
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .kb-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .kb-icon {
-            font-size: 2.2rem;
-            color: var(--medium-blue);
-            margin-bottom: 1rem;
-        }
-
-        .kb-title {
-            font-size: 1.2rem;
-            margin-bottom: 0.75rem;
-            color: #f3f4f6;
-        }
-
-        .kb-text {
-            color: #9ca3af;
-            margin-bottom: 1.25rem;
-            font-size: 0.95rem;
-        }
-
-        /* Support CTA Section */
-        .support-cta {
-            padding: 60px 0;
-            background-color: #111827;
-            text-align: center;
-        }
-
-        .support-title {
-            font-size: 2.2rem;
-            margin-bottom: 1.25rem;
-            color: #f3f4f6;
-        }
-
-        .support-text {
-            font-size: 1.1rem;
-            margin-bottom: 1.75rem;
-            color: #9ca3af;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #1f2a44;
-            color: #f3f4f6;
-            padding: 50px 0 20px;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .footer-logo {
-            color: #f3f4f6;
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .footer-text {
-            color: #9ca3af;
-            margin-bottom: 1.25rem;
-            font-size: 0.95rem;
-        }
-
-        .footer-social {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .social-link {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: #374151;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .social-link:hover {
-            background-color: var(--medium-blue);
-            transform: translateY(-3px);
-        }
-
-        .footer-title {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: #f3f4f6;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.6rem;
-        }
-
-        .footer-links a {
-            color: #9ca3af;
-            transition: var(--transition);
-            font-size: 0.95rem;
-        }
-
-        .footer-links a:hover {
-            color: var(--light-blue);
-            padding-left: 5px;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #374151;
-            color: #9ca3af;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .nav-list {
-                display: none;
-            }
-
-            .hero-title {
-                font-size: 2.2rem;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Individual Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+
+    .header {
+      background: #007bff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .header a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .header a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 1.5em;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .error,
+    .success {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #f4f4f4;
+    }
+  </style>
 </head>
+
 <body>
-    <header>
-        <div class="header-container container">
-            <a href="/" class="logo-text">Dern<span>Support</span></a>
-            <nav class="nav-menu" role="navigation" aria-label="Main navigation">
-                <ul class="nav-list">
-                    <li><a href="/" class="nav-link" aria-current="page">Dashboard</a></li>
-                    <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#knowledge-base" class="nav-link">Knowledge Base</a></li>
-                    <li><a href="#contact" class="nav-link">Contact</a></li>
-                </ul>
-                <div class="user-menu">
-                    <div class="user-circle" id="userMenuBtn" aria-haspopup="true" aria-controls="userDropdown">JS</div>
-                    <div class="user-dropdown" id="userDropdown" role="menu">
-                        <div class="dropdown-item" id="userEmail" role="none">
-                            <i class="fas fa-user"></i>
-                            <span>Loading...</span>
-                        </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="/individual/requests" class="dropdown-item" role="menuitem">
-                            <i class="fas fa-ticket-alt"></i>
-                            <span>My Requests</span>
-                        </a>
-                        <a href="/individual/notifications" class="dropdown-item" role="menuitem">
-                            <i class="fas fa-bell"></i>
-                            <span>Notifications</span>
-                        </a>
-                        <a href="/individual/profile" class="dropdown-item" role="menuitem">
-                            <i class="fas fa-cog"></i>
-                            <span>Edit Profile</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-item" id="logoutBtn" role="menuitem">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </header>
+  <div class="header">
+    <h2 style="margin: 0 10px;">Individual Dashboard</h2>
+    <div>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+  <div class="container">
+    <!-- About Me Section -->
+    <div class="section">
+      <h2>About Me</h2>
+      <button onclick="fetchAbout()">Get Profile Info</button>
+      <div id="about-result"></div>
+      <p class="error" id="about-error"></p>
+      <p class="success" id="about-success"></p>
+    </div>
 
-    <section class="hero" aria-labelledby="hero-title">
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title" id="hero-title">Having Computer Issues?</h1>
-                <p class="hero-subtitle">Our expert technicians are ready to help solve your technical problems quickly and efficiently.</p>
-                <div class="hero-buttons">
-                    <a href="/individual/support-request" class="btn btn-primary">Submit Support Request</a>
-                    <a href="#knowledge-base" class="btn btn-secondary">Browse Solutions</a>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Edit Profile Section -->
+    <div class="section">
+      <h2>Edit Profile</h2>
+      <div class="form-group">
+        <label for="edit-firstName">First Name</label>
+        <input type="text" id="edit-firstName" placeholder="Enter first name">
+      </div>
+      <div class="form-group">
+        <label for="edit-email">Email</label>
+        <input type="email" id="edit-email" placeholder="Enter email">
+      </div>
+      <button onclick="editProfile()">Save Changes</button>
+      <p class="error" id="edit-error"></p>
+      <p class="success" id="edit-success"></p>
+    </div>
 
-    <section class="knowledge-base" id="knowledge-base" aria-labelledby="kb-title">
-        <div class="container">
-            <h2 class="section-title" id="kb-title">Quick Solutions</h2>
-            <p class="section-subtitle">Find instant solutions to common computer problems in our knowledge base.</p>
-            <div class="kb-grid">
-                <div class="kb-card">
-                    <div class="kb-icon">
-                        <i class="fas fa-laptop-medical"></i>
-                    </div>
-                    <h3 class="kb-title">Slow Computer</h3>
-                    <p class="kb-text">Learn how to speed up your computer and improve its performance with our step-by-step guide.</p>
-                    <a href="/kb/slow-computer" class="btn btn-primary">Read More</a>
-                </div>
-                <div class="kb-card">
-                    <div class="kb-icon">
-                        <i class="fas fa-wifi"></i>
-                    </div>
-                    <h3 class="kb-title">Network Issues</h3>
-                    <p class="kb-text">Troubleshoot common network connectivity problems and get back online quickly.</p>
-                    <a href="/kb/network-issues" class="btn btn-primary">Read More</a>
-                </div>
-                <div class="kb-card">
-                    <div class="kb-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3 class="kb-title">Security Tips</h3>
-                    <p class="kb-text">Keep your computer safe with our essential security tips and best practices.</p>
-                    <a href="/kb/security-tips" class="btn btn-primary">Read More</a>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Send Support Request Section -->
+    <div class="section">
+      <h2>Send Support Request</h2>
+      <div class="form-group">
+        <label for="request-issueDescription">Description</label>
+        <textarea id="request-issueDescription" rows="4" placeholder="Enter request description"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="request-preferredMethod">Preferred Method</label>
+        <select id="request-preferredMethod">
+          <option value="">--Select method--</option>
+          <option value="drop-off">Drop-off</option>
+          <option value="courier">Courier</option>
+          <option value="on-site">On-site</option>
+        </select>
+      </div>
+      <button onclick="sendSupportRequest()">Send Request</button>
+      <p class="error" id="request-error"></p>
+      <p class="success" id="request-success"></p>
+    </div>
 
-    <section class="support-cta" aria-labelledby="support-title">
-        <div class="container">
-            <h2 class="support-title" id="support-title">Need Professional Help?</h2>
-            <p class="support-text">Our expert technicians are ready to assist you with any computer issues you're facing.</p>
-            <a href="/individual/support-request" class="btn btn-primary">Submit Support Request</a>
-        </div>
-    </section>
 
-    <footer aria-label="Site footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div>
-                    <div class="footer-logo">Dern<span>Support</span></div>
-                    <p class="footer-text">Professional IT support and computer repair services for individuals and businesses.</p>
-                    <div class="footer-social">
-                        <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="footer-title">Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="/individual/support-request">Submit Request</a></li>
-                        <li><a href="/individual/requests">My Requests</a></li>
-                        <li><a href="#knowledge-base">Knowledge Base</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="footer-title">Services</h4>
-                    <ul class="footer-links">
-                        <li><a href="/services/computer-repair">Computer Repair</a></li>
-                        <li><a href="/services/virus-removal">Virus Removal</a></li>
-                        <li><a href="/services/data-recovery">Data Recovery</a></li>
-                        <li><a href="/services/network-setup">Network Setup</a></li>
-                        <li><a href="/services/upgrades">Hardware Upgrades</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="footer-title">Contact Info</h4>
-                    <ul class="footer-links">
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Tech Street, IT City</li>
-                        <li><i class="fas fa-phone"></i> (555) 123-4567</li>
-                        <li><i class="fas fa-envelope"></i> support@dernsupport.com</li>
-                        <li><i class="fas fa-clock"></i> Mon-Fri: 9:00 AM - 6:00 PM</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© 2025 DernSupport. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <!-- Get Support Requests Section -->
+    <div class="section">
+      <h2>Support Requests</h2>
+      <button onclick="fetchSupportRequests()">Get Requests</button>
+      <div id="requests-result"></div>
+      <p class="error" id="requests-error"></p>
+      <p class="success" id="requests-success"></p>
+    </div>
+  </div>
 
-    <script>
-        // Refined user-specific apiFetch function
-        async function apiFetch(url, options = {}, retryCount = 0) {
-            const MAX_RETRIES = 1; // Limit retries to prevent infinite loops
+  <script src="/global.js"></script>
+  <script>
+    // Umumiy xato boshqaruv funksiyasi
+    function handleError(errorElement, successElement, resultElement, errorMessage) {
+      errorElement.textContent = errorMessage;
+      errorElement.style.display = 'block';
+      if (successElement) successElement.style.display = 'none';
+      if (resultElement) resultElement.innerHTML = '';
+    }
 
-            const defaultOptions = {
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                ...options,
-            };
+    // About Me
+    async function fetchAbout() {
+      const error = document.getElementById('about-error');
+      const success = document.getElementById('about-success');
+      const result = document.getElementById('about-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
 
-            try {
-                const response = await fetch(url, defaultOptions);
+      try {
+        const response = await apiFetch('/api/individual/about', { method: 'POST' });
+        if (!response) return; // apiFetch 401/403 uchun /login'ga yo'naltiradi
 
-                // Handle 403 by attempting token refresh
-                if (response.status === 403 && retryCount < MAX_RETRIES) {
-                    const refreshResponse = await fetch('/api/auth/refresh', {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: { 'Content-Type': 'application/json' },
-                    });
-
-                    if (refreshResponse.ok) {
-                        // Retry the original request with incremented retry count
-                        return apiFetch(url, options, retryCount + 1);
-                    } else {
-                        console.error(`Token refresh failed for ${url}: ${refreshResponse.status}`);
-                        window.location.href = '/login';
-                        return null;
-                    }
-                }
-
-                // Throw error for non-OK responses (except 403, handled above)
-                if (!response.ok) {
-                    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-                }
-
-                return response;
-
-            } catch (error) {
-                console.error(`API fetch error for ${url}:`, error.message);
-                // Only redirect for auth-related errors
-                if (error.message.includes('403') || error.message.includes('401')) {
-                    window.location.href = '/login';
-                    return null;
-                }
-                throw error; // Let the caller handle non-auth errors
-            }
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No profile data found');
+          return;
         }
 
-        // DOM elements
-        const elements = {
-            userMenuBtn: document.getElementById('userMenuBtn'),
-            userDropdown: document.getElementById('userDropdown'),
-            userEmail: document.getElementById('userEmail'),
-            logoutBtn: document.getElementById('logoutBtn'),
-        };
+        result.innerHTML = `
+          <p><strong>Name:</strong> ${data.data.firstName}</p>
+          <p><strong>Email:</strong> ${data.data.email}</p>
+          <p><strong>Role:</strong> ${data.data.role}</p>
+          <p><strong>Status:</strong> ${data.data.status}</p>
+        `;
+        success.textContent = 'Profile fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('About error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
 
-        // User menu toggle
-        elements.userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            elements.userDropdown.classList.toggle('active');
-            elements.userMenuBtn.setAttribute('aria-expanded', elements.userDropdown.classList.contains('active'));
+    // Edit Profile
+    async function editProfile() {
+      const error = document.getElementById('edit-error');
+      const success = document.getElementById('edit-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const firstName = document.getElementById('edit-firstName').value.trim();
+      const email = document.getElementById('edit-email').value.trim();
+
+      if (!firstName || !email) {
+        handleError(error, success, null, 'First name and email are required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/api/individual/edit-profile', {
+          method: 'POST',
+          body: JSON.stringify({ firstName, email }),
         });
+        if (!response) return;
 
-        document.addEventListener('click', () => {
-            elements.userDropdown.classList.remove('active');
-            elements.userMenuBtn.setAttribute('aria-expanded', 'false');
-        });
-
-        elements.userDropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-
-        // Fetch user data
-        async function getUserData() {
-            try {
-                const response = await apiFetch('/api/individual/about', {
-                    method: 'POST',
-                });
-                
-                if (!response) return;
-
-                const data = await response.json();
-                if (data.email) {
-                    const initials = data.email
-                        .split('@')[0]
-                        .split('.')
-                        .map(part => part[0].toUpperCase())
-                        .join('');
-                    elements.userMenuBtn.textContent = initials;
-                    elements.userEmail.innerHTML = `<i class="fas fa-user"></i>${data.email}`;
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, 'Profile update failed');
+          return;
         }
 
-        getUserData();
+        success.textContent = 'Profile updated successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Edit profile error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
 
-        // Logout function
-        async function logout() {
-            try {
-                const response = await apiFetch('/api/auth/logout', {
-                    method: 'POST',
-                });
-                
-                if (!response) return;
+    // Send Support Request
+    async function sendSupportRequest() {
+      const error = document.getElementById('request-error');
+      const success = document.getElementById('request-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
 
-                const data = await response.json();
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                }
-            } catch (error) {
-                console.error('Logout error:', error);
-                window.location.href = '/login/';
-            }
+      const issueDescription = document.getElementById('request-issueDescription').value.trim();
+      const preferredMethod = document.getElementById('request-preferredMethod').value;
+
+      if (!issueDescription || !preferredMethod) {
+        handleError(error, success, null, 'Issue description and preferred method are required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/api/individual/send-support-request', {
+          method: 'POST',
+          body: JSON.stringify({ issueDescription, preferredMethod }),
+        });
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Request sending failed');
+          return;
         }
 
-        elements.logoutBtn.addEventListener('click', logout);
+        success.textContent = 'Support request sent successfully';
+        success.style.display = 'block';
+        document.getElementById('request-issueDescription').value = '';
+        document.getElementById('request-preferredMethod').value = '';
+      } catch (err) {
+        console.error('Send request error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
 
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = document.querySelector(anchor.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start',
-                    });
-                }
-            });
-        });
-    </script>
+    async function logout() {
+      try {
+        const response = await apiFetch('/api/auth/logout', { method: 'POST' });
+        if (!response) return;
+        window.location.href = '/'; // Redirect to login page
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    // Get Support Requests
+    async function fetchSupportRequests() {
+      const error = document.getElementById('requests-error');
+      const success = document.getElementById('requests-success');
+      const result = document.getElementById('requests-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/api/individual/get-support-requests', { method: 'GET' });
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No requests found');
+          return;
+        }
+
+        result.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Preferred Method</th>
+            <th>Submitted At</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.data.map(req => `
+            <tr>
+              <td>${req.issueDescription}</td>
+              <td>${req.status}</td>
+              <td>${req.preferredMethod}</td>
+              <td>${new Date(req.submittedAt).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+        success.textContent = 'Requests fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Fetch requests error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+
+  </script>
 </body>
+
 </html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maqola Detallari</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+    .header {
+      background: #007bff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .header a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+    }
+    .main-content {
+      flex: 3;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar {
+      flex: 1;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar h3 {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+    }
+    .similar-item {
+      margin-bottom: 10px;
+    }
+    .similar-item a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .similar-item a:hover {
+      text-decoration: underline;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2 style="color: white; margin: 0 10px;">IT Support</h2>
+    <div>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+    </div>
+  </div>
+  <div class="container">
+    <div class="main-content" id="article-content"></div>
+    <div class="sidebar">
+      <h3>O'xshash Maqolalar</h3>
+      <div id="similar-articles"></div>
+      <p class="error" id="similar-error"></p>
+    </div>
+  </div>
+  <p class="error" id="error-message" style="text-align: center;"></p>
+
+  <script src="/global.js"></script>
+  <script>
+    async function fetchArticleDetails() {
+      const errorMessage = document.getElementById('error-message');
+      const articleContent = document.getElementById('article-content');
+      const similarArticles = document.getElementById('similar-articles');
+      const similarError = document.getElementById('similar-error');
+
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('articleId');
+        if (!id) {
+          errorMessage.textContent = 'Article ID is required';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        // Maqola detallarini olish
+        const response = await apiFetch(`/api/details-knowledge?articleId=${id}`, {}, 'read');
+        if (!response || !response.ok) {
+          const errorData = await response.json();
+          errorMessage.textContent = errorData.error || 'Failed to fetch article';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          errorMessage.textContent = 'Article not found';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        // Maqola kontentini ko'rsatish
+        articleContent.innerHTML = `
+          <h2>${data.data.title}</h2>
+          ${marked.parse(data.data.content)}
+        `;
+
+        // O'xshash maqolalarni olish
+        const similarResponse = await apiFetch(`/api/similar?knowledgeId=${data.data.knowledge.id}`, {}, 'read');
+        if (!similarResponse || !similarResponse.ok) {
+          const errorData = await similarResponse.json();
+          similarError.textContent = errorData.error || 'Failed to fetch similar articles';
+          similarError.style.display = 'block';
+          return;
+        }
+
+        const similarData = await similarResponse.json();
+        if (!similarData.success || !similarData.data || similarData.data.length === 0) {
+          similarError.textContent = "O'xshash maqolalar topilmadi";
+          similarError.style.display = 'block';
+          similarArticles.innerHTML = '';
+          return;
+        }
+
+        // O'xshash maqolalarni ko'rsatish
+        similarArticles.innerHTML = similarData.data.map(item => `
+          <div class="similar-item">
+            <a href="/details?articleId=${item.id}">${item.title}</a>
+          </div>
+        `).join('');
+        similarError.style.display = 'none';
+        errorMessage.style.display = 'none';
+      } catch (error) {
+        console.error('Fetch article error:', error);
+        errorMessage.textContent = 'Something went wrong';
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    window.onload = fetchArticleDetails;
+  </script>
+</body>
+</html>

@@ -1,20 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Business</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <div class="container">
-      <h1>Business</h1>
-      <p id="data">Here is Business account's page</p>
-      <div class="buttons">
-        <button onclick="getData()">Get My Data</button>
-        <button class="red" onclick="logout()">Logout</button>
-      </div>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Individual Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+
+    .header {
+      background: #007bff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .header a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .header a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 1.5em;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .error,
+    .success {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #f4f4f4;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h2 style="margin: 0 10px;">Individual Dashboard</h2>
+    <div>
+      <button onclick="logout()">Logout</button>
     </div>
-    <script src="app.js"></script>
-  </body>
+  </div>
+  <div class="container">
+    <!-- About Me Section -->
+    <div class="section">
+      <h2>About Me</h2>
+      <button onclick="fetchAbout()">Get Profile Info</button>
+      <div id="about-result"></div>
+      <p class="error" id="about-error"></p>
+      <p class="success" id="about-success"></p>
+    </div>
+
+    <!-- Edit Profile Section -->
+    <div class="section">
+      <h2>Edit Profile</h2>
+      <div class="form-group">
+        <label for="edit-firstName">First Name</label>
+        <input type="text" id="edit-firstName" placeholder="Enter first name">
+      </div>
+      <div class="form-group">
+        <label for="edit-email">Email</label>
+        <input type="email" id="edit-email" placeholder="Enter email">
+      </div>
+      <button onclick="editProfile()">Save Changes</button>
+      <p class="error" id="edit-error"></p>
+      <p class="success" id="edit-success"></p>
+    </div>
+
+    <!-- Send Support Request Section -->
+    <div class="section">
+      <h2>Send Support Request</h2>
+      <div class="form-group">
+        <label for="request-issueDescription">Description</label>
+        <textarea id="request-issueDescription" rows="4" placeholder="Enter request description"></textarea>
+      </div>
+      <button onclick="sendSupportRequest()">Send Request</button>
+      <p class="error" id="request-error"></p>
+      <p class="success" id="request-success"></p>
+    </div>
+
+
+    <!-- Get Support Requests Section -->
+    <div class="section">
+      <h2>Support Requests</h2>
+      <button onclick="fetchSupportRequests()">Get Requests</button>
+      <div id="requests-result"></div>
+      <p class="error" id="requests-error"></p>
+      <p class="success" id="requests-success"></p>
+    </div>
+  </div>
+
+  <script src="/global.js"></script>
+  <script>
+    // Umumiy xato boshqaruv funksiyasi
+    function handleError(errorElement, successElement, resultElement, errorMessage) {
+      errorElement.textContent = errorMessage;
+      errorElement.style.display = 'block';
+      if (successElement) successElement.style.display = 'none';
+      if (resultElement) resultElement.innerHTML = '';
+    }
+
+    // About Me
+    async function fetchAbout() {
+      const error = document.getElementById('about-error');
+      const success = document.getElementById('about-success');
+      const result = document.getElementById('about-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/api/business/about', { method: 'POST' });
+        if (!response) return; // apiFetch 401/403 uchun /login'ga yo'naltiradi
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No profile data found');
+          return;
+        }
+
+        result.innerHTML = `
+          <p><strong>Name:</strong> ${data.data.firstName}</p>
+          <p><strong>Email:</strong> ${data.data.email}</p>
+          <p><strong>Role:</strong> ${data.data.role}</p>
+          <p><strong>Status:</strong> ${data.data.status}</p>
+        `;
+        success.textContent = 'Profile fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('About error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+
+    // Edit Profile
+    async function editProfile() {
+      const error = document.getElementById('edit-error');
+      const success = document.getElementById('edit-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const firstName = document.getElementById('edit-firstName').value.trim();
+      const email = document.getElementById('edit-email').value.trim();
+
+      if (!firstName || !email) {
+        handleError(error, success, null, 'First name and email are required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/api/business/edit-profile', {
+          method: 'POST',
+          body: JSON.stringify({ firstName, email }),
+        });
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, 'Profile update failed');
+          return;
+        }
+
+        success.textContent = 'Profile updated successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Edit profile error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // Send Support Request (Business account)
+    async function sendSupportRequest() {
+      const error = document.getElementById('request-error');
+      const success = document.getElementById('request-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const issueDescription = document.getElementById('request-issueDescription').value.trim();
+
+      if (!issueDescription) {
+        handleError(error, success, null, 'Issue description is required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/api/business/send-support-request', {
+          method: 'POST',
+          body: JSON.stringify({ issueDescription }), // preferredMethod removed
+        });
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Request sending failed');
+          return;
+        }
+
+        success.textContent = 'Support request sent successfully';
+        success.style.display = 'block';
+        document.getElementById('request-issueDescription').value = '';
+      } catch (err) {
+        console.error('Send request error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+
+    // Logout
+    async function logout() {
+      try {
+        const response = await apiFetch('/api/auth/logout', { method: 'POST' });
+        if (!response) return;
+        window.location.href = '/'; // Redirect to login page
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    // Get Support Requests
+    async function fetchSupportRequests() {
+      const error = document.getElementById('requests-error');
+      const success = document.getElementById('requests-success');
+      const result = document.getElementById('requests-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/api/business/get-support-requests', { method: 'GET' });
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No requests found');
+          return;
+        }
+
+        result.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Submitted At</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.data.map(req => `
+            <tr>
+              <td>${req.issueDescription}</td>
+              <td>${req.status}</td>
+              <td>${new Date(req.submittedAt).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+        success.textContent = 'Requests fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Fetch requests error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+
+  </script>
+</body>
+
 </html>

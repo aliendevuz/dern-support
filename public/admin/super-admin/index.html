@@ -1,494 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DernSupport - Super Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --light-gray-green: #B4B8AB;
-            --dark-blue: #153243;
-            --medium-blue: #284B63;
-            --light-green: #F4F9E9;
-            --light-gray: #EEF0EB;
-            --transition: all 0.3s ease;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--light-green);
-            min-height: 100vh;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            background-color: var(--dark-blue);
-            color: white;
-            padding: 2rem 1rem;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .logo-text span {
-            color: var(--light-gray-green);
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        .nav-link.active {
-            background-color: var(--medium-blue);
-        }
-
-        .nav-link i {
-            margin-right: 0.75rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            padding: 2rem;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .welcome-text {
-            font-size: 1.5rem;
-            color: var(--dark-blue);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background-color: var(--medium-blue);
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .stat-card h3 {
-            color: var(--dark-blue);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            color: var(--medium-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-trend {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .trend-up {
-            color: var(--success);
-        }
-
-        .trend-down {
-            color: var(--danger);
-        }
-
-        /* Recent Activity Section */
-        .recent-activity {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .activity-list {
-            list-style: none;
-        }
-
-        .activity-item {
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .icon-blue {
-            background-color: var(--medium-blue);
-        }
-
-        .icon-green {
-            background-color: var(--success);
-        }
-
-        .icon-yellow {
-            background-color: var(--warning);
-        }
-
-        .activity-details h4 {
-            color: var(--dark-blue);
-            margin-bottom: 0.25rem;
-        }
-
-        .activity-time {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        /* Charts Container */
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .chart-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .chart-card h3 {
-            color: var(--dark-blue);
-            margin-bottom: 1rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .dashboard {
-                grid-template-columns: 80px 1fr;
-            }
-
-            .logo-text, .nav-link span {
-                display: none;
-            }
-
-            .nav-link i {
-                margin-right: 0;
-                font-size: 1.25rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .nav {
+      background: #007bff;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    .nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav a:hover {
+      text-decoration: underline;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+    }
+    .card p {
+      margin: 5px 0;
+      font-size: 1.5em;
+      color: #333;
+    }
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+    canvas {
+      max-width: 100%;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
 </head>
 <body>
+  <div class="nav">
+    <a href="/admin/admins">Admins</a>
+    <a href="/admin/knowledges">Knowledge Base</a>
+    <a href="/admin/requests">Requests</a>
+    <a href="/admin/inventory">Inventory</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+  <div class="container">
+    <h1>Super Admin Dashboard</h1>
+    
     <div class="dashboard">
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-text">Dern<span>Support</span></div>
-            </div>
-            
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/admin/add-admin" class="nav-link">
-                            <i class="fas fa-users-gear"></i>
-                            <span>Manage Admins</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-ticket"></i>
-                            <span>Service Requests</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-box-open"></i>
-                            <span>Inventory</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-book"></i>
-                            <span>Knowledge Base</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-chart-pie"></i>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-gear"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <div class="header">
-                <h1 class="welcome-text">Welcome, Super Admin</h1>
-                <div class="header-actions">
-                    <button class="btn btn-primary" onclick="window.location.href='/admin/add-admin'">
-                        <i class="fas fa-plus"></i>
-                        Add Admin
-                    </button>
-                    <button class="btn btn-danger" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </div>
-            </div>
-
-            <div class="dashboard-grid">
-                <div class="stat-card">
-                    <h3><i class="fas fa-ticket"></i> Active Tickets</h3>
-                    <div class="stat-number">127</div>
-                    <div class="stat-trend trend-up">
-                        <i class="fas fa-arrow-up"></i>
-                        12% from last week
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <h3><i class="fas fa-users"></i> Total Users</h3>
-                    <div class="stat-number">1,234</div>
-                    <div class="stat-trend trend-up">
-                        <i class="fas fa-arrow-up"></i>
-                        8% from last month
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <h3><i class="fas fa-box"></i> Low Stock Items</h3>
-                    <div class="stat-number">23</div>
-                    <div class="stat-trend trend-down">
-                        <i class="fas fa-arrow-down"></i>
-                        5 items need restock
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <h3><i class="fas fa-clock"></i> Avg Response Time</h3>
-                    <div class="stat-number">2.4h</div>
-                    <div class="stat-trend trend-up">
-                        <i class="fas fa-arrow-up"></i>
-                        Improved by 15%
-                    </div>
-                </div>
-            </div>
-
-            <div class="recent-activity">
-                <h3>Recent Activity</h3>
-                <ul class="activity-list">
-                    <li class="activity-item">
-                        <div class="activity-icon icon-blue">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <div class="activity-details">
-                            <h4>New Technician Added</h4>
-                            <p>John Doe was added as a technician</p>
-                            <span class="activity-time">2 hours ago</span>
-                        </div>
-                    </li>
-                    <li class="activity-item">
-                        <div class="activity-icon icon-green">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="activity-details">
-                            <h4>Ticket Resolved</h4>
-                            <p>Hardware repair completed for Business Client</p>
-                            <span class="activity-time">4 hours ago</span>
-                        </div>
-                    </li>
-                    <li class="activity-item">
-                        <div class="activity-icon icon-yellow">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="activity-details">
-                            <h4>Low Stock Alert</h4>
-                            <p>RAM modules inventory below threshold</p>
-                            <span class="activity-time">6 hours ago</span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="charts-container">
-                <div class="chart-card">
-                    <h3>Service Requests by Category</h3>
-                    <div id="categoryChart" style="height: 300px; background: #f9f9f9; display: flex; align-items: center; justify-content: center;">
-                        Chart placeholder - Will be populated with real data
-                    </div>
-                </div>
-                <div class="chart-card">
-                    <h3>Monthly Revenue</h3>
-                    <div id="revenueChart" style="height: 300px; background: #f9f9f9; display: flex; align-items: center; justify-content: center;">
-                        Chart placeholder - Will be populated with real data
-                    </div>
-                </div>
-            </div>
-        </main>
+      <div class="card">
+        <h3>Total Requests</h3>
+        <p id="total-requests">0</p>
+      </div>
+      <div class="card">
+        <h3>Active Admins</h3>
+        <p id="active-admins">0</p>
+      </div>
+      <div class="card">
+        <h3>Completed Requests</h3>
+        <p id="completed-requests">0</p>
+      </div>
+      <div class="card">
+        <h3>Average Resolution Time</h3>
+        <p id="avg-resolution-time">0 hours</p>
+      </div>
+      <div class="card">
+        <h3>Inventory Usage Rate</h3>
+        <p id="inventory-usage">0%</p>
+      </div>
+      <div class="card">
+        <h3>Top Technician</h3>
+        <p id="top-technician">N/A</p>
+      </div>
     </div>
 
-    <script>
-        // Logout functionality
-        function logout() {
-            fetch("/admin/api/auth/logout", { 
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                }
-            })
-            .catch(error => {
-                console.error('Logout failed:', error);
-            });
+    <div class="chart-container">
+      <h3>Requests by Category</h3>
+      <canvas id="requests-chart"></canvas>
+    </div>
+
+    <p class="error" id="dashboard-error"></p>
+  </div>
+
+  <script src="/admin/global.js"></script>
+  <script>
+    async function fetchDashboardData() {
+      const errorMessage = document.getElementById('dashboard-error');
+      try {
+        const response = await apiFetch('/admin/api/super-admin/dashboard', {}, 'read', async (type) => {
+          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+        });
+
+        if (!response || !response.ok) {
+          const errorData = await response.json();
+          errorMessage.textContent = errorData.error || 'Failed to fetch dashboard data';
+          errorMessage.style.display = 'block';
+          return;
         }
 
-        // Sample data update function - replace with real API calls
-        function updateDashboardData() {
-            // Fetch and update statistics
-            fetch('/admin/api/dashboard/stats')
-                .then(res => res.json())
-                .then(data => {
-                    // Update statistics with real data
-                })
-                .catch(error => {
-                    console.error('Failed to fetch dashboard stats:', error);
-                });
-
-            // Fetch and update recent activity
-            fetch('/admin/api/dashboard/activity')
-                .then(res => res.json())
-                .then(data => {
-                    // Update activity list with real data
-                })
-                .catch(error => {
-                    console.error('Failed to fetch activity:', error);
-                });
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          errorMessage.textContent = 'No dashboard data found';
+          errorMessage.style.display = 'block';
+          return;
         }
 
-        // Update dashboard data every 5 minutes
-        setInterval(updateDashboardData, 300000);
-    </script>
+        // Analitik ma'lumotlarni ko'rsatish
+        document.getElementById('total-requests').textContent = data.data.totalRequests || 0;
+        document.getElementById('active-admins').textContent = data.data.activeAdmins || 0;
+        document.getElementById('completed-requests').textContent = data.data.completedRequests || 0;
+        document.getElementById('avg-resolution-time').textContent = data.data.avgResolutionTime 
+          ? `${Math.round(data.data.avgResolutionTime)} hours` : 'N/A';
+        document.getElementById('inventory-usage').textContent = data.data.inventoryUsage 
+          ? `${Math.round(data.data.inventoryUsage)}%` : '0%';
+        document.getElementById('top-technician').textContent = data.data.topTechnician || 'N/A';
+
+        // Grafikni chizish
+        const ctx = document.getElementById('requests-chart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(data.data.requestsByCategory || {}),
+            datasets: [{
+              label: 'Requests by Category',
+              data: Object.values(data.data.requestsByCategory || {}),
+              backgroundColor: 'rgba(0, 123, 255, 0.5)',
+              borderColor: 'rgba(0, 123, 255, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+
+        errorMessage.style.display = 'none';
+      } catch (error) {
+        console.error('Fetch dashboard error:', error);
+        errorMessage.textContent = 'Something went wrong';
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    async function logout() {
+      try {
+        const response = await apiFetch('/admin/api/auth/logout', {
+          method: 'POST',
+        }, 'read', async (type) => {
+          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+        });
+
+        if (response && response.ok) {
+          window.location.href = '/admin/login';
+        } else {
+          document.getElementById('dashboard-error').textContent = 'Logout failed';
+          document.getElementById('dashboard-error').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Logout error:', error);
+        document.getElementById('dashboard-error').textContent = 'Something went wrong';
+        document.getElementById('dashboard-error').style.display = 'block';
+      }
+    }
+
+    window.onload = fetchDashboardData;
+  </script>
 </body>
 </html>

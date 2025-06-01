@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Admins</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .nav {
+      background: #007bff;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    .nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav a:hover {
+      text-decoration: underline;
+    }
+    .admin-list, .add-admin, .edit-admin {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background: #f8f9fa;
+    }
+    button {
+      padding: 8px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 0 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button.delete {
+      background-color: #dc3545;
+    }
+    button.delete:hover {
+      background-color: #c82333;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      display: none;
+    }
+    .form-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="/admin">Dashboard</a>
+    <a href="/admin/knowledges">Knowledge Base</a>
+    <a href="/admin/requests">Requests</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+  <div class="container">
+    <h1>Manage Admins</h1>
+    
+    <!-- Add Admin Form -->
+    <div class="add-admin">
+      <h2>Add New Admin</h2>
+      <div class="form-container">
+        <div>
+          <input type="text" id="add-firstName" placeholder="First Name" required>
+          <input type="text" id="add-lastName" placeholder="Last Name" required>
+          <input type="email" id="add-email" placeholder="Email" required>
+        </div>
+        <div>
+          <input type="password" id="add-password" placeholder="Password" required>
+          <input type="text" id="add-pinCode" placeholder="Pin Code" required>
+          <select id="add-role" required>
+            <option value="" disabled selected>Select Role</option>
+            <option value="super-admin">Super Admin</option>
+            <option value="manager">Manager</option>
+            <option value="technician">Technician</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="addAdmin()">Add Admin</button>
+      <p class="error" id="add-error"></p>
+    </div>
+
+    <!-- Admin List -->
+    <div class="admin-list">
+      <h2>Admin List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="admin-table"></tbody>
+      </table>
+      <p class="error" id="list-error"></p>
+    </div>
+
+    <!-- Edit Admin Form -->
+    <div class="edit-admin" style="display: none;">
+      <h2>Edit Admin</h2>
+      <div class="form-container">
+        <div>
+          <input type="hidden" id="edit-adminId">
+          <input type="text" id="edit-firstName" placeholder="First Name">
+          <input type="text" id="edit-lastName" placeholder="Last Name">
+          <input type="email" id="edit-email" placeholder="Email">
+        </div>
+        <div>
+          <input type="password" id="edit-password" placeholder="New Password (optional)">
+          <input type="text" id="edit-pinCode" placeholder="New Pin Code (optional)">
+          <select id="edit-role">
+            <option value="" disabled>Select Role</option>
+            <option value="super-admin">Super Admin</option>
+            <option value="manager">Manager</option>
+            <option value="technician">Technician</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="updateAdmin()">Update Admin</button>
+      <button onclick="cancelEdit()">Cancel</button>
+      <p class="error" id="edit-error"></p>
+    </div>
+  </div>
+
+  <script src="/admin/global.js"></script>
+  <script>
+    let editingAdminId = null;
+
+    async function fetchAdmins() {
+      const errorMessage = document.getElementById('list-error');
+      try {
+        const response = await apiFetch('/admin/api/super-admin/all-admin', {}, 'read', async (type) => {
+          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+        });
+
+        if (!response || !response.ok) {
+          const errorData = await response.json();
+          errorMessage.textContent = errorData.error || 'Failed to fetch admins';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          errorMessage.textContent = 'No admins found';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        const tableBody = document.getElementById('admin-table');
+        tableBody.innerHTML = data.data.map(admin => `
+          <tr>
+            <td>${admin.id}</td>
+            <td>${admin.firstName}</td>
+            <td>${admin.lastName}</td>
+            <td>${admin.email}</td>
+            <td>${admin.role}</td>
+            <td>
+              <button onclick="startEdit('${admin.id}', '${admin.firstName}', '${admin.lastName}', '${admin.email}', '${admin.role}')">Edit</button>
+              <button class="delete" onclick="deleteAdmin('${admin.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Fetch admins error:', error);
+        errorMessage.textContent = 'Something went wrong';
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    async function addAdmin() {
+      const errorMessage = document.getElementById('add-error');
+      const firstName = document.getElementById('add-firstName').value;
+      const lastName = document.getElementById('add-lastName').value;
+      const email = document.getElementById('add-email').value;
+      const password = document.getElementById('add-password').value;
+      const pinCode = document.getElementById('add-pinCode').value;
+      const role = document.getElementById('add-role').value;
+
+      if (!firstName || !lastName || !email || !password || !pinCode || !role) {
+        errorMessage.textContent = 'All fields are required';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/super-admin/add-admin', {
+          method: 'POST',
+          body: JSON.stringify({ firstName, lastName, email, password, pinCode, role }),
+        }, 'password', async (type) => {
+          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+        });
+
+        if (!response || !response.ok) {
+          const errorData = await response.json();
+          errorMessage.textContent = errorData.error || 'Failed to add admin';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        errorMessage.style.display = 'none';
+        document.getElementById('add-firstName').value = '';
+        document.getElementById('add-lastName').value = '';
+        document.getElementById('add-email').value = '';
+        document.getElementById('add-password').value = '';
+        document.getElementById('add-pinCode').value = '';
+        document.getElementById('add-role').value = '';
+        fetchAdmins();
+      } catch (error) {
+        console.error('Add admin error:', error);
+        errorMessage.textContent = 'Something went wrong';
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    function startEdit(id, firstName, lastName, email, role) {
+      editingAdminId = id;
+      document.getElementById('edit-adminId').value = id;
+      document.getElementById('edit-firstName').value = firstName;
+      document.getElementById('edit-lastName').value = lastName;
+      document.getElementById('edit-email').value = email;
+      document.getElementById('edit-role').value = role;
+      document.getElementById('edit-password').value = '';
+      document.getElementById('edit-pinCode').value = '';
+      document.querySelector('.edit-admin').style.display = 'block';
+    }
+
+    async function updateAdmin() {
+      const errorMessage = document.getElementById('edit-error');
+      const adminId = document.getElementById('edit-adminId').value;
+      const firstName = document.getElementById('edit-firstName').value;
+      const lastName = document.getElementById('edit-lastName').value;
+      const email = document.getElementById('edit-email').value;
+      const password = document.getElementById('edit-password').value || undefined;
+      const pinCode = document.getElementById('edit-pinCode').value || undefined;
+      const role = document.getElementById('edit-role').value;
+
+      if (!adminId || !firstName || !lastName || !email || !role) {
+        errorMessage.textContent = 'Required fields cannot be empty';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/super-admin/update-admin', {
+          method: 'POST',
+          body: JSON.stringify({ adminId, firstName, lastName, email, password, pinCode, role }),
+        }, 'password', async (type) => {
+          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+        });
+
+        if (!response || !response.ok) {
+          const errorData = await response.json();
+          errorMessage.textContent = errorData.error || 'Failed to update admin';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        errorMessage.style.display = 'none';
+        document.querySelector('.edit-admin').style.display = 'none';
+        fetchAdmins();
+      } catch (error) {
+        console.error('Update admin error:', error);
+        errorMessage.textContent = 'Something went wrong';
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    function cancelEdit() {
+      document.querySelector('.edit-admin').style.display = 'none';
+      document.getElementById('edit-error').style.display = 'none';
+    }
+
+    async function deleteAdmin(adminId) {
+      const errorMessage = document.getElementById('list-error');
+      if (!confirm('Are you sure you want to delete this admin?')) return;
+
+      try {
+        const response = await apiFetch('/admin/api/super-admin/delete-admin', {
+          method: 'POST',
+          body: JSON.stringify({ adminId }),
+        }, 'password', async (type) => {
+          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+        });
+
+        if (!response || !response.ok) {
+          const errorData = await response.json();
+          errorMessage.textContent = errorData.error || 'Failed to delete admin';
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        errorMessage.style.display = 'none';
+        fetchAdmins();
+      } catch (error) {
+        console.error('Delete admin error:', error);
+        errorMessage.textContent = 'Something went wrong';
+        errorMessage.style.display = 'block';
+      }
+    }
+
+    async function logout() {
+      try {
+        const response = await apiFetch('/admin/api/auth/logout', {
+          method: 'POST',
+        }, 'read', async (type) => {
+          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+        });
+
+        if (response && response.ok) {
+          window.location.href = '/admin/login';
+        } else {
+          document.getElementById('list-error').textContent = 'Logout failed';
+          document.getElementById('list-error').style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Logout error:', error);
+        document.getElementById('list-error').textContent = 'Something went wrong';
+        document.getElementById('list-error').style.display = 'block';
+      }
+    }
+
+    // Sahifa yuklanganda adminlar ro'yxatini olish
+    window.onload = fetchAdmins;
+  </script>
+</body>
+</html>

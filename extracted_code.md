@@ -1,144 +1,339 @@
-Admin.js
+admin.api.routes.js
 ```
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const authRouter = require('./admin.auth.routes');
+const superAdminRouter = require('./admin.super-admin.routes');
+const managerRouter = require('./admin.manager.routes');
+const technicianRouter = require('./admin.technician.routes');
 
-const adminSchema = new mongoose.Schema({
-  role: { type: String, enum: ['super-admin', 'manager', 'technician'], required: true },
-  firstName: { type: String, required: true },
-  lastName:  { type: String, required: true },
-  email:     { type: String, required: true, unique: true },
-  password:  { type: String, required: true },
-  pinCode:   { type: String, required: true },
-  kpi: { // faqat technician uchun
-    totalCompleted: { type: Number, default: 0 },
-    avgCompletionTime: { type: Number, default: 0 }, // in minutes
-  },
-  assignedTasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Request' }],
-  createdAt: { type: Date, default: Date.now }
-});
+router.use('/auth', authRouter);
+router.use('/super-admin', superAdminRouter);
+router.use('/manager', managerRouter);
+router.use('/technician', technicianRouter);
 
-module.exports = mongoose.model('Admin', adminSchema);
+router.use((req, res) => {
+    res.status(404).send({ message: "API not found!" });
+})
 
-```
-
-AdminRefreshToken.js
-```
-const mongoose = require("mongoose");
-
-const adminRefreshTokenSchema = new mongoose.Schema({
-  token: { type: String, required: true },
-  adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true },
-  expiresAt: { type: Date, required: true },
-}, { timestamps: true });
-
-module.exports = mongoose.model('AdminRefreshToken', adminRefreshTokenSchema);
+module.exports = router;
 
 ```
 
-Inventory.js
+admin.auth.routes.js
 ```
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const { verifyAdmin, verifyAdminPinCode, verifyAdminPassword } = require('../middleware/admin.auth.middleware');
+const { login, logout, refreshRead, refreshWrite, refreshSuper } = require('../controller/admin.auth.controller');
 
-const inventorySchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  partNumber: { type: String },
-  quantity: { type: Number, default: 0 },
-  description: { type: String },
-  updatedAt: { type: Date, default: Date.now }
-});
+router.post('/login', login);
+router.post('/logout', logout);
+router.post('/refresh-read', verifyAdmin, refreshRead);
+router.post('/refresh-write', verifyAdminPinCode, refreshWrite);
+router.post('/refresh-super', verifyAdminPassword, refreshSuper);
 
-module.exports = mongoose.model('Inventory', inventorySchema);
-
-```
-
-Knowledge.js
-```
-const mongoose = require('mongoose');
-
-const knowledgeSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  category: { type: String },
-  description: { type: String },
-  similars: [{ type: mongoose.Schema.Types.ObjectId, ref: 'KnowledgeArticle', default: [] }], // 3 ta o'xshash maqola ID'lari
-  createdAt: { type: Date, default: Date.now }
-});
-
-module.exports = mongoose.model('Knowledge', knowledgeSchema);
-```
-
-KnowledgeArticle.js
-```
-// KnowledgeArticle.js
-const mongoose = require('mongoose');
-
-const knowledgeArticleSchema = new mongoose.Schema({
-  knowledge: { type: mongoose.Schema.Types.ObjectId, ref: 'Knowledge', required: true },
-  title: { type: String, required: true },
-  content: { type: String, required: true }, // markdown format
-  createdAt: { type: Date, default: Date.now }
-});
-
-module.exports = mongoose.model('KnowledgeArticle', knowledgeArticleSchema);
+module.exports = router;
 
 ```
 
-RefreshToken.js
+admin.manager.routes.js
 ```
-const mongoose = require("mongoose");
+const express = require('express');
+const router = express.Router();
+const {
+    about,
+    assignRequest,
+    refreshAccessToken,
+    allInventory,
+    addInventory,
+    updateInventory,
+    deleteInventory,
+    myRequests
+} = require('../controller/admin.manager.controller');
 
-const refreshTokenSchema = new mongoose.Schema({
-  token: { type: String, required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  expiresAt: { type: Date, required: true },
-}, { timestamps: true });
+const adminManagerMiddleware = require('../middleware/admin.manager.middleware');
 
-module.exports = mongoose.model('RefreshToken', refreshTokenSchema);
+// Admin
+// get /about - about admin's profile
+router.get('/about', adminManagerMiddleware, about);
+
+// post /assign-request - assign request to technician
+router.post('/assign-request', adminManagerMiddleware, assignRequest);
+
+// AdminRefreshToken
+// post /refresh-access-token - refresh access token
+router.post('/refresh-access-token', adminManagerMiddleware, refreshAccessToken);
+
+// get /all-inventory - get inventory list
+router.get('/all-inventory', adminManagerMiddleware, allInventory);
+
+// post /add-inventory - add inventory
+router.post('/add-inventory', adminManagerMiddleware, addInventory);
+
+// post /update-inventory - update inventory
+router.post('/update-inventory', adminManagerMiddleware, updateInventory);
+
+// post /delete-inventory - delete inventory
+router.post('/delete-inventory', adminManagerMiddleware, deleteInventory);
+
+// Request
+// get /my-requests - get requests that assigned to technician
+router.get('/my-requests', adminManagerMiddleware, myRequests);
+
+
+module.exports = router;
 
 ```
 
-Request.js
+admin.routes.js
 ```
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const adminController = require('../controller/admin.controller');
+const adminMiddleware = require('../middleware/admin.middleware');
 
-const requestSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  type: { type: String, enum: ['individual', 'business'], required: true },
-  issueDescription: { type: String, required: true },
-  preferredMethod: { type: String, enum: ['drop-off', 'courier', 'on-site'], required: true },
-  status: { type: String, enum: ['pending', 'in-process', 'done'], default: 'pending' },
-  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }, // technician
-  usedInventories: [{
-    inventory: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory' },
-    quantity: { type: Number, default: 1 }
-  }],
-  priceQuote: { type: Number },
-  submittedAt: { type: Date, default: Date.now },
-  assignedAt: { type: Date },
-  completedAt: { type: Date }
-});
+router.use(adminMiddleware, adminController);
 
-module.exports = mongoose.model('Request', requestSchema);
+module.exports = router;
 
 ```
 
-User.js
+admin.super-admin.routes.js
 ```
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const {
+    addAdmin,
+    allAdmin,
+    about,
+    updateAdmin,
+    deleteAdmin,
+    refreshAccessToken,
+    allKnowledge,
+    addKnowledge,
+    updateKnowledge,
+    deleteKnowledge,
+    detailsKnowledge,
+    analytics,
+    getKpi
+} = require('../controller/admin.super-admin.controller');
+const adminSuperAdminMiddleware = require('../middleware/admin.super-admin.middleware');
 
-const userSchema = new mongoose.Schema({
-  role: { type: String, enum: ['individual', 'business'], required: true },
-  firstName: { type: String, required: true },
-  lastName:  { type: String, required: true },
-  email:     { type: String, required: true, unique: true },
-  phone:     { type: String, required: true },
-  address:   { type: String, required: true },
-  companyName:   { type: String },
-  employeeCount: { type: String },
-  password:  { type: String, required: true },
-  createdAt:     { type: Date, default: Date.now }
-});
+// post /add-admin - add admin
+router.post('/add-admin', adminSuperAdminMiddleware, addAdmin);
 
-module.exports = mongoose.model('User', userSchema);
+// get /all-admin - get admins list
+router.get('/all-admin', adminSuperAdminMiddleware, allAdmin);
+
+// get /about - about admin's profile
+router.get('/about', adminSuperAdminMiddleware, about);
+
+// post /update-admin - update admin
+router.post('/update-admin', adminSuperAdminMiddleware, updateAdmin);
+
+// post /delete-admin - delete admin
+router.post('/delete-admin', adminSuperAdminMiddleware, deleteAdmin);
+
+// AdminRefreshToken
+// post /refresh-access-token - refresh access token
+router.post('/refresh-access-token', adminSuperAdminMiddleware, refreshAccessToken);
+
+// Knowledge
+// get /all-knowledge - get knowledges list
+router.get('/all-knowledge', adminSuperAdminMiddleware, allKnowledge);
+
+// post /add-knowledge - add knowledge
+router.post('/add-knowledge', adminSuperAdminMiddleware, addKnowledge);
+
+// post /update-knowledge - update knowledge
+router.post('/update-knowledge', adminSuperAdminMiddleware, updateKnowledge);
+
+// post /delete-knowledge - delete knowledge
+router.post('/delete-knowledge', adminSuperAdminMiddleware, deleteKnowledge);
+
+// KnowledgeArticle
+// get /details-knowledge - get full article
+router.get('/details-knowledge', adminSuperAdminMiddleware, detailsKnowledge);
+
+// get /analytics - get analytics
+router.get('/analytics', adminSuperAdminMiddleware, analytics);
+
+// get /get-kpi - get kpi
+router.get('/get-kpi', adminSuperAdminMiddleware, getKpi);
+
+
+module.exports = router;
+
+```
+
+admin.technician.routes.js
+```
+const express = require('express');
+const router = express.Router();
+const {
+    about,
+    doneRequest,
+    refreshAccessToken,
+    allInventory,
+    useInventories,
+    myRequests
+} = require('../controller/admin.technician.controller');
+
+const adminTechnicianMiddleware = require('../middleware/admin.technician.middleware');
+
+// Admin
+// get /about - about admin's profile
+router.get('/about', adminTechnicianMiddleware, about);
+
+// post /done-request - done request
+router.post('/done-request', adminTechnicianMiddleware, doneRequest);
+
+// post /refresh-access-token - refresh access token
+router.post('/refresh-access-token', adminTechnicianMiddleware, refreshAccessToken);
+
+// get /all-inventory - get inventory list
+router.get('/all-inventory', adminTechnicianMiddleware, allInventory);
+
+// post /use-inventories - use inventories
+router.post('/use-inventories', adminTechnicianMiddleware, useInventories);
+
+// Request
+// get /my-requests - get requests that assigned to technician
+router.get('/my-requests', adminTechnicianMiddleware, myRequests);
+
+
+module.exports = router;
+
+```
+
+api.routes.js
+```
+const express = require('express');
+const router = express.Router();
+const { random, similar, allKnowledge, detailsKnowledge } = require('../controller/api.controller');
+const authRouter = require('./auth.routes');
+const indidualRouter = require('./individual.routes');
+const businessRouter = require('./business.routes');
+
+router.use('/auth', authRouter);
+router.use('/individual', indidualRouter);
+router.use('/business', businessRouter);
+
+// get /random - get random knowledge article
+router.get('/random', random)
+
+// get /similar - get similar knowledge article
+router.get('/similar', similar);
+
+// get /all-knowledge - get knowledges list
+router.get('/all-knowledge', allKnowledge);
+
+// get /details-knowledge - get full article
+router.get('/details-knowledge', detailsKnowledge);
+
+router.use((req, res) => {
+    res.status(404).send({ message: "API not found!" });
+})
+
+module.exports = router;
+
+```
+
+auth.routes.js
+```
+const express = require('express');
+const router = express.Router();
+const verifyUser = require('../middleware/auth.middleware');
+const { login, logout, refresh, register } = require('../controller/auth.controller');
+
+router.post('/login', login);
+router.post('/logout', logout);
+router.post('/refresh', verifyUser, refresh);
+router.post('/register', register);
+
+module.exports = router;
+
+```
+
+business.routes.js
+```
+const express = require('express');
+const router = express.Router();
+const {
+    aboutMe,
+    editProfile,
+    refreshAccessToken,
+    sendSupportRequest,
+    getSupportRequests
+} = require('../controller/business.controller');
+const businessMiddleware = require('../middleware/business.middleware');
+
+// post /about - about user
+router.post('/about', businessMiddleware, aboutMe);
+
+// post /edit-profile - edit user's profile
+router.post('/edit-profile', businessMiddleware, editProfile);
+
+// post /refresh-access-token - refresh access token
+// post for restricted for refresh from browser
+router.post('/refresh-access-token', businessMiddleware, refreshAccessToken);
+
+// post /send_support_request - send support request
+router.post('/send-support-request', businessMiddleware, sendSupportRequest);
+
+// get /get-support-request - get support requests list
+router.get('/get-support-requests', businessMiddleware, getSupportRequests);
+
+
+module.exports = router;
+
+```
+
+general.routes.js
+```
+const express = require('express');
+const router = express.Router();
+const generalController = require('../controller/general.controller');
+const generalMiddleware = require('../middleware/general.middleware');
+
+router.use(generalMiddleware, generalController);
+
+module.exports = router;
+
+```
+
+individual.routes.js
+```
+const express = require('express');
+const router = express.Router();
+const {
+    aboutMe,
+    editProfile,
+    refreshAccessToken,
+    sendSupportRequest,
+    getSupportRequests
+} = require('../controller/individual.controller');
+const individualMiddleware = require('../middleware/individual.middleware');
+
+// post /about - about user
+router.post('/about', individualMiddleware, aboutMe);
+
+// post /edit-profile - edit user's profile
+router.post('/edit-profile', individualMiddleware, editProfile);
+
+// post /refresh-access-token - refresh access token
+// post for restricted for refresh from browser
+router.post('/refresh-access-token', individualMiddleware, refreshAccessToken);
+
+// post /send_support_request - send support request
+router.post('/send-support-request', individualMiddleware, sendSupportRequest);
+
+// get /get-support-request - get support requests list
+router.get('/get-support-requests', individualMiddleware, getSupportRequests);
+
+
+module.exports = router;
 
 ```
 

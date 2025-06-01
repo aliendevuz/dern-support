@@ -11,7 +11,7 @@ const individualMiddleware = async (req, res, next) => {
     return res.status(403).send({ msg: "Unauthorized" });
   }
   
-  req.user = user;
+  req.user = access;
   next();
 };
 
