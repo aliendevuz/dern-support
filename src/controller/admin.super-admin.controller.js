@@ -1,5 +1,6 @@
 const Admin = require("../models/Admin");
 const Knowledge = require("../models/Knowledge");
+const Inventory = require("../models/Inventory");
 const KnowledgeArticle = require("../models/KnowledgeArticle");
 const Request = require("../models/Request");
 const bcrypt = require("bcrypt");
@@ -457,31 +458,65 @@ const detailsKnowledge = async (req, res) => {
 
 const analytics = async (req, res) => {
   try {
-    if (!req.admin || !req.admin.id) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
+    // if (!req.admin || !req.admin.id) {
+    //   return res.status(403).json({ error: 'Unauthorized access' });
+    // }
 
     const totalRequests = await Request.countDocuments();
-    const pendingRequests = await Request.countDocuments({ status: "pending" });
-    const inProcessRequests = await Request.countDocuments({
-      status: "in-process",
-    });
-    const doneRequests = await Request.countDocuments({ status: "done" });
+    const pendingRequests = await Request.countDocuments({ status: 'pending' });
+    const inProcessRequests = await Request.countDocuments({ status: 'in-process' });
+    const doneRequests = await Request.countDocuments({ status: 'done' });
 
-    const technicians = await Admin.find({ role: "technician" }).select("kpi");
-    const totalCompleted = technicians.reduce(
-      (sum, tech) => sum + tech.kpi.totalCompleted,
-      0
-    );
+    const avgPriceQuote = await Request.aggregate([
+      { $match: { priceQuote: { $exists: true } } },
+      { $group: { _id: null, avgPrice: { $avg: '$priceQuote' } } },
+    ]);
+
+    const technicians = await Admin.find({ role: 'technician' }).select('kpi firstName lastName');
+    const totalCompleted = technicians.reduce((sum, tech) => sum + tech.kpi.totalCompleted, 0);
     const avgCompletionTime = technicians.length
-      ? technicians.reduce((sum, tech) => sum + tech.kpi.avgCompletionTime, 0) /
-        technicians.length
+      ? technicians.reduce((sum, tech) => sum + tech.kpi.avgCompletionTime, 0) / technicians.length
       : 0;
 
+    const topTechnicians = technicians
+      .sort((a, b) => b.kpi.totalCompleted - a.kpi.totalCompleted)
+      .slice(0, 3)
+      .map(tech => ({
+        id: tech._id,
+        name: `${tech.firstName} ${tech.lastName}`,
+        totalCompleted: tech.kpi.totalCompleted,
+      }));
+
     const inventoryCount = await Inventory.countDocuments();
-    const lowStockInventories = await Inventory.countDocuments({
-      quantity: { $lt: 5 },
-    });
+    const lowStockInventories = await Inventory.countDocuments({ quantity: { $lt: 5 } });
+
+    const topInventories = await Request.aggregate([
+      { $unwind: '$usedInventories' },
+      {
+        $group: {
+          _id: '$usedInventories.inventory',
+          totalUsed: { $sum: '$usedInventories.quantity' },
+        },
+      },
+      { $sort: { totalUsed: -1 } },
+      { $limit: 3 },
+      {
+        $lookup: {
+          from: 'inventories',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'inventory',
+        },
+      },
+      { $unwind: '$inventory' },
+      {
+        $project: {
+          id: '$_id',
+          name: '$inventory.name',
+          totalUsed: 1,
+        },
+      },
+    ]);
 
     res.status(200).json({
       success: true,
@@ -491,58 +526,74 @@ const analytics = async (req, res) => {
           pending: pendingRequests,
           inProcess: inProcessRequests,
           done: doneRequests,
+          avgPrice: avgPriceQuote[0]?.avgPrice ? Math.round(avgPriceQuote[0].avgPrice) : 0,
         },
         technicians: {
           total: technicians.length,
           totalCompleted,
           avgCompletionTime: Math.round(avgCompletionTime),
+          topTechnicians,
         },
         inventory: {
           total: inventoryCount,
           lowStock: lowStockInventories,
+          topUsed: topInventories,
         },
       },
     });
   } catch (err) {
-    console.error("❌ analytics error:", err);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error('❌ analytics error:', err);
+    res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
 const getKpi = async (req, res) => {
   try {
-    if (!req.admin || !req.admin.id) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
+    // if (!req.admin || !req.admin.id) {
+    //   return res.status(403).json({ error: 'Unauthorized access' });
+    // }
 
-    const { technicianId } = req.query;
-    if (!technicianId) {
-      return res.status(400).json({ error: "technicianId is required" });
-    }
-
-    const technician = await Admin.findById(technicianId).select(
-      "email firstName lastName kpi assignedTasks"
+    const technicians = await Admin.find({ role: 'technician' }).select(
+      'email firstName lastName kpi assignedTasks'
     );
-    if (!technician || technician.role !== "technician") {
-      return res
-        .status(404)
-        .json({ error: "Technician not found or invalid role" });
+
+    if (!technicians.length) {
+      return res.status(404).json({ error: 'No technicians found' });
     }
+
+    const kpiData = await Promise.all(
+      technicians.map(async tech => {
+        const recentRequests = await Request.find({ assignedTo: tech._id })
+          .select('issueDescription status completedAt')
+          .sort({ completedAt: -1 })
+          .limit(3);
+
+        return {
+          id: tech._id,
+          email: tech.email,
+          name: `${tech.firstName} ${tech.lastName}`,
+          kpi: {
+            totalCompleted: tech.kpi.totalCompleted,
+            avgCompletionTime: tech.kpi.avgCompletionTime.toFixed(2),
+          },
+          assignedTasksCount: tech.assignedTasks.length,
+          recentRequests: recentRequests.map(req => ({
+            id: req._id,
+            issueDescription: req.issueDescription,
+            status: req.status,
+            completedAt: req.completedAt,
+          })),
+        };
+      })
+    );
 
     res.status(200).json({
       success: true,
-      data: {
-        id: technician._id,
-        email: technician.email,
-        firstName: technician.firstName,
-        lastName: technician.lastName,
-        kpi: technician.kpi,
-        assignedTasks: technician.assignedTasks,
-      },
+      data: kpiData,
     });
   } catch (err) {
-    console.error("❌ getKpi error:", err);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error('❌ getKpi error:', err);
+    res.status(500).json({ error: 'Something went wrong' });
   }
 };
 

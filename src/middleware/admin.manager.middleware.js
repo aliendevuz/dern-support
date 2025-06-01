@@ -2,7 +2,7 @@ const { verifyAdminRefreshToken, verifyAdminReadAccessToken } = require("../util
 
 const managerMiddleware = async (req, res, next) => {
   const refreshToken = req.cookies.adminRefreshToken;
-  const accessToken = req.cookies.verifyAdminReadAccessToken;
+  const accessToken = req.cookies.adminReadAccessToken;
 
   const refresh =  verifyAdminRefreshToken(refreshToken);
   const access = verifyAdminReadAccessToken(accessToken);
@@ -11,7 +11,7 @@ const managerMiddleware = async (req, res, next) => {
     return res.status(403).send({ msg: "Unauthorized" });
   }
   
-  req.admin = admin;
+  req.admin = access;
   next();
 };
 

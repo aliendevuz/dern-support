@@ -200,19 +200,20 @@
 
       try {
         const response = await apiFetch('/api/business/about', { method: 'POST' });
-        if (!response) return; // apiFetch 401/403 uchun /login'ga yo'naltiradi
+        if (!response) return;
 
         const data = await response.json();
-        if (!data.success || !data.data) {
+        console.log(data);
+        if (!response) {
           handleError(error, success, result, 'No profile data found');
           return;
         }
 
         result.innerHTML = `
-          <p><strong>Name:</strong> ${data.data.firstName}</p>
-          <p><strong>Email:</strong> ${data.data.email}</p>
-          <p><strong>Role:</strong> ${data.data.role}</p>
-          <p><strong>Status:</strong> ${data.data.status}</p>
+          <p><strong>Name:</strong> ${data.firstName}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Role:</strong> ${data.role}</p>
+          <p><strong>Status:</strong> ${data.status}</p>
         `;
         success.textContent = 'Profile fetched successfully';
         success.style.display = 'block';

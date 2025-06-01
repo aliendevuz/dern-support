@@ -1,202 +1,460 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super Admin Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Super-Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f0f2f5;
+      font-family: 'Inter', sans-serif;
     }
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
+
+    /* Custom Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .nav {
-      background: #007bff;
-      padding: 10px;
-      margin-bottom: 20px;
+
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease-out;
     }
-    .nav a {
-      color: white;
-      margin: 0 15px;
-      text-decoration: none;
-      font-weight: bold;
+
+    .hover-scale {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .nav a:hover {
-      text-decoration: underline;
+
+    .hover-scale:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 1.2em;
-    }
-    .card p {
-      margin: 5px 0;
-      font-size: 1.5em;
-      color: #333;
-    }
-    .chart-container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      margin-top: 20px;
-    }
-    canvas {
-      max-width: 100%;
-    }
-    .error {
-      color: red;
-      margin-top: 10px;
-      display: none;
+
+    .shadow-md {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
-<body>
-  <div class="nav">
-    <a href="/admin/admins">Admins</a>
-    <a href="/admin/knowledges">Knowledge Base</a>
-    <a href="/admin/requests">Requests</a>
-    <a href="/admin/inventory">Inventory</a>
-    <a href="#" onclick="logout()">Logout</a>
+
+<body class="bg-gray-100">
+  <div class="min-h-screen bg-gray-100 text-gray-900">
+    <!-- Header -->
+    <header class="bg-blue-800 p-4 sticky top-0 z-10 animate-fadeIn">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-3xl font-bold tracking-tight text-white">Super-Admin Dashboard</h1>
+        <nav class="space-x-4">
+          <a href="/admin/admins" class="text-white hover:text-blue-200 transition-colors duration-300">Manage Admins</a>
+          <a href="/admin/knowledge" class="text-white hover:text-blue-200 transition-colors duration-300">Manage Knowledge</a>
+          <a href="/admin/login" class="text-white hover:text-blue-200 transition-colors duration-300">Login</a>
+          <a href="/admin/logout" class="text-white hover:text-blue-200 transition-colors duration-300">Logout</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-8 space-y-8">
+      <!-- KPI Section -->
+      <section class="bg-white rounded-xl p-6 shadow-md animate-fadeIn">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Technicians KPI</h2>
+        <div id="kpi-loading" class="flex items-center justify-center h-32">
+          <div class="w-8 h-8 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+        </div>
+        <div class="chart-container">
+          <canvas id="kpiChart"></canvas>
+        </div>
+        <div id="kpi-table" class="overflow-x-auto"></div>
+        <p class="error hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg animate-fadeIn" id="kpi-error"></p>
+        <p class="success hidden mt-4 p-4 bg-green-100 text-green-700 rounded-lg animate-fadeIn" id="kpi-success"></p>
+      </section>
+
+      <!-- Analytics Section -->
+      <section class="bg-white rounded-xl p-6 shadow-md animate-fadeIn">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">System Analytics</h2>
+        <div id="analytics-loading" class="flex items-center justify-center h-32">
+          <div class="w-8 h-8 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6" id="analytics-stats"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="chart-container">
+            <canvas id="requestsChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="inventoryChart"></canvas>
+          </div>
+        </div>
+        <div id="analytics-details" class="mt-6"></div>
+        <p class="error hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg animate-fadeIn" id="analytics-error"></p>
+        <p class="success hidden mt-4 p-4 bg-green-100 text-green-700 rounded-lg animate-fadeIn" id="analytics-success"></p>
+      </section>
+    </main>
   </div>
-  <div class="container">
-    <h1>Super Admin Dashboard</h1>
-    
-    <div class="dashboard">
-      <div class="card">
-        <h3>Total Requests</h3>
-        <p id="total-requests">0</p>
-      </div>
-      <div class="card">
-        <h3>Active Admins</h3>
-        <p id="active-admins">0</p>
-      </div>
-      <div class="card">
-        <h3>Completed Requests</h3>
-        <p id="completed-requests">0</p>
-      </div>
-      <div class="card">
-        <h3>Average Resolution Time</h3>
-        <p id="avg-resolution-time">0 hours</p>
-      </div>
-      <div class="card">
-        <h3>Inventory Usage Rate</h3>
-        <p id="inventory-usage">0%</p>
-      </div>
-      <div class="card">
-        <h3>Top Technician</h3>
-        <p id="top-technician">N/A</p>
-      </div>
-    </div>
 
-    <div class="chart-container">
-      <h3>Requests by Category</h3>
-      <canvas id="requests-chart"></canvas>
-    </div>
-
-    <p class="error" id="dashboard-error"></p>
-  </div>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/admin/global.js"></script>
   <script>
-    async function fetchDashboardData() {
-      const errorMessage = document.getElementById('dashboard-error');
-      try {
-        const response = await apiFetch('/admin/api/super-admin/dashboard', {}, 'read', async (type) => {
-          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
-        });
+    // Error handling function
+    function handleError(errorElement, successElement, resultElements, errorMessage) {
+      errorElement.textContent = errorMessage;
+      errorElement.classList.remove('hidden');
+      if (successElement) successElement.classList.add('hidden');
+      resultElements.forEach(el => (el.innerHTML = ''));
+    }
 
-        if (!response || !response.ok) {
-          const errorData = await response.json();
-          errorMessage.textContent = errorData.error || 'Failed to fetch dashboard data';
-          errorMessage.style.display = 'block';
+    // Chart.js contexts
+    let requestsChartInstance = null;
+    let inventoryChartInstance = null;
+    let kpiChartInstance = null;
+
+    // Test data function
+    function renderTestData() {
+      const testData = {
+        analytics: {
+          success: true,
+          data: {
+            requests: {
+              total: 100,
+              pending: 20,
+              inProcess: 30,
+              done: 50,
+              avgPrice: 500,
+            },
+            technicians: {
+              total: 5,
+              totalCompleted: 150,
+              avgCompletionTime: 45,
+              topTechnicians: [
+                { id: '1', name: 'John Doe', totalCompleted: 60 },
+                { id: '2', name: 'Jane Smith', totalCompleted: 50 },
+                { id: '3', name: 'Bob Johnson', totalCompleted: 40 },
+              ],
+            },
+            inventory: {
+              total: 200,
+              lowStock: 10,
+              topUsed: [
+                { id: '1', name: 'Cable', totalUsed: 100 },
+                { id: '2', name: 'Battery', totalUsed: 80 },
+                { id: '3', name: 'Screw', totalUsed: 60 },
+              ],
+            },
+          },
+        },
+        kpi: {
+          success: true,
+          data: [
+            {
+              id: '1',
+              name: 'John Doe',
+              email: 'john@example.com',
+              kpi: { totalCompleted: 60, avgCompletionTime: '45.00' },
+              assignedTasksCount: 5,
+              recentRequests: [
+                { id: 'r1', issueDescription: 'Fix cable', status: 'done', completedAt: new Date() },
+              ],
+            },
+            {
+              id: '2',
+              name: 'Jane Smith',
+              email: 'jane@example.com',
+              kpi: { totalCompleted: 50, avgCompletionTime: '40.00' },
+              assignedTasksCount: 3,
+              recentRequests: [],
+            },
+          ],
+        },
+      };
+
+      renderAnalytics(testData.analytics);
+      renderKpi(testData.kpi);
+      document.getElementById('analytics-success').textContent = 'Test data displayed';
+      document.getElementById('analytics-success').classList.remove('hidden');
+      document.getElementById('kpi-success').textContent = 'Test KPI data displayed';
+      document.getElementById('kpi-success').classList.remove('hidden');
+      document.getElementById('analytics-loading').classList.add('hidden');
+      document.getElementById('kpi-loading').classList.add('hidden');
+    }
+
+    // Render analytics data
+    function renderAnalytics(data) {
+      const analytics = data.data;
+      document.getElementById('analytics-stats').innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
+            <h3 class="text-lg font-semibold text-gray-700">Total Requests</h3>
+            <p class="text-2xl font-bold text-blue-600">${analytics.requests.total}</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
+            <h3 class="text-lg font-semibold text-gray-700">Pending Requests</h3>
+            <p class="text-2xl font-bold text-blue-600">${analytics.requests.pending}</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
+            <h3 class="text-lg font-semibold text-gray-700">In-Process Requests</h3>
+            <p class="text-2xl font-bold text-blue-600">${analytics.requests.inProcess}</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
+            <h3 class="text-lg font-semibold text-gray-700">Done Requests</h3>
+            <p class="text-2xl font-bold text-blue-600">${analytics.requests.done}</p>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
+            <h3 class="text-lg font-semibold text-gray-700">Avg Request Price</h3>
+            <p class="text-2xl font-bold text-blue-600">$${analytics.requests.avgPrice}</p>
+          </div>
+        </div>
+      `;
+      document.getElementById('analytics-details').innerHTML = `
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Top Technicians</h3>
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="p-3 text-left text-gray-700">Name</th>
+              <th class="p-3 text-left text-gray-700">Completed Requests</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${analytics.technicians.topTechnicians
+              .map(t => `
+                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                  <td class="p-3 border-t">${t.name}</td>
+                  <td class="p-3 border-t">${t.totalCompleted}</td>
+                </tr>
+              `)
+              .join('')}
+          </tbody>
+        </table>
+        <h3 class="text-lg font-semibold text-gray-800 mt-4 mb-2">Top Used Inventories</h3>
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="p-3 text-left text-gray-700">Name</th>
+              <th class="p-3 text-left text-gray-700">Total Used</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${analytics.inventory.topUsed
+              .map(i => `
+                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                  <td class="p-3 border-t">${i.name}</td>
+                  <td class="p-3 border-t">${i.totalUsed}</td>
+                </tr>
+              `)
+              .join('')}
+          </tbody>
+        </table>
+      `;
+
+      // Requests Chart
+      if (requestsChartInstance) requestsChartInstance.destroy();
+      const requestsCtx = document.getElementById('requestsChart').getContext('2d');
+      requestsChartInstance = new Chart(requestsCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pending', 'In-Process', 'Done'],
+          datasets: [{
+            data: [
+              analytics.requests.pending,
+              analytics.requests.inProcess,
+              analytics.requests.done,
+            ],
+            backgroundColor: ['#f87171', '#60a5fa', '#34d399'],
+            borderColor: ['#fff', '#fff', '#fff'],
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top', labels: { color: '#374151' } },
+            title: { display: true, text: 'Request Status Distribution', color: '#374151', font: { size: 16 } },
+          },
+          animation: {
+            animateScale: true,
+            animateRotate: true,
+          },
+        },
+      });
+
+      // Inventory Chart
+      if (inventoryChartInstance) inventoryChartInstance.destroy();
+      const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+      inventoryChartInstance = new Chart(inventoryCtx, {
+        type: 'pie',
+        data: {
+          labels: analytics.inventory.topUsed.map(i => i.name),
+          datasets: [{
+            data: analytics.inventory.topUsed.map(i => i.totalUsed),
+            backgroundColor: ['#f87171', '#60a5fa', '#34d399'],
+            borderColor: ['#fff', '#fff', '#fff'],
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top', labels: { color: '#374151' } },
+            title: { display: true, text: 'Top Used Inventories', color: '#374151', font: { size: 16 } },
+          },
+          animation: {
+            animateScale: true,
+            animateRotate: true,
+          },
+        },
+      });
+
+      document.getElementById('analytics-loading').classList.add('hidden');
+    }
+
+    // Render KPI data
+    function renderKpi(data) {
+      const kpi = data.data;
+      document.getElementById('kpi-table').innerHTML = `
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="p-3 text-left text-gray-700">Name</th>
+              <th class="p-3 text-left text-gray-700">Email</th>
+              <th class="p-3 text-left text-gray-700">Total Completed</th>
+              <th class="p-3 text-left text-gray-700">Avg Completion Time (hrs)</th>
+              <th class="p-3 text-left text-gray-700">Assigned Tasks</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${kpi
+              .map(
+                t => `
+                  <tr class="hover:bg-gray-50 transition-colors duration-200">
+                    <td class="p-3 border-t">${t.name}</td>
+                    <td class="p-3 border-t">${t.email}</td>
+                    <td class="p-3 border-t">${t.kpi.totalCompleted}</td>
+                    <td class="p-3 border-t">${(parseFloat(t.kpi.avgCompletionTime) / 60).toFixed(2)}</td>
+                    <td class="p-3 border-t">${t.assignedTasksCount}</td>
+                  </tr>
+                `
+              )
+              .join('')}
+          </tbody>
+        </table>
+      `;
+
+      // KPI Chart
+      if (kpiChartInstance) kpiChartInstance.destroy();
+      const kpiCtx = document.getElementById('kpiChart').getContext('2d');
+      kpiChartInstance = new Chart(kpiCtx, {
+        type: 'bar',
+        data: {
+          labels: kpi.map(t => t.name),
+          datasets: [
+            {
+              label: 'Total Completed',
+              data: kpi.map(t => t.kpi.totalCompleted),
+              backgroundColor: '#60a5fa',
+              borderColor: '#fff',
+              borderWidth: 1,
+            },
+            {
+              label: 'Avg Completion Time (hrs)',
+              data: kpi.map(t => parseFloat(t.kpi.avgCompletionTime) / 60),
+              backgroundColor: '#f87171',
+              borderColor: '#fff',
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top', labels: { color: '#374151' } },
+            title: { display: true, text: 'Technicians KPI', color: '#374151', font: { size: 16 } },
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#374151' } },
+            x: { ticks: { color: '#374151' } },
+          },
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart',
+          },
+        },
+      });
+
+      document.getElementById('kpi-loading').classList.add('hidden');
+    }
+
+    // Analytics Fetch
+    async function fetchAnalytics() {
+      const error = document.getElementById('analytics-error');
+      const success = document.getElementById('analytics-success');
+      const resultElements = [
+        document.getElementById('analytics-stats'),
+        document.getElementById('analytics-details'),
+      ];
+      error.classList.add('hidden');
+      success.classList.add('hidden');
+      resultElements.forEach(el => (el.innerHTML = ''));
+      document.getElementById('analytics-loading').classList.remove('hidden');
+
+      try {
+        const response = await apiFetch('/admin/api/super-admin/analytics', { method: 'GET' }, 'read');
+        if (!response) {
+          document.getElementById('analytics-loading').classList.add('hidden');
           return;
         }
 
         const data = await response.json();
         if (!data.success || !data.data) {
-          errorMessage.textContent = 'No dashboard data found';
-          errorMessage.style.display = 'block';
+          renderTestData();
+          handleError(error, success, resultElements, 'No analytics data found, showing test data');
           return;
         }
 
-        // Analitik ma'lumotlarni ko'rsatish
-        document.getElementById('total-requests').textContent = data.data.totalRequests || 0;
-        document.getElementById('active-admins').textContent = data.data.activeAdmins || 0;
-        document.getElementById('completed-requests').textContent = data.data.completedRequests || 0;
-        document.getElementById('avg-resolution-time').textContent = data.data.avgResolutionTime 
-          ? `${Math.round(data.data.avgResolutionTime)} hours` : 'N/A';
-        document.getElementById('inventory-usage').textContent = data.data.inventoryUsage 
-          ? `${Math.round(data.data.inventoryUsage)}%` : '0%';
-        document.getElementById('top-technician').textContent = data.data.topTechnician || 'N/A';
-
-        // Grafikni chizish
-        const ctx = document.getElementById('requests-chart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: Object.keys(data.data.requestsByCategory || {}),
-            datasets: [{
-              label: 'Requests by Category',
-              data: Object.values(data.data.requestsByCategory || {}),
-              backgroundColor: 'rgba(0, 123, 255, 0.5)',
-              borderColor: 'rgba(0, 123, 255, 1)',
-              borderWidth: 1
-            }]
-          },
-          options: {
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
-
-        errorMessage.style.display = 'none';
-      } catch (error) {
-        console.error('Fetch dashboard error:', error);
-        errorMessage.textContent = 'Something went wrong';
-        errorMessage.style.display = 'block';
+        renderAnalytics(data);
+        success.textContent = 'Analytics fetched successfully';
+        success.classList.remove('hidden');
+      } catch (err) {
+        console.error('Analytics error:', err);
+        renderTestData();
+        handleError(error, success, resultElements, 'Error fetching analytics, showing test data');
       }
     }
 
-    async function logout() {
+    // KPI Fetch
+    async function fetchKpi() {
+      const error = document.getElementById('kpi-error');
+      const success = document.getElementById('kpi-success');
+      const resultElements = [document.getElementById('kpi-table')];
+      error.classList.add('hidden');
+      success.classList.add('hidden');
+      resultElements.forEach(el => (el.innerHTML = ''));
+      document.getElementById('kpi-loading').classList.remove('hidden');
+
       try {
-        const response = await apiFetch('/admin/api/auth/logout', {
-          method: 'POST',
-        }, 'read', async (type) => {
-          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
-        });
-
-        if (response && response.ok) {
-          window.location.href = '/admin/login';
-        } else {
-          document.getElementById('dashboard-error').textContent = 'Logout failed';
-          document.getElementById('dashboard-error').style.display = 'block';
+        const response = await apiFetch('/admin/api/super-admin/get-kpi', { method: 'GET' }, 'read');
+        if (!response) {
+          document.getElementById('kpi-loading').classList.add('hidden');
+          return;
         }
-      } catch (error) {
-        console.error('Logout error:', error);
-        document.getElementById('dashboard-error').textContent = 'Something went wrong';
-        document.getElementById('dashboard-error').style.display = 'block';
+
+        const data = await response.json();
+        if (!data.success || !data.data || data.data.length === 0) {
+          renderTestData();
+          handleError(error, success, resultElements, 'No KPI data found, showing test data');
+          return;
+        }
+
+        renderKpi(data);
+        success.textContent = 'KPIs fetched successfully';
+        success.classList.remove('hidden');
+      } catch (err) {
+        console.error('KPI error:', err);
+        renderTestData();
+        handleError(error, success, resultElements, 'Error fetching KPIs, showing test data');
       }
     }
 
-    window.onload = fetchDashboardData;
+    // Initial fetch
+    fetchAnalytics();
+    fetchKpi();
   </script>
 </body>
+
 </html>

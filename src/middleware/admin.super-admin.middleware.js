@@ -11,7 +11,7 @@ const superAdminMiddleware = async (req, res, next) => {
     return res.status(403).send({ msg: "Unauthorized" });
   }
   
-  req.admin = admin;
+  req.admin = access;
   next();
 };
 

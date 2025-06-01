@@ -28,6 +28,6 @@ def extract_code_to_markdown(src_dir, output_file):
         f.write(markdown_content)
 
 if __name__ == "__main__":
-    src_directory = "src/router"
+    src_directory = "src/models"
     output_file = "extracted_code.md"
     extract_code_to_markdown(src_directory, output_file)

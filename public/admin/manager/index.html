@@ -1,575 +1,611 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DernSupport - Manager Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --light-gray-green: #B4B8AB;
-            --dark-blue: #153243;
-            --medium-blue: #284B63;
-            --light-green: #F4F9E9;
-            --light-gray: #EEF0EB;
-            --transition: all 0.3s ease;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --info: #17a2b8;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    .header {
+      background: #007bff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
 
-        body {
-            background-color: var(--light-green);
-            min-height: 100vh;
-        }
+    .header a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-        }
+    .header a:hover {
+      text-decoration: underline;
+    }
 
-        /* Sidebar Styles */
-        .sidebar {
-            background-color: var(--dark-blue);
-            color: white;
-            padding: 2rem 1rem;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
 
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 1.5em;
+    }
 
-        .logo-text span {
-            color: var(--light-gray-green);
-        }
+    .form-group {
+      margin-bottom: 15px;
+    }
 
-        .nav-menu {
-            list-style: none;
-        }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
 
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: var(--transition);
-        }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
+    button:hover {
+      background: #0056b3;
+    }
 
-        .nav-link.active {
-            background-color: var(--medium-blue);
-        }
+    .error,
+    .success {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
 
-        .nav-link i {
-            margin-right: 0.75rem;
-            width: 20px;
-            text-align: center;
-        }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
 
-        /* Main Content Styles */
-        .main-content {
-            padding: 2rem;
-            overflow-y: auto;
-        }
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
 
-        .welcome-text {
-            font-size: 1.5rem;
-            color: var(--dark-blue);
-        }
+    table,
+    th,
+    td {
+      border: 1px solid #ddd;
+    }
 
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-        }
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+    }
 
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background-color: var(--medium-blue);
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Task Management Section */
-        .task-management {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .task-column {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .task-column h3 {
-            color: var(--dark-blue);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .task-count {
-            background: var(--light-gray);
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-        }
-
-        .task-card {
-            background: var(--light-gray);
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .task-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .task-card h4 {
-            color: var(--dark-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .task-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .priority {
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .priority-high {
-            background: var(--danger);
-            color: white;
-        }
-
-        .priority-medium {
-            background: var(--warning);
-            color: #000;
-        }
-
-        .priority-low {
-            background: var(--success);
-            color: white;
-        }
-
-        /* Team Performance Section */
-        .team-performance {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-        }
-
-        .performance-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .performance-card {
-            text-align: center;
-            padding: 1rem;
-            border-radius: 6px;
-            background: var(--light-gray);
-        }
-
-        .performance-card h4 {
-            color: var(--dark-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .performance-number {
-            font-size: 2rem;
-            font-weight: 600;
-            color: var(--medium-blue);
-        }
-
-        /* Inventory Overview */
-        .inventory-overview {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .inventory-list {
-            margin-top: 1rem;
-        }
-
-        .inventory-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .inventory-item:last-child {
-            border-bottom: none;
-        }
-
-        .stock-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-
-        .stock-low {
-            background: var(--danger);
-            color: white;
-        }
-
-        .stock-medium {
-            background: var(--warning);
-            color: #000;
-        }
-
-        .stock-good {
-            background: var(--success);
-            color: white;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .dashboard {
-                grid-template-columns: 80px 1fr;
-            }
-
-            .logo-text, .nav-link span {
-                display: none;
-            }
-
-            .nav-link i {
-                margin-right: 0;
-                font-size: 1.25rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .task-management {
-                grid-template-columns: 1fr;
-            }
-
-            .performance-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-    </style>
+    th {
+      background: #f4f4f4;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="dashboard">
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-text">Dern<span>Support</span></div>
-            </div>
-            
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-tasks"></i>
-                            <span>Task Management</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-users"></i>
-                            <span>Team</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-box"></i>
-                            <span>Inventory</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-book"></i>
-                            <span>Knowledge Base</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-file-alt"></i>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-gear"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <div class="header">
-                <h1 class="welcome-text">Welcome, Manager</h1>
-                <div class="header-actions">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        New Task
-                    </button>
-                    <button class="btn btn-danger" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </div>
-            </div>
-
-            <div class="task-management">
-                <div class="task-column">
-                    <h3>
-                        New Requests
-                        <span class="task-count">4</span>
-                    </h3>
-                    <div class="task-card">
-                        <h4>Hardware Repair - Laptop</h4>
-                        <p>Client reported screen flickering issues</p>
-                        <div class="task-meta">
-                            <span class="priority priority-high">High Priority</span>
-                            <span>30 mins ago</span>
-                        </div>
-                    </div>
-                    <div class="task-card">
-                        <h4>Software Installation</h4>
-                        <p>Install security updates on business client systems</p>
-                        <div class="task-meta">
-                            <span class="priority priority-medium">Medium Priority</span>
-                            <span>1 hour ago</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="task-column">
-                    <h3>
-                        In Progress
-                        <span class="task-count">3</span>
-                    </h3>
-                    <div class="task-card">
-                        <h4>Network Configuration</h4>
-                        <p>Setting up new router for office network</p>
-                        <div class="task-meta">
-                            <span class="priority priority-high">High Priority</span>
-                            <span>Assigned to John</span>
-                        </div>
-                    </div>
-                    <div class="task-card">
-                        <h4>Data Recovery</h4>
-                        <p>Recovering files from damaged hard drive</p>
-                        <div class="task-meta">
-                            <span class="priority priority-medium">Medium Priority</span>
-                            <span>Assigned to Sarah</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="task-column">
-                    <h3>
-                        Completed
-                        <span class="task-count">2</span>
-                    </h3>
-                    <div class="task-card">
-                        <h4>RAM Upgrade</h4>
-                        <p>Upgraded memory on client workstation</p>
-                        <div class="task-meta">
-                            <span class="priority priority-low">Completed</span>
-                            <span>Today 2:30 PM</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="team-performance">
-                <h3>Team Performance</h3>
-                <div class="performance-grid">
-                    <div class="performance-card">
-                        <h4>Tasks Completed</h4>
-                        <div class="performance-number">28</div>
-                        <p>This week</p>
-                    </div>
-                    <div class="performance-card">
-                        <h4>Average Response</h4>
-                        <div class="performance-number">1.8h</div>
-                        <p>Response time</p>
-                    </div>
-                    <div class="performance-card">
-                        <h4>Client Satisfaction</h4>
-                        <div class="performance-number">94%</div>
-                        <p>Based on feedback</p>
-                    </div>
-                    <div class="performance-card">
-                        <h4>Active Technicians</h4>
-                        <div class="performance-number">5</div>
-                        <p>Currently working</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="inventory-overview">
-                <h3>Inventory Status</h3>
-                <div class="inventory-list">
-                    <div class="inventory-item">
-                        <div>
-                            <h4>RAM Modules (8GB DDR4)</h4>
-                            <p>15 units remaining</p>
-                        </div>
-                        <span class="stock-status stock-medium">Medium Stock</span>
-                    </div>
-                    <div class="inventory-item">
-                        <div>
-                            <h4>SSD Drives (500GB)</h4>
-                            <p>5 units remaining</p>
-                        </div>
-                        <span class="stock-status stock-low">Low Stock</span>
-                    </div>
-                    <div class="inventory-item">
-                        <div>
-                            <h4>Network Cables</h4>
-                            <p>150 units remaining</p>
-                        </div>
-                        <span class="stock-status stock-good">Good Stock</span>
-                    </div>
-                </div>
-            </div>
-        </main>
+  <div class="header">
+    <h2 style="margin: 0 10px;">Manager Admin Dashboard</h2>
+    <div>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+  <div class="container">
+    <!-- About Section -->
+    <div class="section">
+      <h2>About</h2>
+      <button onclick="fetchAbout()">Get Profile Info</button>
+      <div id="about-result"></div>
+      <p class="error" id="about-error"></p>
+      <p class="success" id="about-success"></p>
     </div>
 
-    <script>
-        // Logout functionality
-        function logout() {
-            fetch("/admin/api/auth/logout", { 
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                }
-            })
-            .catch(error => {
-                console.error('Logout failed:', error);
-            });
+    <!-- Assign Request Section -->
+    <div class="section">
+      <h2>Assign Request</h2>
+      <div class="form-group">
+        <label for="assign-requestId">Request ID</label>
+        <input type="text" id="assign-requestId" placeholder="Enter request ID">
+      </div>
+      <div class="form-group">
+        <label for="assign-technicianId">Technician ID</label>
+        <input type="text" id="assign-technicianId" placeholder="Enter technician ID">
+      </div>
+      <button onclick="assignRequest()">Assign Request</button>
+      <p class="error" id="assign-error"></p>
+      <p class="success" id="assign-success"></p>
+    </div>
+
+    <!-- Refresh Access Token Section -->
+    <div class="section">
+      <h2>Refresh Access Token</h2>
+      <button onclick="refreshAccessToken()">Refresh Token</button>
+      <p class="error" id="refresh-error"></p>
+      <p class="success" id="refresh-success"></p>
+    </div>
+
+    <!-- All Inventory Section -->
+    <div class="section">
+      <h2>All Inventory</h2>
+      <button onclick="fetchAllInventory()">Get Inventory List</button>
+      <div id="inventory-result"></div>
+      <p class="error" id="inventory-error"></p>
+      <p class="success" id="inventory-success"></p>
+    </div>
+
+    <!-- Add Inventory Section -->
+    <div class="section">
+      <h2>Add Inventory</h2>
+      <div class="form-group">
+        <label for="add-name">Name</label>
+        <input type="text" id="add-name" placeholder="Enter inventory name">
+      </div>
+      <div class="form-group">
+        <label for="add-partNumber">Part Number</label>
+        <input type="text" id="add-partNumber" placeholder="Enter part number (optional)">
+      </div>
+      <div class="form-group">
+        <label for="add-quantity">Quantity</label>
+        <input type="number" id="add-quantity" min="0" placeholder="Enter quantity">
+      </div>
+      <div class="form-group">
+        <label for="add-description">Description</label>
+        <textarea id="add-description" rows="4" placeholder="Enter description (optional)"></textarea>
+      </div>
+      <button onclick="addInventory()">Add Inventory</button>
+      <p class="error" id="add-inventory-error"></p>
+      <p class="success" id="add-inventory-success"></p>
+    </div>
+
+    <!-- Update Inventory Section -->
+    <div class="section">
+      <h2>Update Inventory</h2>
+      <div class="form-group">
+        <label for="update-inventoryId">Inventory ID</label>
+        <input type="text" id="update-inventoryId" placeholder="Enter inventory ID">
+      </div>
+      <div class="form-group">
+        <label for="update-name">Name</label>
+        <input type="text" id="update-name" placeholder="Enter inventory name">
+      </div>
+      <div class="form-group">
+        <label for="update-partNumber">Part Number</label>
+        <input type="text" id="update-partNumber" placeholder="Enter part number (optional)">
+      </div>
+      <div class="form-group">
+        <label for="update-quantity">Quantity</label>
+        <input type="number" id="update-quantity" min="0" placeholder="Enter quantity">
+      </div>
+      <div class="form-group">
+        <label for="update-description">Description</label>
+        <textarea id="update-description" rows="4" placeholder="Enter description (optional)"></textarea>
+      </div>
+      <button onclick="updateInventory()">Update Inventory</button>
+      <p class="error" id="update-inventory-error"></p>
+      <p class="success" id="update-inventory-success"></p>
+    </div>
+
+    <!-- Delete Inventory Section -->
+    <div class="section">
+      <h2>Delete Inventory</h2>
+      <div class="form-group">
+        <label for="delete-inventoryId">Inventory ID</label>
+        <input type="text" id="delete-inventoryId" placeholder="Enter inventory ID">
+      </div>
+      <button onclick="deleteInventory()">Delete Inventory</button>
+      <p class="error" id="delete-inventory-error"></p>
+      <p class="success" id="delete-inventory-success"></p>
+    </div>
+
+    <!-- All Requests Section for Manager -->
+    <div class="section">
+      <h2>All Support Requests</h2>
+      <button onclick="fetchMyRequests()">Get All Requests</button>
+      <div id="requests-result"></div>
+      <p class="error" id="requests-error"></p>
+      <p class="success" id="requests-success"></p>
+    </div>
+
+  </div>
+
+  <script src="/admin/global.js"></script>
+  <script>
+    // Umumiy xato boshqaruv funksiyasi
+    function handleError(errorElement, successElement, resultElement, errorMessage) {
+      errorElement.textContent = errorMessage;
+      errorElement.style.display = 'block';
+      if (successElement) successElement.style.display = 'none';
+      if (resultElement) resultElement.innerHTML = '';
+    }
+
+    // About
+    async function fetchAbout() {
+      const error = document.getElementById('about-error');
+      const success = document.getElementById('about-success');
+      const result = document.getElementById('about-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/admin/api/manager/about', { method: 'GET' }, 'read');
+        if (!response) return; // 403 uchun /admin/login/ ga yo'naltiriladi
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No profile data found');
+          return;
         }
 
-        // Sample data update function - replace with real API calls
-        function updateDashboardData() {
-            // Fetch and update tasks
-            fetch('/manager/api/tasks')
-                .then(res => res.json())
-                .then(data => {
-                    // Update task cards with real data
-                })
-                .catch(error => {
-                    console.error('Failed to fetch tasks:', error);
-                });
+        result.innerHTML = `
+          <p><strong>ID:</strong> ${data.data.id}</p>
+          <p><strong>First Name:</strong> ${data.data.firstName}</p>
+          <p><strong>Last Name:</strong> ${data.data.lastName}</p>
+          <p><strong>Email:</strong> ${data.data.email}</p>
+          <p><strong>Role:</strong> ${data.data.role}</p>
+        `;
+        success.textContent = 'Profile fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('About error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
 
-            // Fetch and update team performance
-            fetch('/manager/api/performance')
-                .then(res => res.json())
-                .then(data => {
-                    // Update performance metrics with real data
-                })
-                .catch(error => {
-                    console.error('Failed to fetch performance data:', error);
-                });
+    function logout() {
+      const result = fetch('/admin/api/auth/logout', { method: 'POST' });
 
-            // Fetch and update inventory
-            fetch('/manager/api/inventory')
-                .then(res => res.json())
-                .then(data => {
-                    // Update inventory status with real data
-                })
-                .catch(error => {
-                    console.error('Failed to fetch inventory data:', error);
-                });
+      if (result) {
+        window.location.href = '/admin/'; // Redirect to login page
+      }
+    }
+
+    // Assign Request
+    async function assignRequest() {
+      const error = document.getElementById('assign-error');
+      const success = document.getElementById('assign-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const requestId = document.getElementById('assign-requestId').value.trim();
+      const technicianId = document.getElementById('assign-technicianId').value.trim();
+
+      if (!requestId || !technicianId) {
+        handleError(error, success, null, 'Request ID and Technician ID are required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/manager/assign-request', {
+          method: 'POST',
+          body: JSON.stringify({ requestId, technicianId }),
+        }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Request assignment failed');
+          return;
         }
 
-        // Update dashboard data every 5 minutes
-        setInterval(updateDashboardData, 300000);
-    </script>
+        success.textContent = 'Request assigned successfully';
+        success.style.display = 'block';
+        document.getElementById('assign-requestId').value = '';
+        document.getElementById('assign-technicianId').value = '';
+      } catch (err) {
+        console.error('Assign request error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // Refresh Access Token
+    async function refreshAccessToken() {
+      const error = document.getElementById('refresh-error');
+      const success = document.getElementById('refresh-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      try {
+        const response = await apiFetch('/admin/api/manager/refresh-access-token', { method: 'POST' }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, 'Token refresh failed');
+          return;
+        }
+
+        success.textContent = data.message || 'Token refreshed successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Refresh token error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // All Inventory
+    async function fetchAllInventory() {
+      const error = document.getElementById('inventory-error');
+      const success = document.getElementById('inventory-success');
+      const result = document.getElementById('inventory-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/admin/api/manager/all-inventory', { method: 'GET' }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No inventory found');
+          return;
+        }
+
+        result.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Part Number</th>
+                <th>Quantity</th>
+                <th>Description</th>
+                <th>Updated At</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.data.map(inv => `
+                <tr>
+                  <td>${inv.id}</td>
+                  <td>${inv.name}</td>
+                  <td>${inv.partNumber || '-'}</td>
+                  <td>${inv.quantity}</td>
+                  <td>${inv.description || '-'}</td>
+                  <td>${new Date(inv.updatedAt).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        success.textContent = 'Inventory fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Fetch inventory error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+
+    // Add Inventory
+    async function addInventory() {
+      const error = document.getElementById('add-inventory-error');
+      const success = document.getElementById('add-inventory-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const name = document.getElementById('add-name').value.trim();
+      const partNumber = document.getElementById('add-partNumber').value.trim();
+      const quantity = parseInt(document.getElementById('add-quantity').value);
+      const description = document.getElementById('add-description').value.trim();
+
+      if (!name || isNaN(quantity) || quantity < 0) {
+        handleError(error, success, null, 'Name and valid quantity are required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/manager/add-inventory', {
+          method: 'POST',
+          body: JSON.stringify({ name, partNumber, quantity, description }),
+        }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Failed to add inventory');
+          return;
+        }
+
+        success.textContent = 'Inventory added successfully';
+        success.style.display = 'block';
+        document.getElementById('add-name').value = '';
+        document.getElementById('add-partNumber').value = '';
+        document.getElementById('add-quantity').value = '';
+        document.getElementById('add-description').value = '';
+      } catch (err) {
+        console.error('Add inventory error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // Update Inventory
+    async function updateInventory() {
+      const error = document.getElementById('update-inventory-error');
+      const success = document.getElementById('update-inventory-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const inventoryId = document.getElementById('update-inventoryId').value.trim();
+      const name = document.getElementById('update-name').value.trim();
+      const partNumber = document.getElementById('update-partNumber').value.trim();
+      const quantity = parseInt(document.getElementById('update-quantity').value);
+      const description = document.getElementById('update-description').value.trim();
+
+      if (!inventoryId || !name || isNaN(quantity) || quantity < 0) {
+        handleError(error, success, null, 'Inventory ID, name, and valid quantity are required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/manager/update-inventory', {
+          method: 'POST',
+          body: JSON.stringify({ inventoryId, name, partNumber, quantity, description }),
+        }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Failed to update inventory');
+          return;
+        }
+
+        success.textContent = 'Inventory updated successfully';
+        success.style.display = 'block';
+        document.getElementById('update-inventoryId').value = '';
+        document.getElementById('update-name').value = '';
+        document.getElementById('update-partNumber').value = '';
+        document.getElementById('update-quantity').value = '';
+        document.getElementById('update-description').value = '';
+      } catch (err) {
+        console.error('Update inventory error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // Delete Inventory
+    async function deleteInventory() {
+      const error = document.getElementById('delete-inventory-error');
+      const success = document.getElementById('delete-inventory-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const inventoryId = document.getElementById('delete-inventoryId').value.trim();
+
+      if (!inventoryId) {
+        handleError(error, success, null, 'Inventory ID is required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/manager/delete-inventory', {
+          method: 'POST',
+          body: JSON.stringify({ inventoryId }),
+        }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Failed to delete inventory');
+          return;
+        }
+
+        success.textContent = data.message || 'Inventory deleted successfully';
+        success.style.display = 'block';
+        document.getElementById('delete-inventoryId').value = '';
+      } catch (err) {
+        console.error('Delete inventory error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // Fetch All Requests for Manager
+    async function fetchMyRequests() {
+      const error = document.getElementById('requests-error');
+      const success = document.getElementById('requests-success');
+      const result = document.getElementById('requests-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/admin/api/manager/my-requests', { method: 'GET' }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No requests found');
+          return;
+        }
+
+        result.innerHTML = `
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Type</th>
+        <th>Issue</th>
+        <th>Status</th>
+        <th>Submitted</th>
+        <th>Assigned</th>
+        <th>Technician</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${data.data.map(req => `
+        <tr>
+          <td>${req.id}</td>
+          <td>
+            ${req.user
+            ? `${req.user.firstName} ${req.user.lastName} (${req.user.email})`
+            : '<em>Unknown User</em>'}
+          </td>
+          <td>${req.type}</td>
+          <td>${req.issueDescription}</td>
+          <td>${req.status}</td>
+          <td>${new Date(req.submittedAt).toLocaleString()}</td>
+          <td>${req.assignedAt ? new Date(req.assignedAt).toLocaleString() : '-'}</td>
+          <td>
+            ${req.assignedTo
+            ? `${req.assignedTo.firstName} ${req.assignedTo.lastName} (${req.assignedTo.email})`
+            : '<em>Unassigned</em>'}
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+`;
+
+        success.textContent = 'Requests fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Fetch requests error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+
+  </script>
 </body>
+
 </html>

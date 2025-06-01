@@ -1,2024 +1,517 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DernSupport - Technician Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --light-gray-green: #B4B8AB;
-            --dark-blue: #153243;
-            --medium-blue: #284B63;
-            --light-green: #F4F9E9;
-            --light-gray: #EEF0EB;
-            --transition: all 0.3s ease;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --info: #17a2b8;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--light-green);
-            min-height: 100vh;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            background-color: var(--dark-blue);
-            color: white;
-            padding: 1.5rem 1rem;
-            position: relative;
-            z-index: 100;
-            transition: var(--transition);
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .logo-text span {
-            color: var(--light-gray-green);
-        }
-
-        .technician-info {
-            background-color: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .technician-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            margin: 0 auto 0.5rem;
-            background-color: var(--medium-blue);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .technician-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .technician-role {
-            font-size: 0.85rem;
-            color: var(--light-gray-green);
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .nav-link:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-
-        .nav-link.active {
-            background-color: var(--medium-blue);
-        }
-
-        .nav-link i {
-            margin-right: 0.75rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            overflow-y: auto;
-        }
-
-        .header {
-            background-color: white;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
-
-        .page-title {
-            font-size: 1.25rem;
-            color: var(--dark-blue);
-            font-weight: 600;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .search-bar {
-            position: relative;
-        }
-
-        .search-bar input {
-            background-color: var(--light-gray);
-            border: none;
-            border-radius: 20px;
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            width: 250px;
-            outline: none;
-            transition: var(--transition);
-        }
-
-        .search-bar input:focus {
-            box-shadow: 0 0 0 2px var(--medium-blue);
-        }
-
-        .search-bar i {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #666;
-        }
-
-        .notification-btn {
-            position: relative;
-            background: none;
-            border: none;
-            color: var(--dark-blue);
-            font-size: 1.2rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .notification-btn:hover {
-            background-color: var(--light-gray);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: var(--danger);
-            color: white;
-            font-size: 0.7rem;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            width: 300px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 100;
-            max-height: 400px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .notification-menu.show {
-            display: block;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .notification-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            color: var(--dark-blue);
-        }
-
-        .mark-all-read {
-            font-size: 0.85rem;
-            color: var(--medium-blue);
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-
-        .notification-list {
-            list-style: none;
-        }
-
-        .notification-item {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--light-gray);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .notification-item:hover {
-            background-color: var(--light-gray);
-        }
-
-        .notification-item.unread {
-            border-left: 3px solid var(--medium-blue);
-        }
-
-        .notification-content {
-            margin-bottom: 0.35rem;
-            font-size: 0.9rem;
-        }
-
-        .notification-time {
-            font-size: 0.75rem;
-            color: #666;
-        }
-
-        .profile-dropdown {
-            position: relative;
-        }
-
-        .profile-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .profile-btn:hover {
-            background-color: var(--light-gray);
-        }
-
-        .profile-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: var(--medium-blue);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.9rem;
-        }
-
-        .profile-name {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--dark-blue);
-        }
-
-        .profile-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            width: 200px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 100;
-            display: none;
-        }
-
-        .profile-menu.show {
-            display: block;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .profile-menu-item {
-            padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: var(--dark-blue);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .profile-menu-item:hover {
-            background-color: var(--light-gray);
-        }
-
-        .profile-menu-item i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .logout-item {
-            border-top: 1px solid var(--light-gray);
-            color: var(--danger);
-        }
-
-        /* Dashboard Content */
-        .dashboard-content {
-            padding: 1.5rem;
-        }
-
-        .section-title {
-            margin-bottom: 1rem;
-            color: var(--dark-blue);
-            font-size: 1.2rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .stat-card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.25rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: var(--transition);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .stat-title {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .stat-title i {
-            color: var(--medium-blue);
-        }
-
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--dark-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-info {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .stat-info.positive {
-            color: var(--success);
-        }
-
-        .stat-info.negative {
-            color: var(--danger);
-        }
-
-        .ticket-section {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .panel {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        .panel-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-title {
-            font-weight: 600;
-            color: var(--dark-blue);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .panel-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .panel-btn {
-            background-color: var(--light-gray);
-            border: none;
-            border-radius: 4px;
-            padding: 0.35rem 0.75rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .panel-btn:hover {
-            background-color: var(--light-gray-green);
-        }
-
-        .panel-btn.primary {
-            background-color: var(--medium-blue);
-            color: white;
-        }
-
-        .panel-btn.primary:hover {
-            background-color: var(--dark-blue);
-        }
-
-        .panel-content {
-            padding: 0;
-        }
-
-        .ticket-list {
-            list-style: none;
-        }
-
-        .ticket-item {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--light-gray);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .ticket-item:hover {
-            background-color: var(--light-gray);
-        }
-
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .ticket-id {
-            font-size: 0.85rem;
-            color: #666;
-            background-color: var(--light-gray);
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-        }
-
-        .ticket-priority {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .priority-high {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: var(--danger);
-        }
-
-        .priority-medium {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: var(--warning);
-        }
-
-        .priority-low {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: var(--success);
-        }
-
-        .ticket-title {
-            font-weight: 600;
-            color: var(--dark-blue);
-            margin-bottom: 0.35rem;
-        }
-
-        .ticket-client {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 0.75rem;
-        }
-
-        .ticket-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-        }
-
-        .ticket-status {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .status-badge {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .status-new {
-            background-color: var(--info);
-        }
-
-        .status-in-progress {
-            background-color: var(--warning);
-        }
-
-        .status-pending {
-            background-color: var(--medium-blue);
-        }
-
-        .status-resolved {
-            background-color: var(--success);
-        }
-
-        .ticket-due {
-            color: #666;
-        }
-
-        .schedule-item {
-            padding: 0.75rem 1.25rem;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .schedule-time {
-            width: 80px;
-            text-align: center;
-            padding: 0.5rem;
-            background-color: var(--light-gray);
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .schedule-details {
-            flex: 1;
-        }
-
-        .schedule-title {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .schedule-location {
-            font-size: 0.85rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .inventory-card {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.25rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .inventory-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .inventory-icon {
-            width: 50px;
-            height: 50px;
-            background-color: rgba(40, 75, 99, 0.1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--medium-blue);
-            font-size: 1.5rem;
-        }
-
-        .inventory-details {
-            flex: 1;
-        }
-
-        .inventory-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            color: var(--dark-blue);
-        }
-
-        .inventory-stock {
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .stock-bar {
-            flex: 1;
-            height: 6px;
-            background-color: var(--light-gray);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .stock-level {
-            height: 100%;
-            border-radius: 3px;
-        }
-
-        .stock-high {
-            background-color: var(--success);
-            width: 85%;
-        }
-
-        .stock-medium {
-            background-color: var(--warning);
-            width: 40%;
-        }
-
-        .stock-low {
-            background-color: var(--danger);
-            width: 15%;
-        }
-
-        .stock-value {
-            font-weight: 500;
-            font-size: 0.85rem;
-        }
-
-        .stock-value.low {
-            color: var(--danger);
-        }
-
-        /* Mobile Menu */
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--dark-blue);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Tab System */
-        .tab-nav {
-            display: flex;
-            border-bottom: 1px solid var(--light-gray);
-            margin-bottom: 1rem;
-        }
-
-        .tab-btn {
-            padding: 0.75rem 1.25rem;
-            background: none;
-            border: none;
-            font-weight: 500;
-            color: #666;
-            cursor: pointer;
-            transition: var(--transition);
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-btn.active {
-            color: var(--medium-blue);
-            border-bottom-color: var(--medium-blue);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        /* Knowledge Base */
-        .kb-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-
-        .kb-card {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .kb-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .kb-header {
-            background-color: var(--medium-blue);
-            color: white;
-            padding: 1.25rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kb-icon {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 3rem;
-            opacity: 0.2;
-        }
-
-        .kb-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .kb-description {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 2;
-        }
-
-        .kb-content {
-            padding: 1.25rem;
-        }
-
-        .kb-list {
-            list-style: none;
-        }
-
-        .kb-item {
-            padding: 0.5rem 0;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--dark-blue);
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .kb-item:last-child {
-            border-bottom: none;
-        }
-
-        .kb-item i {
-            color: var(--medium-blue);
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 1200px) {
-            .ticket-section {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 992px) {
-            .search-bar input {
-                width: 200px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                position: fixed;
-                left: -250px;
-                top: 0;
-                bottom: 0;
-                width: 250px;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.show {
-                left: 0;
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .search-bar {
-                display: none;
-            }
-
-            .overlay {
-                position: fixed;
-                inset: 0;
-                background-color: rgba(0,0,0,0.5);
-                z-index: 99;
-                display: none;
-            }
-
-            .overlay.show {
-                display: block;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .inventory-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .kb-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-name {
-                display: none;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technician Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+    .header {
+      background: #007bff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+    .header a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .header a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .section h2 {
+      margin: 0 0 10px;
+      font-size: 1.5em;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .error, .success {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+    .inventory-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+    .inventory-item button {
+      margin-left: 10px;
+      background: #dc3545;
+    }
+    .inventory-item button:hover {
+      background: #c82333;
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <div class="logo-text">Dern<span>Support</span></div>
-            </div>
-            
-            <div class="technician-info">
-                <div class="technician-avatar">AJ</div>
-                <div class="technician-name">Alex Johnson</div>
-                <div class="technician-role">Senior Technician</div>
-            </div>
-            
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active" data-page="dashboard">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="service-requests">
-                            <i class="fas fa-ticket-alt"></i>
-                            <span>Service Requests</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="inventory">
-                            <i class="fas fa-box-open"></i>
-                            <span>Inventory</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="knowledge-base">
-                            <i class="fas fa-book"></i>
-                            <span>Knowledge Base</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="schedule">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>Schedule</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="reports">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>Reports</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" data-page="settings">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="main-wrapper">
-            <!-- Header -->
-            <header class="header">
-                <div class="header-left">
-                    <button class="mobile-menu-toggle" id="menuToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
-                </div>
-                
-                <div class="header-actions">
-                    <div class="search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search...">
-                    </div>
-                    
-                    <div class="notification-wrapper">
-                        <button class="notification-btn" id="notificationToggle">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
-                        </button>
-                        
-                        <div class="notification-menu" id="notificationMenu">
-                            <div class="notification-header">
-                                <span class="notification-title">Notifications</span>
-                                <button class="mark-all-read">Mark all as read</button>
-                            </div>
-                            <ul class="notification-list">
-                                <li class="notification-item unread">
-                                    <div class="notification-content">New high-priority ticket assigned: Network issues at TechCorp</div>
-                                    <div class="notification-time">5 minutes ago</div>
-                                </li>
-                                <li class="notification-item unread">
-                                    <div class="notification-content">RAM DDR4 8GB stock is low (3 remaining)</div>
-                                    <div class="notification-time">30 minutes ago</div>
-                                </li>
-                                <li class="notification-item unread">
-                                    <div class="notification-content">Client response on ticket #T-5418</div>
-                                    <div class="notification-time">1 hour ago</div>
-                                </li>
-                                <li class="notification-item">
-                                    <div class="notification-content">Your report for last week has been generated</div>
-                                    <div class="notification-time">Yesterday</div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-dropdown">
-                        <button class="profile-btn" id="profileToggle">
-                            <div class="profile-avatar">AJ</div>
-                            <span class="profile-name">Alex Johnson</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                        
-                        <div class="profile-menu" id="profileMenu">
-                            <a href="#" class="profile-menu-item">
-                                <i class="fas fa-user"></i>
-                                <span>My Profile</span>
-                            </a>
-                            <a href="#" class="profile-menu-item">
-                                <i class="fas fa-cog"></i>
-                                <span>Settings</span>
-                            </a>
-                            <a href="#" class="profile-menu-item">
-                                <i class="fas fa-question-circle"></i>
-                                <span>Help Center</span>
-                            </a>
-                            <div class="profile-menu-item logout-item" onclick="logout()">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Logout</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Main Content Area -->
-            <div class="main-content">
-                <!-- Dashboard Page -->
-                <div class="page-content active" id="dashboard-page">
-                    <div class="dashboard-content">
-                        <h2 class="section-title">
-                            <i class="fas fa-chart-line"></i>
-                            Dashboard Overview
-                        </h2>
-                        
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-title">
-                                    <i class="fas fa-tasks"></i>
-                                    Today's Tasks
-                                </div>
-                                <div class="stat-value">7</div>
-                                <div class="stat-info positive">2 completed, 5 remaining</div>
-                            </div>
-                            
-                            <div class="stat-card">
-                                <div class="stat-title">
-                                    <i class="fas fa-ticket-alt"></i>
-                                    Assigned Tickets
-                                </div>
-                                <div class="stat-value">12</div>
-                                <div class="stat-info">3 high priority</div>
-                            </div>
-                            
-                            <div class="stat-card">
-                                <div class="stat-title">
-                                    <i class="fas fa-clock"></i>
-                                    Avg Resolution Time
-                                </div>
-                                <div class="stat-value">1.8h</div>
-                                <div class="stat-info positive">15% faster than target</div>
-                            </div>
-                            
-                            <div class="stat-card">
-                                <div class="stat-title">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    Inventory Alerts
-                                </div>
-                                <div class="stat-value">3</div>
-                                <div class="stat-info negative">Items need restock</div>
-                            </div>
-                        </div>
-                        
-                        <div class="ticket-section">
-                            <div class="panel">
-                                <div class="panel-header">
-                                    <h3 class="panel-title">
-                                        <i class="fas fa-ticket-alt"></i>
-                                        Recent Tickets
-                                    </h3>
-                                    <div class="panel-actions">
-                                        <button class="panel-btn">
-                                            <i class="fas fa-filter"></i>
-                                            Filter
-                                        </button>
-                                        <button class="panel-btn primary">
-                                            <i class="fas fa-plus"></i>
-                                            New Ticket
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="panel-content">
-                                    <ul class="ticket-list">
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5421</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Network connectivity issues on the 3rd floor</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                TechCorp Inc.
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-in-progress"></span>
-                                                    In Progress
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 5:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5422</span>
-                                                <span class="ticket-priority priority-medium">Medium</span>
-                                            </div>
-                                            <h4 class="ticket-title">Laptop not booting after Windows update</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-user"></i>
-                                                John Smith
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-pending"></span>
-                                                    Pending
-                                                </div>
-                                                <div class="ticket-due">Due: Tomorrow, 12:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5418</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Email server configuration and setup</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                Acme Solutions
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-new"></span>
-                                                    Scheduled
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 2:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5417</span>
-                                                <span class="ticket-priority priority-low">Low</span>
-                                            </div>
-                                            <h4 class="ticket-title">Software installation assistance</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-user"></i>
-                                                Sarah Johnson
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-resolved"></span>
-                                                    Resolved
-                                                </div>
-                                                <div class="ticket-due">Completed: Today, 9:30 AM</div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="panel">
-                                <div class="panel-header">
-                                    <h3 class="panel-title">
-                                        <i class="fas fa-calendar-day"></i>
-                                        Today's Schedule
-                                    </h3>
-                                    <div class="panel-actions">
-                                        <button class="panel-btn">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            View All
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="panel-content">
-                                    <div class="schedule-item">
-                                        <div class="schedule-time">09:00 AM</div>
-                                        <div class="schedule-details">
-                                            <div class="schedule-title">Team Standup Meeting</div>
-                                            <div class="schedule-location">
-                                                <i class="fas fa-video"></i>
-                                                Zoom Conference
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="schedule-item">
-                                        <div class="schedule-time">11:00 AM</div>
-                                        <div class="schedule-details">
-                                            <div class="schedule-title">On-site Hardware Repair</div>
-                                            <div class="schedule-location">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                TechCorp Inc.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="schedule-item">
-                                        <div class="schedule-time">02:00 PM</div>
-                                        <div class="schedule-details">
-                                            <div class="schedule-title">Server Migration Project</div>
-                                            <div class="schedule-location">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                Acme Solutions
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="schedule-item">
-                                        <div class="schedule-time">04:30 PM</div>
-                                        <div class="schedule-details">
-                                            <div class="schedule-title">Inventory Audit</div>
-                                            <div class="schedule-location">
-                                                <i class="fas fa-building"></i>
-                                                Office
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h2 class="section-title">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            Low Stock Inventory
-                        </h2>
-                        
-                        <div class="inventory-grid">
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-memory"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">RAM DDR4 8GB</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-low"></div>
-                                        </div>
-                                        <div class="stock-value low">3 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-hdd"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">SSD 500GB</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-low"></div>
-                                        </div>
-                                        <div class="stock-value low">2 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-print"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">Printer Toner (Black)</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-medium"></div>
-                                        </div>
-                                        <div class="stock-value">5 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Service Requests Page -->
-                <div class="page-content" id="service-requests-page">
-                    <div class="dashboard-content">
-                        <h2 class="section-title">
-                            <i class="fas fa-ticket-alt"></i>
-                            Service Requests
-                        </h2>
-                        
-                        <div class="panel mb-4">
-                            <div class="panel-header">
-                                <h3 class="panel-title">Manage Tickets</h3>
-                                <div class="panel-actions">
-                                    <button class="panel-btn">
-                                        <i class="fas fa-filter"></i>
-                                        Filter
-                                    </button>
-                                    <button class="panel-btn">
-                                        <i class="fas fa-sort"></i>
-                                        Sort
-                                    </button>
-                                    <button class="panel-btn primary">
-                                        <i class="fas fa-plus"></i>
-                                        New Ticket
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="panel-content">
-                                <div class="tab-nav">
-                                    <button class="tab-btn active" data-tab="all-tickets">All Tickets</button>
-                                    <button class="tab-btn" data-tab="assigned-tickets">Assigned to Me</button>
-                                    <button class="tab-btn" data-tab="urgent-tickets">Urgent</button>
-                                    <button class="tab-btn" data-tab="completed-tickets">Completed</button>
-                                </div>
-                                
-                                <div class="tab-content active" id="all-tickets">
-                                    <ul class="ticket-list">
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5421</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Network connectivity issues on the 3rd floor</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                TechCorp Inc.
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-in-progress"></span>
-                                                    In Progress
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 5:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5422</span>
-                                                <span class="ticket-priority priority-medium">Medium</span>
-                                            </div>
-                                            <h4 class="ticket-title">Laptop not booting after Windows update</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-user"></i>
-                                                John Smith
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-pending"></span>
-                                                    Pending
-                                                </div>
-                                                <div class="ticket-due">Due: Tomorrow, 12:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5418</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Email server configuration and setup</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                Acme Solutions
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-new"></span>
-                                                    Scheduled
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 2:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5417</span>
-                                                <span class="ticket-priority priority-low">Low</span>
-                                            </div>
-                                            <h4 class="ticket-title">Software installation assistance</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-user"></i>
-                                                Sarah Johnson
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-resolved"></span>
-                                                    Resolved
-                                                </div>
-                                                <div class="ticket-due">Completed: Today, 9:30 AM</div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="tab-content" id="assigned-tickets">
-                                    <ul class="ticket-list">
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5421</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Network connectivity issues on the 3rd floor</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                TechCorp Inc.
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-in-progress"></span>
-                                                    In Progress
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 5:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5418</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Email server configuration and setup</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                Acme Solutions
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-new"></span>
-                                                    Scheduled
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 2:00 PM</div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="tab-content" id="urgent-tickets">
-                                    <ul class="ticket-list">
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5421</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Network connectivity issues on the 3rd floor</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                TechCorp Inc.
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-in-progress"></span>
-                                                    In Progress
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 5:00 PM</div>
-                                            </div>
-                                        </li>
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5418</span>
-                                                <span class="ticket-priority priority-high">High</span>
-                                            </div>
-                                            <h4 class="ticket-title">Email server configuration and setup</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-building"></i>
-                                                Acme Solutions
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-new"></span>
-                                                    Scheduled
-                                                </div>
-                                                <div class="ticket-due">Due: Today, 2:00 PM</div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="tab-content" id="completed-tickets">
-                                    <ul class="ticket-list">
-                                        <li class="ticket-item">
-                                            <div class="ticket-header">
-                                                <span class="ticket-id">T-5417</span>
-                                                <span class="ticket-priority priority-low">Low</span>
-                                            </div>
-                                            <h4 class="ticket-title">Software installation assistance</h4>
-                                            <div class="ticket-client">
-                                                <i class="fas fa-user"></i>
-                                                Sarah Johnson
-                                            </div>
-                                            <div class="ticket-footer">
-                                                <div class="ticket-status">
-                                                    <span class="status-badge status-resolved"></span>
-                                                    Resolved
-                                                </div>
-                                                <div class="ticket-due">Completed: Today, 9:30 AM</div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Inventory Page -->
-                <div class="page-content" id="inventory-page">
-                    <div class="dashboard-content">
-                        <h2 class="section-title">
-                            <i class="fas fa-box-open"></i>
-                            Inventory Management
-                        </h2>
-                        
-                        <div class="panel mb-4">
-                            <div class="panel-header">
-                                <h3 class="panel-title">Search Inventory</h3>
-                                <div class="panel-actions">
-                                    <button class="panel-btn primary">
-                                        <i class="fas fa-plus"></i>
-                                        Add Item
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="panel-content p-4">
-                                <div class="inventory-search mb-4">
-                                    <input type="text" placeholder="Search by name, category, or ID..." class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                </div>
-                                
-                                <div class="inventory-filters" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                                    <select class="form-select" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                                        <option>All Categories</option>
-                                        <option>Memory</option>
-                                        <option>Storage</option>
-                                        <option>Peripherals</option>
-                                        <option>Networking</option>
-                                    </select>
-                                    
-                                    <select class="form-select" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                                        <option>All Locations</option>
-                                        <option>Main Office</option>
-                                        <option>Warehouse</option>
-                                        <option>Branch Office</option>
-                                    </select>
-                                    
-                                    <select class="form-select" style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                                        <option>Stock Status</option>
-                                        <option>In Stock</option>
-                                        <option>Low Stock</option>
-                                        <option>Out of Stock</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="inventory-grid">
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-memory"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">RAM DDR4 8GB</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-low"></div>
-                                        </div>
-                                        <div class="stock-value low">3 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-hdd"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">SSD 500GB</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-low"></div>
-                                        </div>
-                                        <div class="stock-value low">2 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-print"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">Printer Toner (Black)</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-medium"></div>
-                                        </div>
-                                        <div class="stock-value">5 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-keyboard"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">Wireless Keyboard</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-high"></div>
-                                        </div>
-                                        <div class="stock-value">12 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-mouse"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">Wireless Mouse</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-high"></div>
-                                        </div>
-                                        <div class="stock-value">15 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="inventory-card">
-                                <div class="inventory-icon">
-                                    <i class="fas fa-network-wired"></i>
-                                </div>
-                                <div class="inventory-details">
-                                    <div class="inventory-name">Ethernet Cable (5m)</div>
-                                    <div class="inventory-stock">
-                                        <div class="stock-bar">
-                                            <div class="stock-level stock-medium"></div>
-                                        </div>
-                                        <div class="stock-value">8 left</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Knowledge Base Page -->
-                <div class="page-content" id="knowledge-base-page">
-                    <div class="dashboard-content">
-                        <h2 class="section-title">
-                            <i class="fas fa-book"></i>
-                            Knowledge Base
-                        </h2>
-                        
-                        <div class="panel mb-4">
-                            <div class="panel-header">
-                                <h3 class="panel-title">Search Knowledge Base</h3>
-                                <div class="panel-actions">
-                                    <button class="panel-btn primary">
-                                        <i class="fas fa-plus"></i>
-                                        Add Article
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="panel-content p-4">
-                                <div class="kb-search mb-4">
-                                    <input type="text" placeholder="Search knowledge base..." class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="kb-grid">
-                            <div class="kb-card">
-                                <div class="kb-header">
-                                    <h3 class="kb-title">Hardware Troubleshooting</h3>
-                                    <p class="kb-description">Common hardware issues and solutions</p>
-                                    <div class="kb-icon">
-                                        <i class="fas fa-microchip"></i>
-                                    </div>
-                                </div>
-                                <div class="kb-content">
-                                    <ul class="kb-list">
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Computer Won't Turn On - Troubleshooting Guide
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Diagnosing RAM Issues
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Hard Drive Failure Detection and Recovery
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Overheating Problems and Solutions
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="kb-card">
-                                <div class="kb-header">
-                                    <h3 class="kb-title">Network Solutions</h3>
-                                    <p class="kb-description">Networking setup and troubleshooting</p>
-                                    <div class="kb-icon">
-                                        <i class="fas fa-network-wired"></i>
-                                    </div>
-                                </div>
-                                <div class="kb-content">
-                                    <ul class="kb-list">
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Setting Up a Small Business Network
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Wi-Fi Connectivity Issues
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Router Configuration Guide
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Troubleshooting Slow Network Connections
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="kb-card">
-                                <div class="kb-header">
-                                    <h3 class="kb-title">Software & OS</h3>
-                                    <p class="kb-description">Software installation and OS troubleshooting</p>
-                                    <div class="kb-icon">
-                                        <i class="fas fa-desktop"></i>
-                                    </div>
-                                </div>
-                                <div class="kb-content">
-                                    <ul class="kb-list">
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Windows Update Troubleshooting
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Software Installation Best Practices
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Fixing Blue Screen Errors
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            OS Optimization Techniques
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="kb-card">
-                                <div class="kb-header">
-                                    <h3 class="kb-title">Security Guidelines</h3>
-                                    <p class="kb-description">Best practices for IT security</p>
-                                    <div class="kb-icon">
-                                        <i class="fas fa-shield-alt"></i>
-                                    </div>
-                                </div>
-                                <div class="kb-content">
-                                    <ul class="kb-list">
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Password Management Best Practices
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Malware Detection and Removal
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Data Backup Strategies
-                                        </li>
-                                        <li class="kb-item">
-                                            <i class="fas fa-file-alt"></i>
-                                            Email Security Guidelines
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Placeholder for Other Pages -->
-                <div class="page-content" id="schedule-page">
-                    <div class="dashboard-content">
-                        <h2 class="section-title">
-                            <i class="fas fa-calendar-alt"></i>
-                            Schedule
-                        </h2>
-                        <p>Schedule content will be displayed here.</p>
-                    </div>
-                </div>
-                
-                <div class="page-content" id="reports-page">
-                    <div class="dashboard-content">
-                        <h2 class="section-title">
-                            <i class="fas fa-chart-bar"></i>
-                            Reports
-                        </h2>
-                        <p>Reports content will be displayed here.</p>
-                    </div>
-                </div>
-                
-                <div class="page-content" id="settings-page">
-                    <div class="dashboard-content">
-                        <h2 class="section-title">
-                            <i class="fas fa-cog"></i>
-                            Settings
-                        </h2>
-                        <p>Settings content will be displayed here.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="header">
+    <h2 style="margin: 0 10px;">Technician Admin Dashboard</h2>
+    <div>
+      <button onclick="logout()">Logout</button>
     </div>
-    
-    <!-- Overlay for Mobile Menu -->
-    <div class="overlay" id="overlay"></div>
-    
-    <script>
-        // DOM Elements
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const pageContents = document.querySelectorAll('.page-content');
-        const pageTitle = document.getElementById('pageTitle');
-        const notificationToggle = document.getElementById('notificationToggle');
-        const notificationMenu = document.getElementById('notificationMenu');
-        const profileToggle = document.getElementById('profileToggle');
-        const profileMenu = document.getElementById('profileMenu');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        // Mobile Menu Toggle
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
-        });
-        
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-        });
-        
-        // Navigation
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Remove active class from all links
-                navLinks.forEach(item => item.classList.remove('active'));
-                
-                // Add active class to clicked link
-                link.classList.add('active');
-                
-                // Get page ID
-                const pageId = link.getAttribute('data-page');
-                
-                // Hide all pages
-                pageContents.forEach(page => page.classList.remove('active'));
-                
-                // Show selected page
-                document.getElementById(`${pageId}-page`).classList.add('active');
-                
-                // Update page title
-                pageTitle.textContent = link.querySelector('span').textContent;
-                
-                // Close mobile menu if open
-                sidebar.classList.remove('show');
-                overlay.classList.remove('show');
-            });
-        });
-        
-        // Notification Toggle
-        notificationToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            notificationMenu.classList.toggle('show');
-            
-            // Close profile menu if open
-            profileMenu.classList.remove('show');
-        });
-        
-        // Profile Toggle
-        profileToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            profileMenu.classList.toggle('show');
-            
-            // Close notification menu if open
-            notificationMenu.classList.remove('show');
-        });
-        
-        // Close menus when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!notificationToggle.contains(e.target) && !notificationMenu.contains(e.target)) {
-                notificationMenu.classList.remove('show');
-            }
-            
-            if (!profileToggle.contains(e.target) && !profileMenu.contains(e.target)) {
-                profileMenu.classList.remove('show');
-            }
-        });
-        
-        // Tab System
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all tab buttons
-                tabBtns.forEach(item => item.classList.remove('active'));
-                
-                // Add active class to clicked tab button
-                btn.classList.add('active');
-                
-                // Get tab content ID
-                const tabId = btn.getAttribute('data-tab');
-                
-                // Hide all tab contents
-                tabContents.forEach(content => content.classList.remove('active'));
-                
-                // Show selected tab content
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-        
-        // Sample function to mark notification as read
-        document.querySelector('.mark-all-read').addEventListener('click', () => {
-            const unreadNotifications = document.querySelectorAll('.notification-item.unread');
-            unreadNotifications.forEach(notification => {
-                notification.classList.remove('unread');
-            });
-            
-            // Update badge count
-            document.querySelector('.notification-badge').textContent = '0';
-        });
-        
-        // Simulate loading data
-        function simulateLoading() {
-            // Add loading state to some elements
-            const panels = document.querySelectorAll('.panel');
-            panels.forEach(panel => {
-                panel.classList.add('loading');
-            });
-            
-            // Remove loading state after timeout
-            setTimeout(() => {
-                panels.forEach(panel => {
-                    panel.classList.remove('loading');
-                });
-            }, 1000);
+  </div>
+  <div class="container">
+    <!-- About Section -->
+    <div class="section">
+      <h2>About</h2>
+      <button onclick="fetchAbout()">Get Profile Info</button>
+      <div id="about-result"></div>
+      <p class="error" id="about-error"></p>
+      <p class="success" id="about-success"></p>
+    </div>
+
+    <!-- Done Request Section -->
+    <div class="section">
+      <h2>Done Request</h2>
+      <div class="form-group">
+        <label for="done-requestId">Request ID</label>
+        <input type="text" id="done-requestId" placeholder="Enter request ID">
+      </div>
+      <button onclick="doneRequest()">Mark as Done</button>
+      <p class="error" id="done-error"></p>
+      <p class="success" id="done-success"></p>
+    </div>
+
+    <!-- Refresh Access Token Section -->
+    <div class="section">
+      <h2>Refresh Access Token</h2>
+      <button onclick="refreshAccessToken()">Refresh Token</button>
+      <p class="error" id="refresh-error"></p>
+      <p class="success" id="refresh-success"></p>
+    </div>
+
+    <!-- All Inventory Section -->
+    <div class="section">
+      <h2>All Inventory</h2>
+      <button onclick="fetchAllInventory()">Get Inventory List</button>
+      <div id="inventory-result"></div>
+      <p class="error" id="inventory-error"></p>
+      <p class="success" id="inventory-success"></p>
+    </div>
+
+    <!-- Use Inventories Section -->
+    <div class="section">
+      <h2>Use Inventories</h2>
+      <div class="form-group">
+        <label for="use-requestId">Request ID</label>
+        <input type="text" id="use-requestId" placeholder="Enter request ID">
+      </div>
+      <div id="inventory-items">
+        <div class="inventory-item" id="inventory-item-0">
+          <div class="form-group">
+            <label for="inventory-id-0">Inventory ID</label>
+            <input type="text" id="inventory-id-0" placeholder="Enter inventory ID">
+          </div>
+          <div class="form-group">
+            <label for="inventory-quantity-0">Quantity</label>
+            <input type="number" id="inventory-quantity-0" min="1" placeholder="Enter quantity">
+          </div>
+          <button onclick="removeInventoryItem(0)">Remove</button>
+        </div>
+      </div>
+      <button onclick="addInventoryItem()">Add Inventory Item</button>
+      <button onclick="useInventories()">Use Inventories</button>
+      <p class="error" id="use-inventory-error"></p>
+      <p class="success" id="use-inventory-success"></p>
+    </div>
+
+    <!-- My Requests Section -->
+    <div class="section">
+      <h2>My Requests</h2>
+      <button onclick="fetchMyRequests()">Get My Requests</button>
+      <div id="requests-result"></div>
+      <p class="error" id="requests-error"></p>
+      <p class="success" id="requests-success"></p>
+    </div>
+  </div>
+
+  <script src="/admin/global.js"></script>
+  <script>
+    // Umumiy xato boshqaruv funksiyasi
+    function handleError(errorElement, successElement, resultElement, errorMessage) {
+      errorElement.textContent = errorMessage;
+      errorElement.style.display = 'block';
+      if (successElement) successElement.style.display = 'none';
+      if (resultElement) resultElement.innerHTML = '';
+    }
+
+    // Dinamik inventar maydonlari uchun counter
+    let inventoryItemCount = 1;
+
+    // Yangi inventar maydoni qo'shish
+    function addInventoryItem() {
+      const container = document.getElementById('inventory-items');
+      const newItem = document.createElement('div');
+      newItem.className = 'inventory-item';
+      newItem.id = `inventory-item-${inventoryItemCount}`;
+      newItem.innerHTML = `
+        <div class="form-group">
+          <label for="inventory-id-${inventoryItemCount}">Inventory ID</label>
+          <input type="text" id="inventory-id-${inventoryItemCount}" placeholder="Enter inventory ID">
+        </div>
+        <div class="form-group">
+          <label for="inventory-quantity-${inventoryItemCount}">Quantity</label>
+          <input type="number" id="inventory-quantity-${inventoryItemCount}" min="1" placeholder="Enter quantity">
+        </div>
+        <button onclick="removeInventoryItem(${inventoryItemCount})">Remove</button>
+      `;
+      container.appendChild(newItem);
+      inventoryItemCount++;
+    }
+
+    // Inventar maydonini o'chirish
+    function removeInventoryItem(index) {
+      const item = document.getElementById(`inventory-item-${index}`);
+      if (item) item.remove();
+    }
+
+    function logout() {
+      const result = fetch('/admin/api/auth/logout', { method: 'POST' });
+
+      if (result) {
+        window.location.href = '/admin/'; // Redirect to login page
+      }
+    }
+
+    // About
+    async function fetchAbout() {
+      const error = document.getElementById('about-error');
+      const success = document.getElementById('about-success');
+      const result = document.getElementById('about-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/admin/api/technician/about', { method: 'GET' }, 'read');
+        if (!response) return; // 403 uchun /admin/login/ ga yo'naltiriladi
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No profile data found');
+          return;
         }
 
-        function logout() {
-            fetch("/admin/api/auth/logout", { 
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                }
-            })
-            .catch(error => {
-                console.error('Logout failed:', error);
-            });
+        result.innerHTML = `
+          <p><strong>ID:</strong> ${data.data.id}</p>
+          <p><strong>First Name:</strong> ${data.data.firstName}</p>
+          <p><strong>Last Name:</strong> ${data.data.lastName}</p>
+          <p><strong>Email:</strong> ${data.data.email}</p>
+          <p><strong>Role:</strong> ${data.data.role}</p>
+          <p><strong>KPI (Total Completed):</strong> ${data.data.kpi.totalCompleted}</p>
+          <p><strong>KPI (Avg Completion Time):</strong> ${data.data.kpi.avgCompletionTime.toFixed(2)} minutes</p>
+          <p><strong>Assigned Tasks:</strong> ${data.data.assignedTasks.join(', ') || 'None'}</p>
+        `;
+        success.textContent = 'Profile fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('About error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+
+    // Done Request
+    async function doneRequest() {
+      const error = document.getElementById('done-error');
+      const success = document.getElementById('done-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const requestId = document.getElementById('done-requestId').value.trim();
+
+      if (!requestId) {
+        handleError(error, success, null, 'Request ID is required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/technician/done-request', {
+          method: 'POST',
+          body: JSON.stringify({ requestId }),
+        }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Failed to mark request as done');
+          return;
         }
-        
-        // Initialize
-        window.addEventListener('load', () => {
-            simulateLoading();
-        });
-    </script>
+
+        success.textContent = 'Request marked as done successfully';
+        success.style.display = 'block';
+        document.getElementById('done-requestId').value = '';
+      } catch (err) {
+        console.error('Done request error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // Refresh Access Token
+    async function refreshAccessToken() {
+      const error = document.getElementById('refresh-error');
+      const success = document.getElementById('refresh-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      try {
+        const response = await apiFetch('/admin/api/technician/refresh-access-token', { method: 'POST' }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, 'Token refresh failed');
+          return;
+        }
+
+        success.textContent = data.message || 'Token refreshed successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Refresh token error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // All Inventory
+    async function fetchAllInventory() {
+      const error = document.getElementById('inventory-error');
+      const success = document.getElementById('inventory-success');
+      const result = document.getElementById('inventory-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/admin/api/technician/all-inventory', { method: 'GET' }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No inventory found');
+          return;
+        }
+
+        result.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Part Number</th>
+                <th>Quantity</th>
+                <th>Description</th>
+                <th>Updated At</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.data.map(inv => `
+                <tr>
+                  <td>${inv.id}</td>
+                  <td>${inv.name}</td>
+                  <td>${inv.partNumber || '-'}</td>
+                  <td>${inv.quantity}</td>
+                  <td>${inv.description || '-'}</td>
+                  <td>${new Date(inv.updatedAt).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        success.textContent = 'Inventory fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Fetch inventory error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+
+    // Use Inventories
+    async function useInventories() {
+      const error = document.getElementById('use-inventory-error');
+      const success = document.getElementById('use-inventory-success');
+      error.style.display = 'none';
+      success.style.display = 'none';
+
+      const requestId = document.getElementById('use-requestId').value.trim();
+      const inventories = [];
+
+      for (let i = 0; i < inventoryItemCount; i++) {
+        const item = document.getElementById(`inventory-item-${i}`);
+        if (!item) continue;
+
+        const inventoryId = document.getElementById(`inventory-id-${i}`).value.trim();
+        const quantity = parseInt(document.getElementById(`inventory-quantity-${i}`).value);
+
+        if (inventoryId && !isNaN(quantity) && quantity >= 1) {
+          inventories.push({ inventoryId, quantity });
+        }
+      }
+
+      if (!requestId || inventories.length === 0) {
+        handleError(error, success, null, 'Request ID and at least one valid inventory item are required');
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/api/technician/use-inventories', {
+          method: 'POST',
+          body: JSON.stringify({ requestId, inventories }),
+        }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success) {
+          handleError(error, success, null, data.error || 'Failed to use inventories');
+          return;
+        }
+
+        success.textContent = 'Inventories used successfully';
+        success.style.display = 'block';
+        document.getElementById('use-requestId').value = '';
+        const container = document.getElementById('inventory-items');
+        container.innerHTML = `
+          <div class="inventory-item" id="inventory-item-0">
+            <div class="form-group">
+              <label for="inventory-id-0">Inventory ID</label>
+              <input type="text" id="inventory-id-0" placeholder="Enter inventory ID">
+            </div>
+            <div class="form-group">
+              <label for="inventory-quantity-0">Quantity</label>
+              <input type="number" id="inventory-quantity-0" min="1" placeholder="Enter quantity">
+            </div>
+            <button onclick="removeInventoryItem(0)">Remove</button>
+          </div>
+        `;
+        inventoryItemCount = 1;
+      } catch (err) {
+        console.error('Use inventories error:', err);
+        handleError(error, success, null, err.message || 'Something went wrong');
+      }
+    }
+
+    // My Requests
+    async function fetchMyRequests() {
+      const error = document.getElementById('requests-error');
+      const success = document.getElementById('requests-success');
+      const result = document.getElementById('requests-result');
+      error.style.display = 'none';
+      success.style.display = 'none';
+      result.innerHTML = '';
+
+      try {
+        const response = await apiFetch('/admin/api/technician/my-requests', { method: 'GET' }, 'read');
+        if (!response) return;
+
+        const data = await response.json();
+        if (!data.success || !data.data) {
+          handleError(error, success, result, 'No requests found');
+          return;
+        }
+
+        result.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Issue Description</th>
+                <th>Status</th>
+                <th>Submitted At</th>
+                <th>Assigned At</th>
+                <th>Completed At</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.data.map(req => `
+                <tr>
+                  <td>${req.id}</td>
+                  <td>${req.user.firstName} ${req.user.lastName} (${req.user.email})</td>
+                  <td>${req.type}</td>
+                  <td>${req.issueDescription}</td>
+                  <td>${req.status}</td>
+                  <td>${new Date(req.submittedAt).toLocaleString()}</td>
+                  <td>${req.assignedAt ? new Date(req.assignedAt).toLocaleString() : '-'}</td>
+                  <td>${req.completedAt ? new Date(req.completedAt).toLocaleString() : '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        success.textContent = 'Requests fetched successfully';
+        success.style.display = 'block';
+      } catch (err) {
+        console.error('Fetch requests error:', err);
+        handleError(error, success, result, err.message || 'Something went wrong');
+      }
+    }
+  </script>
 </body>
 </html>
