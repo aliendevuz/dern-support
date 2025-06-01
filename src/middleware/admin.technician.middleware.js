@@ -1,8 +1,8 @@
 const { verifyAdminRefreshToken, verifyAdminReadAccessToken } = require("../utils/jwt");
 
-const superAdminMiddleware = async (req, res, next) => {
+const technicianMiddleware = async (req, res, next) => {
   const refreshToken = req.cookies.adminRefreshToken;
-  const accessToken = req.cookies.adminReadAccessToken;
+  const accessToken = req.cookies.verifyAdminReadAccessToken;
 
   const refresh =  verifyAdminRefreshToken(refreshToken);
   const access = verifyAdminReadAccessToken(accessToken);
@@ -15,4 +15,4 @@ const superAdminMiddleware = async (req, res, next) => {
   next();
 };
 
-module.exports = superAdminMiddleware;
+module.exports = technicianMiddleware;

@@ -66,8 +66,74 @@ const addAdmin = async (req, res) => {
   }
 };
 
+const allAdmin = async (req, res) => {
+  try {
+    const admins = await Admin.find().select('email role _id');
+    return res.status(200).json({ admins });
+  } catch (err) {
+    console.error("❌ Register error:", err);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+const about = async (req, res) => {
+  res.status(200).send({ message: "API About!" });
+};
+
+const updateAdmin = async (req, res) => {
+  res.status(200).send({ message: "API Update Admin!" });
+};
+
+const deleteAdmin = async (req, res) => {
+  res.status(200).send({ message: "API Delete Admin!" });
+};
+
+const refreshAccessToken = async (req, res) => {
+  res.status(200).send({ message: "API Refresh Access Token!" });
+};
+
+const allKnowledge = async (req, res) => {
+  res.status(200).send({ message: "API All Knowledge!" });
+};
+
+const addKnowledge = async (req, res) => {
+  res.status(200).send({ message: "API Add Knowledge!" });
+};
+
+const updateKnowledge = async (req, res) => {
+  res.status(200).send({ message: "API Update Knowledge!" });
+};
+
+const deleteKnowledge = async (req, res) => {
+  res.status(200).send({ message: "API Delete Knowledge!" });
+};
+
+const detailsKnowledge = async (req, res) => {
+  res.status(200).send({ message: "API Details Knowledge!" });
+};
+
+const analytics = async (req, res) => {
+  res.status(200).send({ message: "API Analytics!" });
+};
+
+const getKpi = async (req, res) => {
+  res.status(200).send({ message: "API Get KPI!" });
+};
+
 module.exports = {
     aboutMe,
     superAdminController,
-    addAdmin
+    addAdmin,
+    allAdmin,
+    about,
+    updateAdmin,
+    deleteAdmin,
+    refreshAccessToken,
+    allKnowledge,
+    addKnowledge,
+    updateKnowledge,
+    deleteKnowledge,
+    detailsKnowledge,
+    analytics,
+    getKpi
 };

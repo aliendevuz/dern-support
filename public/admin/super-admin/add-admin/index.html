@@ -643,7 +643,7 @@
                 const response = await apiFetch('/admin/api/super-admin/add-admin', {
                     method: 'POST',
                     body: JSON.stringify(formData),
-                }, AUTH_TYPES.PASSWORD, getCredentials);
+                }, AUTH_TYPES.READ, getCredentials);
 
                 if (!response) return; // Redirect handled by apiFetch
 
