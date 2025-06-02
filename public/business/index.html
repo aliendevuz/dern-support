@@ -347,7 +347,11 @@
         }
 
         .stat-icon.pending {
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            background: linear-gradient(135deg, #f50b46, #fbbf24);
+        }
+
+        .stat-icon.in-progress {
+            background: linear-gradient(135deg, #f59e0b, #fbe524);
         }
 
         .stat-icon.completed {
@@ -942,7 +946,7 @@
                             <i class="fas fa-ticket-alt"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="totalRequests">5</h3>
+                            <h3 id="totalRequests">0</h3>
                             <p>Total Requests</p>
                         </div>
                     </div>
@@ -951,8 +955,17 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="pendingRequests">2</h3>
+                            <h3 id="pendingRequests">0</h3>
                             <p>Pending Requests</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon in-progress">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="inProcessRequests">0</h3>
+                            <p>In-Progress Requests</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -960,17 +973,8 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="completedRequests">3</h3>
+                            <h3 id="completedRequests">0</h3>
                             <p>Completed Requests</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="avgRating">4.5</h3>
-                            <p>Average Rating</p>
                         </div>
                     </div>
                 </div>
@@ -1116,6 +1120,84 @@
             .rq-card-btn-2025:hover {
                 background: #2563eb;
             }
+
+            .rq-pagination-wrapper-2025 {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 0.5rem;
+                margin-top: 1.5rem;
+                font-family: 'Inter', sans-serif;
+            }
+
+            .rq-pagination-btn-2025 {
+                padding: 0.5rem 1rem;
+                border-radius: 8px;
+                border: 1px solid #e5e7eb;
+                background: #ffffff;
+                color: #1f2937;
+                font-size: 0.875rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s ease, color 0.2s ease;
+            }
+
+            .rq-pagination-btn-2025:hover:not(:disabled) {
+                background: #3b82f6;
+                color: #ffffff;
+            }
+
+            .rq-pagination-btn-2025:disabled {
+                background: #f3f4f6;
+                color: #9ca3af;
+                cursor: not-allowed;
+            }
+
+            .rq-pagination-btn-2025.active {
+                background: #3b82f6;
+                color: #ffffff;
+                border-color: #3b82f6;
+            }
+
+            .rq-loading-wrapper-2025 {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                min-height: 200px;
+                background: #f9fafb;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+
+            .rq-spinner-2025 {
+                width: 40px;
+                height: 40px;
+                border: 4px solid #e5e7eb;
+                border-top: 4px solid #3b82f6;
+                border-radius: 50%;
+                animation: rq-spin-2025 1s linear infinite;
+                margin-bottom: 1rem;
+            }
+
+            @keyframes rq-spin-2025 {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .rq-loading-text-2025 {
+                font-family: 'Inter', sans-serif;
+                font-size: 1rem;
+                color: #6b7280;
+                font-weight: 400;
+                text-align: center;
+            }
         </style>
 
         <section class="recent-requests">
@@ -1124,49 +1206,6 @@
                     <h2>Recent Support Requests</h2>
                 </div>
 
-                <style>
-                    /* Unique CSS classes for loading state to avoid conflicts */
-                    .rq-loading-wrapper-2025 {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 2rem;
-                        min-height: 200px;
-                        background: #f9fafb;
-                        border-radius: 8px;
-                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                    }
-
-                    .rq-spinner-2025 {
-                        width: 40px;
-                        height: 40px;
-                        border: 4px solid #e5e7eb;
-                        border-top: 4px solid #3b82f6;
-                        border-radius: 50%;
-                        animation: rq-spin-2025 1s linear infinite;
-                        margin-bottom: 1rem;
-                    }
-
-                    @keyframes rq-spin-2025 {
-                        0% {
-                            transform: rotate(0deg);
-                        }
-
-                        100% {
-                            transform: rotate(360deg);
-                        }
-                    }
-
-                    .rq-loading-text-2025 {
-                        font-family: 'Inter', sans-serif;
-                        font-size: 1rem;
-                        color: #6b7280;
-                        font-weight: 400;
-                        text-align: center;
-                    }
-                </style>
-
                 <div class="requests-container" id="recentRequestsContainer">
                     <div class="rq-loading-wrapper-2025">
                         <div class="rq-spinner-2025"></div>
@@ -1174,25 +1213,7 @@
                     </div>
                 </div>
 
-                <script>
-                    // Unique function to handle loading state and avoid conflicts
-                    function rqInitLoadingState2025() {
-                        const rqContainer = document.getElementById('recentRequestsContainer');
-                        if (!rqContainer) return;
-
-                        // Optional: Simulate loading delay for testing
-                        setTimeout(() => {
-                            const rqWrapper = document.querySelector('.rq-loading-wrapper-2025');
-                            if (rqWrapper) {
-                                rqWrapper.style.opacity = '1';
-                                rqWrapper.style.transition = 'opacity 0.3s ease';
-                            }
-                        }, 100);
-                    }
-
-                    // Trigger loading state on page load
-                    document.addEventListener('DOMContentLoaded', rqInitLoadingState2025);
-                </script>
+                <div class="rq-pagination-wrapper-2025" id="paginationControls"></div>
             </div>
         </section>
 
@@ -1279,7 +1300,7 @@
         const totalRequests = document.getElementById("totalRequests");
         const pendingRequests = document.getElementById("pendingRequests");
         const completedRequests = document.getElementById("completedRequests");
-        const avgRating = document.getElementById("avgRating");
+        const inProcessRequests = document.getElementById("inProcessRequests");
 
         // Initialize dashboard
         document.addEventListener("DOMContentLoaded", async () => {
@@ -1292,6 +1313,7 @@
             initializeEventListeners();
             updateUserDisplay();
             rqFetchSupportRequests2025();
+            rqInitLoadingState2025();
         });
 
         // Event listeners
@@ -1486,16 +1508,173 @@
         }
 
         // Unique function to fetch and display support requests
+        let allRequests = [];
+        let currentPage = 1;
+        const itemsPerPage = 3;
+
+        // Unique function to parse issueDescription (assumed to exist)
+        function rqParseIssueDescription2025(issueDescription) {
+            const parsed = {
+                issueType: 'N/A',
+                priority: 'N/A',
+                serviceType: 'N/A',
+                summary: 'N/A',
+                description: 'N/A',
+                preferredMethod: 'N/A',
+                phone: 'N/A',
+                estimatedCost: 'N/A'
+            };
+            try {
+                const lines = issueDescription.split('\n').map(line => line.trim());
+                let currentSection = '';
+                lines.forEach(line => {
+                    if (line.startsWith('**Support Request Details**')) currentSection = 'details';
+                    else if (line.startsWith('**Issue Type:**')) parsed.issueType = line.replace('**Issue Type:**', '').trim() || 'N/A';
+                    else if (line.startsWith('**Priority:**')) parsed.priority = line.replace('**Priority:**', '').trim() || 'N/A';
+                    else if (line.startsWith('**Service Type:**')) parsed.serviceType = line.replace('**Service Type:**', '').trim() || 'N/A';
+                    else if (line.startsWith('**Summary:**')) parsed.summary = line.replace('**Summary:**', '').trim() || 'N/A';
+                    else if (line.startsWith('**Description:**')) currentSection = 'description';
+                    else if (line.startsWith('**Contact Information:**')) currentSection = 'contact';
+                    else if (line.startsWith('**Estimated Cost:**')) {
+                        parsed.estimatedCost = line.replace('**Estimated Cost:**', '').trim() || 'N/A';
+                        currentSection = '';
+                    } else if (currentSection === 'description' && line) {
+                        parsed.description = parsed.description === 'N/A' ? line : parsed.description + '\n' + line;
+                    } else if (currentSection === 'contact') {
+                        if (line.startsWith('- Preferred Method:')) parsed.preferredMethod = line.replace('- Preferred Method:', '').trim() || 'N/A';
+                        else if (line.startsWith('- Phone:')) parsed.phone = line.replace('- Phone:', '').trim() || 'N/A';
+                    }
+                });
+            } catch (err) {
+                console.error('Error parsing issueDescription:', err);
+            }
+            return parsed;
+        }
+
+        // Function to render pagination controls
+        function renderPagination(totalItems) {
+            const paginationContainer = document.getElementById('paginationControls');
+            if (!paginationContainer) return;
+
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            let paginationHTML = '';
+
+            // Previous button
+            paginationHTML += `
+    <button class="rq-pagination-btn-2025" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+      Previous
+    </button>
+  `;
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `
+      <button class="rq-pagination-btn-2025 ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+        ${i}
+      </button>
+    `;
+            }
+
+            // Next button
+            paginationHTML += `
+    <button class="rq-pagination-btn-2025" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+      Next
+    </button>
+  `;
+
+            paginationContainer.innerHTML = paginationHTML;
+        }
+
+        // Function to change page and re-render
+        function changePage(page) {
+            currentPage = page;
+            renderRequests();
+        }
+
+        // Function to render requests for the current page
+        function renderRequests() {
+            const result = document.getElementById('recentRequestsContainer');
+            if (!allRequests.length) return;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedRequests = allRequests.slice(start, end);
+
+            result.innerHTML = paginatedRequests.map(req => {
+                const parsed = rqParseIssueDescription2025(req.issueDescription);
+                return `
+      <div class="rq-card-wrapper-2025">
+        <div class="rq-card-header-2025">
+          <div>
+            <h3 class="rq-card-title-2025">${parsed.summary}</h3>
+            <p class="rq-card-id-2025">Request #${req.id || 'N/A'}</p>
+          </div>
+          <span class="rq-card-status-2025 status-${req.status.toLowerCase().replace(' ', '-')}">${req.status}</span>
+        </div>
+        <div class="rq-card-content-2025">
+          <div class="rq-card-section-2025">
+            <p class="rq-card-label-2025">Issue Type</p>
+            <p class="rq-card-value-2025">${parsed.issueType}</p>
+          </div>
+          <div class="rq-card-section-2025">
+            <p class="rq-card-label-2025">Priority</p>
+            <p class="rq-card-value-2025">${parsed.priority}</p>
+          </div>
+          <div class="rq-card-section-2025">
+            <p class="rq-card-label-2025">Service Type</p>
+            <p class="rq-card-value-2025">${parsed.serviceType}</p>
+          </div>
+          <div class="rq-card-section-2025">
+            <p class="rq-card-label-2025">Contact Method</p>
+            <p class="rq-card-value-2025">${parsed.preferredMethod}</p>
+          </div>
+          <div class="rq-card-section-2025">
+            <p class="rq-card-label-2025">Phone</p>
+            <p class="rq-card-value-2025">${parsed.phone}</p>
+          </div>
+          <div class="rq-card-section-2025">
+            <p class="rq-card-label-2025">Estimated Cost</p>
+            <p class="rq-card-value-2025">${parsed.estimatedCost}</p>
+          </div>
+          <div class="rq-card-description-2025">
+            <p class="rq-card-label-2025">Description</p>
+            <p class="rq-card-value-2025">${parsed.description}</p>
+          </div>
+        </div>
+        <div class="rq-card-footer-2025">
+          <div class="rq-card-date-2025">
+            <i class="fas fa-calendar"></i>
+            ${new Date(req.submittedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                })}
+          </div>
+        </div>
+      </div>
+    `;
+            }).join('');
+
+            renderPagination(allRequests.length);
+        }
+
+        // Main fetch function
         async function rqFetchSupportRequests2025() {
             const error = document.getElementById('requests-error');
             const success = document.getElementById('requests-success');
             const result = document.getElementById('recentRequestsContainer');
+            const totalRequests = document.getElementById("totalRequests");
+            const pendingRequests = document.getElementById("pendingRequests");
+            const completedRequests = document.getElementById("completedRequests");
+            const inProcessRequests = document.getElementById("inProcessRequests");
+
+            // Hide error/success messages and show loading state
             if (error) error.style.display = 'none';
             if (success) success.style.display = 'none';
             result.innerHTML = `
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading your recent requests...</p>
+    <div class="rq-loading-wrapper-2025">
+      <div class="rq-spinner-2025"></div>
+      <p class="rq-loading-text-2025">Loading your recent requests...</p>
     </div>
   `;
 
@@ -1513,63 +1692,33 @@
           <a href="/support-request" class="btn btn-primary">Create Request</a>
         </div>
       `;
+                    // Set default values for statistics
+                    if (totalRequests) totalRequests.textContent = '0';
+                    if (pendingRequests) pendingRequests.textContent = '0';
+                    if (completedRequests) completedRequests.textContent = '0';
+                    if (inProcessRequests) inProcessRequests.textContent = '0';
                     return;
                 }
 
-                result.innerHTML = data.data.map(req => {
-                    const parsed = rqParseIssueDescription2025(req.issueDescription);
-                    return `
-        <div class="rq-card-wrapper-2025">
-          <div class="rq-card-header-2025">
-            <div>
-              <h3 class="rq-card-title-2025">${parsed.summary}</h3>
-              <p class="rq-card-id-2025">Request #${req.id || 'N/A'}</p>
-            </div>
-            <span class="rq-card-status-2025 status-${req.status.toLowerCase().replace(' ', '-')}">${req.status}</span>
-          </div>
-          <div class="rq-card-content-2025">
-            <div class="rq-card-section-2025">
-              <p class="rq-card-label-2025">Issue Type</p>
-              <p class="rq-card-value-2025">${parsed.issueType}</p>
-            </div>
-            <div class="rq-card-section-2025">
-              <p class="rq-card-label-2025">Priority</p>
-              <p class="rq-card-value-2025">${parsed.priority}</p>
-            </div>
-            <div class="rq-card-section-2025">
-              <p class="rq-card-label-2025">Service Type</p>
-              <p class="rq-card-value-2025">${parsed.serviceType}</p>
-            </div>
-            <div class="rq-card-section-2025">
-              <p class="rq-card-label-2025">Contact Method</p>
-              <p class="rq-card-value-2025">${parsed.preferredMethod}</p>
-            </div>
-            <div class="rq-card-section-2025">
-              <p class="rq-card-label-2025">Phone</p>
-              <p class="rq-card-value-2025">${parsed.phone}</p>
-            </div>
-            <div class="rq-card-section-2025">
-              <p class="rq-card-label-2025">Estimated Cost</p>
-              <p class="rq-card-value-2025">${parsed.estimatedCost}</p>
-            </div>
-            <div class="rq-card-description-2025">
-              <p class="rq-card-label-2025">Description</p>
-              <p class="rq-card-value-2025">${parsed.description}</p>
-            </div>
-          </div>
-          <div class="rq-card-footer-2025">
-            <div class="rq-card-date-2025">
-              <i class="fas fa-calendar"></i>
-              ${new Date(req.submittedAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    })}
-            </div>
-          </div>
-        </div>
-      `;
-                }).join('');
+                // Store all requests
+                allRequests = data.data;
+                currentPage = 1;
+
+                // Calculate statistics
+                const total = allRequests.length;
+                const pending = allRequests.filter(req => req.status.toLowerCase() === 'pending').length;
+                const completed = allRequests.filter(req => req.status.toLowerCase() === 'done').length;
+                const inProcess = allRequests.filter(req => req.status.toLowerCase() === 'in-process').length;
+
+                // Update statistics in DOM
+                if (totalRequests) totalRequests.textContent = total;
+                if (pendingRequests) pendingRequests.textContent = pending;
+                if (completedRequests) completedRequests.textContent = completed;
+                if (inProcessRequests) inProcessRequests.textContent = inProcess;
+
+                // Render initial page
+                renderRequests();
+
                 if (success) {
                     success.textContent = 'Requests fetched successfully';
                     success.style.display = 'block';
@@ -1588,6 +1737,11 @@
                     error.textContent = err.message || 'Something went wrong';
                     error.style.display = 'block';
                 }
+                // Set default values for statistics in case of error
+                if (totalRequests) totalRequests.textContent = '0';
+                if (pendingRequests) pendingRequests.textContent = '0';
+                if (completedRequests) completedRequests.textContent = '0';
+                if (inProcessRequests) inProcessRequests.textContent = '0';
             }
         }
     </script>

@@ -293,20 +293,6 @@
                 let refreshPayload = {};
                 let refreshEndpoint = AUTH_ENDPOINTS.READ;
 
-                if (authType === AUTH_TYPES.PIN || authType === AUTH_TYPES.PASSWORD) {
-                    if (!getCredentials) {
-                        throw new Error('getCredentials callback required for PIN or password authentication');
-                    }
-
-                    const credential = await getCredentials(authType);
-                    if (!credential || typeof credential !== 'string' || credential.length < 4) {
-                        throw new Error(`Invalid ${authType} provided`);
-                    }
-
-                    refreshPayload = authType === AUTH_TYPES.PIN ? { pinCode: credential } : { password: credential };
-                    refreshEndpoint = AUTH_ENDPOINTS[authType.toUpperCase()];
-                }
-
                 const refreshResponse = await fetch(refreshEndpoint, {
                     method: 'POST',
                     credentials: 'include',
@@ -315,14 +301,7 @@
                 });
 
                 if (!refreshResponse.ok) {
-                    if (authType === AUTH_TYPES.READ) {
-                        return apiFetch(url, options, AUTH_TYPES.PIN, getCredentials);
-                    } else if (authType === AUTH_TYPES.PIN) {
-                        return apiFetch(url, options, AUTH_TYPES.PASSWORD, getCredentials);
-                    } else {
-                        window.location.href = '/admin/login/';
-                        return null;
-                    }
+                    console.error(`API refresh error (${authType}):`, refreshResponse.statusText);
                 }
 
                 response = await fetch(url, defaultOptions);
@@ -330,7 +309,6 @@
 
             } catch (error) {
                 console.error(`API fetch error (${authType}):`, error.message);
-                window.location.href = '/admin/login/';
                 return null;
             }
         }
@@ -419,7 +397,7 @@
                 const response = await apiFetch('/admin/api/auth/login', {
                     method: 'POST',
                     body: JSON.stringify(formData),
-                }, AUTH_TYPES.PASSWORD, getCredentials);
+                });
 
                 if (!response) return; // Redirect handled by apiFetch
 

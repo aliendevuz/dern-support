@@ -5,9 +5,7 @@ const AUTH_ENDPOINTS = {
 };
 
 const AUTH_TYPES = {
-  READ: 'read',
-  PIN: 'pin',
-  PASSWORD: 'password',
+  READ: 'read'
 };
 
 async function apiFetch(url, options = {}, authType = AUTH_TYPES.READ, getCredentials = null) {
@@ -28,20 +26,6 @@ async function apiFetch(url, options = {}, authType = AUTH_TYPES.READ, getCreden
     let refreshPayload = {};
     let refreshEndpoint = AUTH_ENDPOINTS.READ;
 
-    if (authType === AUTH_TYPES.PIN || authType === AUTH_TYPES.PASSWORD) {
-      if (!getCredentials) {
-        throw new Error('getCredentials callback required for PIN or password authentication');
-      }
-
-      const credential = await getCredentials(authType);
-      if (!credential || typeof credential !== 'string' || credential.length < 4) {
-        throw new Error(`Invalid ${authType} provided`);
-      }
-
-      refreshPayload = authType === AUTH_TYPES.PIN ? { pinCode: credential } : { password: credential };
-      refreshEndpoint = AUTH_ENDPOINTS[authType.toUpperCase()];
-    }
-
     const refreshResponse = await fetch(refreshEndpoint, {
       method: 'POST',
       credentials: 'include',
@@ -50,15 +34,9 @@ async function apiFetch(url, options = {}, authType = AUTH_TYPES.READ, getCreden
     });
 
     if (!refreshResponse.ok) {
-      // Escalate to next auth level or redirect to login
-      if (authType === AUTH_TYPES.READ) {
-        return apiFetch(url, options, AUTH_TYPES.PIN, getCredentials);
-      } else if (authType === AUTH_TYPES.PIN) {
-        return apiFetch(url, options, AUTH_TYPES.PASSWORD, getCredentials);
-      } else {
-        window.location.href = '/admin/login/';
-        return null;
-      }
+      console.error(`API refresh error (${authType}):`, refreshResponse.statusText);
+      // window.location.href = '/admin/';
+      return null;
     }
 
     // Retry original request after successful refresh
@@ -67,7 +45,7 @@ async function apiFetch(url, options = {}, authType = AUTH_TYPES.READ, getCreden
 
   } catch (error) {
     console.error(`API fetch error (${authType}):`, error.message);
-    window.location.href = '/admin/login/';
+    // window.location.href = '/admin/';
     return null;
   }
 }

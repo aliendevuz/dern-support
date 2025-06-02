@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,44 +12,57 @@
       margin: 0;
       background-color: #f0f2f5;
     }
+
     .container {
       max-width: 1200px;
       margin: 20px auto;
       padding: 20px;
     }
+
     .nav {
       background: #007bff;
       padding: 10px;
       margin-bottom: 20px;
     }
+
     .nav a {
       color: white;
       margin: 0 15px;
       text-decoration: none;
       font-weight: bold;
     }
+
     .nav a:hover {
       text-decoration: underline;
     }
-    .knowledge-list, .add-knowledge, .edit-knowledge, .preview {
+
+    .knowledge-list,
+    .add-knowledge,
+    .edit-knowledge,
+    .preview {
       background: white;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       margin-bottom: 20px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
     }
-    th, td {
+
+    th,
+    td {
       padding: 10px;
       border: 1px solid #ccc;
       text-align: left;
     }
+
     th {
       background: #f8f9fa;
     }
+
     button {
       padding: 8px;
       background-color: #007bff;
@@ -58,51 +72,64 @@
       cursor: pointer;
       margin: 0 5px;
     }
+
     button:hover {
       background-color: #0056b3;
     }
+
     button.delete {
       background-color: #dc3545;
     }
+
     button.delete:hover {
       background-color: #c82333;
     }
-    input, select, textarea {
+
+    input,
+    select,
+    textarea {
       width: 100%;
       padding: 8px;
       margin: 8px 0;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
+
     select[multiple] {
       height: 100px;
     }
+
     textarea {
       height: 150px;
       resize: vertical;
     }
+
     .error {
       color: red;
       margin-top: 10px;
       display: none;
     }
+
     .form-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
+
     .preview-content {
       border: 1px solid #ccc;
       padding: 10px;
       border-radius: 4px;
       min-height: 100px;
     }
+
     .preview img {
       max-width: 100%;
       height: auto;
     }
   </style>
 </head>
+
 <body>
   <div class="nav">
     <a href="/admin">Dashboard</a>
@@ -112,7 +139,7 @@
   </div>
   <div class="container">
     <h1>Manage Knowledge Base</h1>
-    
+
     <!-- Add Knowledge Form -->
     <div class="add-knowledge">
       <h2>Add New Knowledge</h2>
@@ -206,7 +233,7 @@
 
         const addSimilarsSelect = document.getElementById('add-similars');
         const editSimilarsSelect = document.getElementById('edit-similars');
-        
+
         addSimilarsSelect.innerHTML = data.data.map(knowledge => `
           <option value="${knowledge.id}">${knowledge.title}</option>
         `).join('');
@@ -304,64 +331,70 @@
     }
 
     async function startEdit(knowledgeId) {
+      const errorMessage = document.getElementById('edit-error');
+      errorMessage.style.display = 'none';
+
       try {
-        const response = await apiFetch(`/admin/api/super-admin/details-knowledge?articleId=${knowledgeId}`, {}, 'read', async (type) => {
-          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
-        });
+        // Yagona API so'rovi autentifikatsiya bilan
+        const response = await apiFetch(
+          `/admin/api/super-admin/details-knowledge?articleId=${knowledgeId}`,
+          { method: 'GET' },
+          'read',
+          async (type) => {
+            return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
+          }
+        );
 
         if (!response || !response.ok) {
-          const errorData = await response.json();
-          document.getElementById('edit-error').textContent = errorData.error || 'Failed to fetch knowledge details';
-          document.getElementById('edit-error').style.display = 'block';
+          let errorText = 'Failed to fetch knowledge details';
+          try {
+            const errorData = await response.json();
+            errorText = errorData.error || errorText;
+          } catch (e) {
+            console.error('Error parsing response:', e);
+          }
+          errorMessage.textContent = errorText;
+          errorMessage.style.display = 'block';
           return;
         }
 
         const data = await response.json();
         if (!data.success || !data.data) {
-          document.getElementById('edit-error').textContent = 'Knowledge not found';
-          document.getElementById('edit-error').style.display = 'block';
+          errorMessage.textContent = 'Knowledge not found';
+          errorMessage.style.display = 'block';
           return;
         }
 
-        // Similars uchun Knowledge ma'lumotlarini olish
-        const knowledgeResponse = await apiFetch(`/admin/api/super-admin/details-knowledge?knowledgeId=${data.data.knowledge.id}`, {}, 'read', async (type) => {
-          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
-        });
-
-        if (!knowledgeResponse || !knowledgeResponse.ok) {
-          const errorData = await knowledgeResponse.json();
-          document.getElementById('edit-error').textContent = errorData.error || 'Failed to fetch knowledge details';
-          document.getElementById('edit-error').style.display = 'block';
-          return;
-        }
-
-        const knowledgeData = await knowledgeResponse.json();
-        if (!knowledgeData.success || !knowledgeData.data) {
-          document.getElementById('edit-error').textContent = 'Knowledge not found';
-          document.getElementById('edit-error').style.display = 'block';
-          return;
-        }
-
+        // Ma'lumotlarni formaga joylashtirish
         editingKnowledgeId = knowledgeId;
-        document.getElementById('edit-knowledgeId').value = data.data.knowledge.id;
-        document.getElementById('edit-articleId').value = data.data.id;
-        document.getElementById('edit-title').value = data.data.knowledge.title;
-        document.getElementById('edit-category').value = data.data.knowledge.category || '';
-        document.getElementById('edit-description').value = data.data.knowledge.description || '';
-        document.getElementById('edit-articleContent').value = data.data.content;
+        document.getElementById('edit-knowledgeId').value = data.data.knowledge?.id || '';
+        document.getElementById('edit-articleId').value = data.data.id || '';
+        document.getElementById('edit-title').value = data.data.knowledge?.title || '';
+        document.getElementById('edit-category').value = data.data.knowledge?.category || '';
+        document.getElementById('edit-description').value = data.data.knowledge?.description || '';
+        document.getElementById('edit-articleContent').value = data.data.content || '';
 
         // Similars ni tanlash
         const editSimilarsSelect = document.getElementById('edit-similars');
-        knowledgeData.data.similars.forEach(similarId => {
-          const option = editSimilarsSelect.querySelector(`option[value="${similarId}"]`);
-          if (option) option.selected = true;
-        });
+        if (editSimilarsSelect && data.data.similars) {
+          editSimilarsSelect.querySelectorAll('option').forEach(option => {
+            option.selected = data.data.similars.includes(option.value);
+          });
+        }
 
-        document.querySelector('.edit-knowledge').style.display = 'block';
+        // Edit formani ko'rsatish
+        const editForm = document.querySelector('.edit-knowledge');
+        if (editForm) {
+          editForm.style.display = 'block';
+        } else {
+          console.error('Edit form (.edit-knowledge) not found in DOM');
+          errorMessage.textContent = 'Failed to display edit form';
+          errorMessage.style.display = 'block';
+        }
       } catch (error) {
         console.error('Fetch edit knowledge error:', error);
-        document.getElementById('edit-error').textContent = 'Something went wrong';
-        document.getElementById('edit-error').style.display = 'block';
+        errorMessage.textContent = error.message || 'Something went wrong';
+        errorMessage.style.display = 'block';
       }
     }
 
@@ -385,8 +418,6 @@
         const response = await apiFetch('/admin/api/super-admin/update-knowledge', {
           method: 'POST',
           body: JSON.stringify({ knowledgeId, title, category, description, articleId, articleContent, similars }),
-        }, 'password', async (type) => {
-          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
         });
 
         if (!response || !response.ok) {
@@ -443,9 +474,7 @@
     async function viewDetails(knowledgeId) {
       const errorMessage = document.getElementById('preview-error');
       try {
-        const response = await apiFetch(`/admin/api/super-admin/details-knowledge?articleId=${knowledgeId}`, {}, 'read', async (type) => {
-          return prompt(`Please enter your ${type === 'pin' ? 'Pin Code' : 'Password'}:`);
-        });
+        const response = await apiFetch(`/admin/api/super-admin/details-knowledge?articleId=${knowledgeId}`, {});
 
         if (!response || !response.ok) {
           const errorData = await response.json();
@@ -500,4 +529,5 @@
     };
   </script>
 </body>
+
 </html>
