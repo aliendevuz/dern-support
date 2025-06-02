@@ -7,7 +7,7 @@ const aboutMe = async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized access' });
     }
 
-    const user = await User.findById(req.user.id).select('email role _id firstName lastName phone address companyName employeeCount');
+    const user = await User.findById(req.user.id).select('email role _id firstName lastName phone address companyName employeeCount createdAt');
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -22,6 +22,7 @@ const aboutMe = async (req, res) => {
       address: user.address,
       companyName: user.companyName || null,
       employeeCount: user.employeeCount || null,
+      createdAt: user.createdAt,
     });
   } catch (err) {
     console.error('❌ aboutMe error:', err);

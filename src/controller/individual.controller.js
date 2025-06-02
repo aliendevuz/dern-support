@@ -11,7 +11,7 @@ const aboutMe = async (req, res, next) => {
       });
     }
 
-    const user = await User.findById(req.user.id).select('email role _id firstName lastName phone address companyName employeeCount');
+    const user = await User.findById(req.user.id).select('email role _id firstName lastName phone address companyName employeeCount createdAt');
     if (!user) {
       return res.status(404).json({ 
         success: false,
@@ -31,6 +31,7 @@ const aboutMe = async (req, res, next) => {
         address: user.address,
         companyName: user.companyName || null,
         employeeCount: user.employeeCount || null,
+        createdAt: user.createdAt
       }
     });
   } catch (err) {

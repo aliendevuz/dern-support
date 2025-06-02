@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Support - Dern-Support</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: #64748b;
+        }
+
+        .form-content {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-outline:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 2rem;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        .notification {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .notification.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .notification.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .price-estimate {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .price-estimate h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .price-amount {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-content {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+        }
+    </style>
+
+    
+</head>
+
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Request Support</h1>
+            <p>Get professional IT assistance quickly and easily</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="notification success" id="successMessage"></div>
+        <div class="notification error" id="errorMessage"></div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Submit Support Request</h2>
+                <p>Please provide details about your technical issue</p>
+            </div>
+
+            <div class="form-content">
+                <form id="supportForm">
+                    <div class="form-group">
+                        <label for="issueType">Issue Type <span class="required">*</span></label>
+                        <select id="issueType" name="issueType" required>
+                            <option value="">Select issue type</option>
+                            <option value="hardware">Hardware Problem</option>
+                            <option value="software">Software Issue</option>
+                            <option value="network">Network/Internet</option>
+                            <option value="email">Email Problems</option>
+                            <option value="security">Security Concerns</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="priority">Priority <span class="required">*</span></label>
+                            <select id="priority" name="priority" required>
+                                <option value="">Select priority</option>
+                                <option value="low">Low - General inquiry</option>
+                                <option value="medium">Medium - Standard issue</option>
+                                <option value="high">High - Urgent problem</option>
+                                <option value="critical">Critical - System down</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="serviceType">Service Type <span class="required">*</span></label>
+                            <select id="serviceType" name="serviceType" required>
+                                <option value="">Select service type</option>
+                                <option value="remote">Remote Support</option>
+                                <option value="onsite">On-site Visit</option>
+                                <option value="phone">Phone Support</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">Issue Summary <span class="required">*</span></label>
+                        <input type="text" id="title" name="title" required 
+                               placeholder="Brief description of the problem">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Detailed Description <span class="required">*</span></label>
+                        <textarea id="description" name="description" required 
+                                  placeholder="Please describe the issue in detail, including any error messages and what you were doing when it occurred..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contactMethod">Preferred Contact <span class="required">*</span></label>
+                            <select id="contactMethod" name="contactMethod" required>
+                                <option value="">Select contact method</option>
+                                <option value="email">Email</option>
+                                <option value="phone">Phone Call</option>
+                                <option value="sms">SMS/Text</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" 
+                                   placeholder="Your contact number">
+                        </div>
+                    </div>
+
+                    <div class="price-estimate" id="priceEstimate">
+                        <h3>Estimated Cost</h3>
+                        <div class="price-amount" id="priceAmount">$0.00</div>
+                        <small>Final cost may vary based on complexity</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="resetForm()">
+                            <i class="fas fa-undo"></i>
+                            Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pricing configuration
+        const PRICING = {
+            base: {
+                remote: 50,
+                onsite: 100,
+                phone: 30
+            },
+            priority: {
+                low: 1.0,
+                medium: 1.2,
+                high: 1.5,
+                critical: 2.0
+            }
+        };
+
+        // DOM elements
+        const form = document.getElementById('supportForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const priceAmount = document.getElementById('priceAmount');
+
+        // Form elements
+        const issueType = document.getElementById('issueType');
+        const priority = document.getElementById('priority');
+        const serviceType = document.getElementById('serviceType');
+        const title = document.getElementById('title');
+        const description = document.getElementById('description');
+        const contactMethod = document.getElementById('contactMethod');
+        const phone = document.getElementById('phone');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            calculatePrice();
+            
+            // Add event listeners for price calculation
+            [issueType, priority, serviceType].forEach(element => {
+                element.addEventListener('change', calculatePrice);
+            });
+
+            // Form validation
+            form.addEventListener('input', validateForm);
+            form.addEventListener('submit', handleSubmit);
+        });
+
+        // Calculate estimated price
+        function calculatePrice() {
+            const serviceTypeValue = serviceType.value;
+            const priorityValue = priority.value;
+
+            let basePrice = 0;
+            let totalPrice = 0;
+
+            if (serviceTypeValue && PRICING.base[serviceTypeValue]) {
+                basePrice = PRICING.base[serviceTypeValue];
+            }
+
+            if (priorityValue && PRICING.priority[priorityValue]) {
+                totalPrice = basePrice * PRICING.priority[priorityValue];
+            }
+
+            priceAmount.textContent = `$${totalPrice.toFixed(2)}`;
+        }
+
+        // Validate form
+        function validateForm() {
+            const requiredFields = [issueType, priority, serviceType, title, description, contactMethod];
+            const isValid = requiredFields.every(field => field.value.trim() !== '');
+            
+            submitBtn.disabled = !isValid;
+            return isValid;
+        }
+
+        // Handle form submission
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            hideMessages();
+            
+            if (!validateForm()) {
+                showError('Please fill in all required fields.');
+                return;
+            }
+
+            // Prepare form data
+            const formData = {
+                issueDescription: formatIssueDescription(),
+                preferredMethod: contactMethod.value
+            };
+
+            try {
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+
+                // Simulate API call - replace with your actual API endpoint
+                const response = await fetch('/api/individual/send-support-request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('Support request submitted successfully! We will contact you soon.');
+                    window.location.href = '/';
+                    resetForm();
+                } else {
+                    throw new Error(result.error || 'Request submission failed');
+                }
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                showError('Failed to submit request. Please try again or contact support directly.');
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Format issue description
+        function formatIssueDescription() {
+            const priceText = priceAmount.textContent;
+            
+            return `**Support Request Details**
+
+**Issue Type:** ${issueType.value}
+**Priority:** ${priority.value}
+**Service Type:** ${serviceType.value}
+**Summary:** ${title.value}
+
+**Description:**
+${description.value}
+
+**Contact Information:**
+- Preferred Method: ${contactMethod.value}
+- Phone: ${phone.value || 'Not provided'}
+
+**Estimated Cost:** ${priceText}`;
+        }
+
+        // Reset form
+        function resetForm() {
+            form.reset();
+            calculatePrice();
+            validateForm();
+            hideMessages();
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            hideMessages();
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Show error message
+        function showError(message) {
+            hideMessages();
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            errorMessage.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Hide all messages
+        function hideMessages() {
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -39,7 +39,7 @@ async function apiFetch(url, options = {}, retryCount = 0) {
         console.error(`API fetch error for ${url}:`, error.message);
         // Only redirect for auth-related errors; others could be handled differently
         if (error.message.includes('403') || error.message.includes('401')) {
-            window.location.href = '/login';
+            // window.location.href = '/login';
             return null;
         }
         throw error; // Let the caller handle non-auth errors

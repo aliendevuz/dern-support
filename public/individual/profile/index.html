@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings - Dern-Support</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Individual User Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .nav-logo h2 {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .nav-logo a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #2563eb;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #2563eb;
+            border-radius: 1px;
+        }
+
+        /* User Profile Dropdown */
+        .user-profile {
+            position: relative;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .user-info:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .dropdown-arrow {
+            font-size: 0.75rem;
+            color: #64748b;
+            transition: transform 0.3s ease;
+        }
+
+        .user-info.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item.active {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        .dropdown-item i {
+            width: 16px;
+            font-size: 0.875rem;
+        }
+
+        /* Mobile Navigation */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background: #64748b;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .welcome-content {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .welcome-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .welcome-text p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+            flex-direction: column;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-size: 0.875rem;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .btn-outline:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 3rem 0;
+            background: white;
+            margin-top: -2rem;
+            position: relative;
+            z-index: 10;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.pending {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        .stat-icon.completed {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-content p {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        /* Section Styles */
+        .recent-requests,
+        .quick-actions,
+        .knowledge-preview {
+            padding: 3rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .view-all-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .view-all-link:hover {
+            color: #1d4ed8;
+        }
+
+        /* Quick Actions */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-color: #2563eb;
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-card p {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* Knowledge Grid */
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .knowledge-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .knowledge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .knowledge-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .knowledge-category {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .knowledge-date {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        .knowledge-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .knowledge-excerpt {
+            color: #64748b;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Loading States */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Request Cards */
+        .request-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .request-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .request-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .request-id {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .request-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-in-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .request-description {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .request-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .request-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .view-request-btn {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .view-request-btn:hover {
+            color: #1d4ed8;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3,
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #334155;
+            padding-top: 1rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 70px;
+                flex-direction: column;
+                background-color: white;
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+                padding: 2rem 0;
+                gap: 1rem;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .user-profile {
+                order: -1;
+            }
+
+            .welcome-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .welcome-text h1 {
+                font-size: 2rem;
+            }
+
+            .welcome-actions {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .knowledge-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-card {
+                text-align: center;
+            }
+
+            .request-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .request-footer {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.25rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 2rem;
+        }
+
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .block {
+            display: block;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .grid {
+            display: grid;
+        }
+    </style>
+
+    <style>
+        /* Profile Page Specific Styles */
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 2rem 0 3rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        .breadcrumb a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            opacity: 0.8;
+        }
+
+        .separator {
+            color: #94a3b8;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        /* Profile Content */
+        .profile-content {
+            padding: 3rem 0;
+        }
+
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        /* Profile Sidebar */
+        .profile-sidebar {
+            position: sticky;
+            top: 100px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar-circle {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            margin: 0 auto;
+        }
+
+        .change-avatar-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 36px;
+            height: 36px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .change-avatar-btn:hover {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .profile-info h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info p {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-role {
+            display: inline-block;
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .profile-stats {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .stat-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        /* Profile Form */
+        .profile-form-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .profile-form {
+            padding: 3rem;
+        }
+
+        .form-section {
+            margin-bottom: 3rem;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group.error input,
+        .form-group.error textarea,
+        .form-group.error select {
+            border-color: #ef4444;
+        }
+
+        .form-help {
+            display: block;
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .error-message {
+            display: block;
+            font-size: 0.875rem;
+            color: #ef4444;
+            margin-top: 0.25rem;
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .password-strength.weak {
+            background: linear-gradient(90deg, #ef4444 30%, #e2e8f0 30%);
+        }
+
+        .password-strength.medium {
+            background: linear-gradient(90deg, #f59e0b 60%, #e2e8f0 60%);
+        }
+
+        .password-strength.strong {
+            background: linear-gradient(90deg, #10b981 100%, #e2e8f0 100%);
+        }
+
+        /* Custom Checkbox */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked+.checkmark {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked+.checkmark::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 2rem;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 0 0 16px 16px;
+            padding: 3rem;
+            margin-top: -1px;
+        }
+
+        .danger-zone h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #dc2626;
+            margin-bottom: 2rem;
+        }
+
+        .danger-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .danger-info h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .danger-info p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .warning-icon {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .warning-icon i {
+            font-size: 4rem;
+            color: #f59e0b;
+        }
+
+        .modal-body p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        .modal-body ul {
+            margin: 1rem 0 2rem 1.5rem;
+            color: #64748b;
+        }
+
+        .modal-body li {
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Loading States */
+        .form-group.loading input,
+        .form-group.loading textarea {
+            background: #f8fafc;
+            color: #94a3b8;
+        }
+
+        .btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .profile-layout {
+                grid-template-columns: 300px 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .profile-sidebar {
+                position: static;
+            }
+
+            .profile-card {
+                margin-bottom: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .danger-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                max-width: none;
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .profile-form {
+                padding: 2rem;
+            }
+
+            .danger-zone {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-header {
+                padding: 1.5rem 0 2rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.75rem;
+            }
+
+            .profile-form {
+                padding: 1.5rem;
+            }
+
+            .danger-zone {
+                padding: 1.5rem;
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 1.5rem;
+            }
+
+            .avatar-circle {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .change-avatar-btn {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+
+            .navbar,
+            .danger-zone,
+            .form-actions,
+            .footer {
+                display: none;
+            }
+
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-form {
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2><a href="/">Dern-Support</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/knowledge" class="nav-link">Knowledge Base</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/support-request" class="nav-link">Request Support</a>
+                </li>
+            </ul>
+
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <div class="user-info" id="userProfileToggle">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name" id="userName">Loading...</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="/profile" class="dropdown-item active">
+                        <i class="fas fa-user-edit"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <style>
+        .notification {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            position: absolute;
+            top: 3rem;
+            right: 1rem;
+            z-index: 9999;
+        }
+
+        .notification.success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .notification.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+    <div id="edit-error" class="notification error" style="display: none;"></div>
+    <div id="edit-success" class="notification success" style="display: none;"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="/">Dashboard</a>
+                    <span class="separator">›</span>
+                    <span>Profile Settings</span>
+                </div>
+                <h1>Profile Settings</h1>
+                <p>Manage your account information and preferences</p>
+            </div>
+        </section>
+
+        <!-- Profile Content -->
+        <section class="profile-content">
+            <div class="container">
+                <div class="profile-layout">
+                    <!-- Profile Sidebar -->
+                    <div class="profile-sidebar">
+                        <div class="profile-card">
+                            <div class="profile-avatar">
+                                <div class="avatar-circle">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <button class="change-avatar-btn"
+                                    onclick="showNotification('Avatar upload feature coming soon!', 'info')">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            <div class="profile-info">
+                                <h3 id="sidebarUserName">Loading...</h3>
+                                <p id="sidebarUserEmail">Loading...</p>
+                                <span class="user-role">Individual Account</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Member Since</span>
+                                <span class="stat-value" id="memberSince">Loading...</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Requests</span>
+                                <span class="stat-value" id="totalRequestsProfile">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Form -->
+                    <div class="profile-form-container">
+
+                        <form id="profileForm" class="profile-form">
+                            <div class="form-section">
+                                <h2>Personal Information</h2>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name *</label>
+                                        <input type="text" id="firstName" name="firstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name *</label>
+                                        <input type="text" id="lastName" name="lastName" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" disabled>
+                                    <small class="form-help">This email will be used for all communications</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" name="phone">
+                                    <small class="form-help">Include country code (e.g., +1 234 567 8900)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <textarea id="address" name="address" rows="3"
+                                        placeholder="Enter your full address"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline" onclick="populateForm()">
+                                    <i class="fas fa-undo"></i>
+                                    Reset Changes
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/global.js"></script>
+    <script>
+        // Profile page functionality
+        let currentUser = null;
+        let isFormDirty = false;
+
+        // DOM elements
+        const userName = document.getElementById("userName");
+        const userProfileToggle = document.getElementById("userProfileToggle");
+        const profileDropdown = document.getElementById("profileDropdown");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const profileForm = document.getElementById("profileForm");
+
+        // Sidebar elements
+        const sidebarUserName = document.getElementById("sidebarUserName");
+        const sidebarUserEmail = document.getElementById("sidebarUserEmail");
+        const memberSince = document.getElementById("memberSince");
+        const totalRequestsProfile = document.getElementById("totalRequestsProfile");
+
+        // Form elements
+        const firstNameInput = document.getElementById("firstName");
+        const lastNameInput = document.getElementById("lastName");
+        const emailInput = document.getElementById("email");
+        const phoneInput = document.getElementById("phone");
+        const addressInput = document.getElementById("address");
+
+        // Notification elements
+        const errorNotification = document.getElementById("edit-error");
+        const successNotification = document.getElementById("edit-success");
+
+        // Initialize profile page
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const response = await apiFetch('/api/individual/about', { method: 'POST' });
+                if (response && response.ok) {
+                    const data = await response.json();
+                    currentUser = data.data;
+                    populateForm();
+                    updateSidebar();
+                    loadUserStats();
+                } else {
+                    // Mock data for testing
+                    currentUser = {
+                        firstName: "John",
+                        lastName: "Doe",
+                        email: "john.doe@example.com",
+                        phone: "+1 234 567 8900",
+                        address: "123 Main St, City, State 12345",
+                        createdAt: new Date().toISOString()
+                    };
+                    populateForm();
+                    updateSidebar();
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showNotification('Error loading user data', 'error');
+            }
+
+            initializeEventListeners();
+        });
+
+        // Event listeners
+        function initializeEventListeners() {
+            // Profile dropdown toggle
+            userProfileToggle.addEventListener("click", (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle("show");
+                userProfileToggle.classList.toggle("active");
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener("click", (e) => {
+                if (!e.target.closest(".user-profile")) {
+                    profileDropdown.classList.remove("show");
+                    userProfileToggle.classList.remove("active");
+                }
+            });
+
+            // Logout functionality
+            logoutBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                handleLogout();
+            });
+
+            // Form submission
+            profileForm.addEventListener("submit", handleFormSubmit);
+
+            // Track form changes
+            const formInputs = profileForm.querySelectorAll("input, textarea, select");
+            formInputs.forEach((input) => {
+                input.addEventListener("input", () => {
+                    isFormDirty = true;
+                    validateField(input);
+                });
+
+                input.addEventListener("blur", () => {
+                    validateField(input);
+                });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    profileDropdown.classList.remove("show");
+                    userProfileToggle.classList.remove("active");
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+                    e.preventDefault();
+                    profileForm.dispatchEvent(new Event("submit"));
+                }
+            });
+        }
+
+        // Populate form with user data
+        function populateForm() {
+            if (!currentUser) return;
+
+            firstNameInput.value = currentUser.firstName || "";
+            lastNameInput.value = currentUser.lastName || "";
+            emailInput.value = currentUser.email || "";
+            phoneInput.value = currentUser.phone || "";
+            addressInput.value = currentUser.address || "";
+
+            isFormDirty = false;
+        }
+
+        // Update sidebar information
+        function updateSidebar() {
+            if (!currentUser) return;
+
+            const fullName = `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+            userName.textContent = fullName || 'User';
+            sidebarUserName.textContent = fullName || 'User';
+            sidebarUserEmail.textContent = currentUser.email || '';
+
+            if (currentUser.createdAt) {
+                memberSince.textContent = formatDate(currentUser.createdAt);
+            }
+        }
+
+        // Load user statistics
+        async function loadUserStats() {
+            try {
+                const response = await apiFetch('/api/individual/get-support-requests', { method: 'GET' });
+                if (response && response.ok) {
+                    const data = await response.json();
+                    totalRequestsProfile.textContent = data.data?.length || 0;
+                } else {
+                    totalRequestsProfile.textContent = "0";
+                }
+            } catch (error) {
+                console.error("Error loading user stats:", error);
+                totalRequestsProfile.textContent = "0";
+            }
+        }
+
+        // Handle form submission
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            // Hide previous notifications
+            hideNotifications();
+
+            // Validate form
+            if (!validateForm()) {
+                showNotification('Please fill in all required fields correctly', 'error');
+                return;
+            }
+
+            // Get form data
+            const formData = new FormData(profileForm);
+            const data = Object.fromEntries(formData);
+
+            // Extract required fields for API
+            const firstName = data.firstName?.trim();
+            // const email = data.email?.trim();
+
+            // Validate required fields for API
+            if (!firstName) {
+                showNotification('First name is required', 'error');
+                return;
+            }
+
+            // Prepare payload for API
+            const requestPayload = {
+                firstName: firstName
+            };
+
+            const submitBtn = profileForm.querySelector('button[type="submit"]');
+
+            try {
+                submitBtn.classList.add("loading");
+                submitBtn.disabled = true;
+
+                const response = await apiFetch('/api/individual/edit-profile', {
+                    method: 'POST',
+                    body: JSON.stringify(requestPayload),
+                });
+
+                if (response && response.ok) {
+                    const result = await response.json();
+
+                    if (result.success) {
+                        showNotification("Profile updated successfully!", "success");
+
+                        // Update currentUser with new data
+                        currentUser = {
+                            ...currentUser,
+                            firstName,
+                            email,
+                            // Keep other form data locally even if API doesn't handle it
+                            lastName: data.lastName?.trim() || currentUser.lastName,
+                            phone: data.phone?.trim() || currentUser.phone,
+                            address: data.address?.trim() || currentUser.address
+                        };
+                        window.location.reload();
+                        isFormDirty = false;
+                    } else {
+                        throw new Error(result.error || 'Profile update failed');
+                    }
+                } else {
+                    throw new Error('Failed to update profile');
+                }
+            } catch (err) {
+                console.error('Profile update error:', err);
+                showNotification(err.message || "Failed to update profile. Please try again.", "error");
+            } finally {
+                submitBtn.classList.remove("loading");
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Validate entire form
+        function validateForm() {
+            let isValid = true;
+
+            // Clear previous errors
+            document.querySelectorAll(".form-group").forEach((group) => {
+                group.classList.remove("error");
+                const errorMsg = group.querySelector(".error-message");
+                if (errorMsg) errorMsg.remove();
+            });
+
+            // Required fields validation
+            const requiredFields = [
+                { field: firstNameInput, name: "First name" },
+                { field: emailInput, name: "Email" }
+            ];
+
+            requiredFields.forEach(({ field, name }) => {
+                if (!field.value.trim()) {
+                    addFieldError(field, `${name} is required`);
+                    isValid = false;
+                }
+            });
+
+            // Email validation
+            if (emailInput.value && !isValidEmail(emailInput.value)) {
+                addFieldError(emailInput, "Please enter a valid email address");
+                isValid = false;
+            }
+
+            // Phone validation (if provided)
+            if (phoneInput.value && !isValidPhone(phoneInput.value)) {
+                addFieldError(phoneInput, "Please enter a valid phone number");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Validate individual field
+        function validateField(field) {
+            const formGroup = field.closest(".form-group");
+
+            // Clear previous error
+            formGroup.classList.remove("error");
+            const errorMsg = formGroup.querySelector(".error-message");
+            if (errorMsg) errorMsg.remove();
+
+            const value = field.value.trim();
+
+            // Skip validation for empty non-required fields
+            if (!value && !field.required) return;
+
+            switch (field.type) {
+                case "email":
+                    if (value && !isValidEmail(value)) {
+                        addFieldError(field, "Please enter a valid email address");
+                    }
+                    break;
+                case "tel":
+                    if (value && !isValidPhone(value)) {
+                        addFieldError(field, "Please enter a valid phone number");
+                    }
+                    break;
+            }
+
+            // Required field validation
+            if (field.required && !value) {
+                addFieldError(field, "This field is required");
+            }
+        }
+
+        // Add field error
+        function addFieldError(field, message) {
+            const formGroup = field.closest(".form-group");
+            formGroup.classList.add("error");
+
+            const errorElement = document.createElement("span");
+            errorElement.className = "error-message";
+            errorElement.textContent = message;
+
+            field.parentNode.appendChild(errorElement);
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            try {
+                const response = await apiFetch("/api/auth/logout", {
+                    method: "POST",
+                });
+
+                if (response && response.ok) {
+                    showNotification("Logged out successfully", "success");
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 1000);
+                } else {
+                    throw new Error("Logout failed");
+                }
+            } catch (error) {
+                console.error("Logout error:", error);
+                showNotification("Error logging out. Please try again.", "error");
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = "info") {
+            hideNotifications();
+
+            if (type === 'error') {
+                errorNotification.textContent = message;
+                errorNotification.style.display = 'block';
+            } else if (type === 'success') {
+                successNotification.textContent = message;
+                // successNotification.style.display = 'block';
+            }
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideNotifications();
+            }, 5000);
+        }
+
+        // Hide notifications
+        function hideNotifications() {
+            errorNotification.style.display = 'none';
+            successNotification.style.display = 'none';
+        }
+
+        // Utility functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function isValidPhone(phone) {
+            const phoneRegex = /^[+]?[1-9][\d\s\-()]{8,}$/;
+            const cleanPhone = phone.replace(/[\s\-()]/g, "");
+            return phoneRegex.test(phone) && cleanPhone.length >= 10;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            });
+        }
+    </script>
+
+</body>
+
+</html>

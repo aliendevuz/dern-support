@@ -2,359 +2,1595 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Individual Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f0f2f5;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Dern-Support</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    .header {
-      background: #007bff;
-      padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
+    <style>
+        /* Individual User Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    .header a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: bold;
-    }
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .header a:hover {
-      text-decoration: underline;
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
 
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
-    }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
 
-    .section {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+        /* Navigation Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
 
-    .section h2 {
-      margin: 0 0 10px;
-      font-size: 1.5em;
-    }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
+        .nav-logo h2 {
+            color: #2563eb;
+            font-weight: 700;
+        }
 
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-    }
+        .nav-logo a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
 
-    button {
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+        .nav-link {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
 
-    button:hover {
-      background: #0056b3;
-    }
+        .nav-link:hover,
+        .nav-link.active {
+            color: #2563eb;
+        }
 
-    .error,
-    .success {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 4px;
-      display: none;
-    }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #2563eb;
+            border-radius: 1px;
+        }
 
-    .error {
-      background: #f8d7da;
-      color: #721c24;
-    }
+        /* User Profile Dropdown */
+        .user-profile {
+            position: relative;
+        }
 
-    .success {
-      background: #d4edda;
-      color: #155724;
-    }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
+        .user-info:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
 
-    table,
-    th,
-    td {
-      border: 1px solid #ddd;
-    }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+        }
 
-    th,
-    td {
-      padding: 10px;
-      text-align: left;
-    }
+        .user-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
 
-    th {
-      background: #f4f4f4;
-    }
-  </style>
+        .dropdown-arrow {
+            font-size: 0.75rem;
+            color: #64748b;
+            transition: transform 0.3s ease;
+        }
+
+        .user-info.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item.active {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        .dropdown-item i {
+            width: 16px;
+            font-size: 0.875rem;
+        }
+
+        /* Mobile Navigation */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background: #64748b;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .welcome-content {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .welcome-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .welcome-text p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+            flex-direction: column;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-size: 0.875rem;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .btn-outline:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 3rem 0;
+            background: white;
+            margin-top: -2rem;
+            position: relative;
+            z-index: 10;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.pending {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        .stat-icon.completed {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-content p {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        /* Section Styles */
+        .recent-requests,
+        .quick-actions,
+        .knowledge-preview {
+            padding: 3rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .view-all-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .view-all-link:hover {
+            color: #1d4ed8;
+        }
+
+        /* Quick Actions */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-color: #2563eb;
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .action-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-card p {
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* Knowledge Grid */
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .knowledge-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .knowledge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .knowledge-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .knowledge-category {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .knowledge-date {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        .knowledge-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .knowledge-excerpt {
+            color: #64748b;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Loading States */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Request Cards */
+        .request-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .request-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .request-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .request-id {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .request-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-in-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .request-description {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .request-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .request-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .view-request-btn {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .view-request-btn:hover {
+            color: #1d4ed8;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 3rem 0 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3,
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #334155;
+            padding-top: 1rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 70px;
+                flex-direction: column;
+                background-color: white;
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+                padding: 2rem 0;
+                gap: 1rem;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .user-profile {
+                order: -1;
+            }
+
+            .welcome-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .welcome-text h1 {
+                font-size: 2rem;
+            }
+
+            .welcome-actions {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .knowledge-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-card {
+                text-align: center;
+            }
+
+            .request-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .request-footer {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.25rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 2rem;
+        }
+
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .block {
+            display: block;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .grid {
+            display: grid;
+        }
+    </style>
 </head>
 
 <body>
-  <div class="header">
-    <h2 style="margin: 0 10px;">Individual Dashboard</h2>
-    <div>
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
-  <div class="container">
-    <!-- About Me Section -->
-    <div class="section">
-      <h2>About Me</h2>
-      <button onclick="fetchAbout()">Get Profile Info</button>
-      <div id="about-result"></div>
-      <p class="error" id="about-error"></p>
-      <p class="success" id="about-success"></p>
-    </div>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2><a href="/">Dern-Support</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/" class="nav-link active">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/support-request" class="nav-link">Request Support</a>
+                </li>
+            </ul>
 
-    <!-- Edit Profile Section -->
-    <div class="section">
-      <h2>Edit Profile</h2>
-      <div class="form-group">
-        <label for="edit-firstName">First Name</label>
-        <input type="text" id="edit-firstName" placeholder="Enter first name">
-      </div>
-      <div class="form-group">
-        <label for="edit-email">Email</label>
-        <input type="email" id="edit-email" placeholder="Enter email">
-      </div>
-      <button onclick="editProfile()">Save Changes</button>
-      <p class="error" id="edit-error"></p>
-      <p class="success" id="edit-success"></p>
-    </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <div class="user-info" id="userProfileToggle">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name" id="userName">John Doe</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
 
-    <!-- Send Support Request Section -->
-    <div class="section">
-      <h2>Send Support Request</h2>
-      <div class="form-group">
-        <label for="request-issueDescription">Description</label>
-        <textarea id="request-issueDescription" rows="4" placeholder="Enter request description"></textarea>
-      </div>
-      <button onclick="sendSupportRequest()">Send Request</button>
-      <p class="error" id="request-error"></p>
-      <p class="success" id="request-success"></p>
-    </div>
+                <!-- Dropdown Menu -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="/profile" class="dropdown-item">
+                        <i class="fas fa-user-edit"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+            </div>
 
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
 
-    <!-- Get Support Requests Section -->
-    <div class="section">
-      <h2>Support Requests</h2>
-      <button onclick="fetchSupportRequests()">Get Requests</button>
-      <div id="requests-result"></div>
-      <p class="error" id="requests-error"></p>
-      <p class="success" id="requests-success"></p>
-    </div>
-  </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <div class="container">
+                <div class="welcome-content">
+                    <div class="welcome-text">
+                        <h1>Welcome back, <span id="welcomeUserName">John</span>!</h1>
+                        <p>Your IT support dashboard is ready. Get help with your technical issues or browse our
+                            knowledge base for quick solutions.</p>
+                    </div>
+                    <div class="welcome-actions">
+                        <a href="/support-request" class="btn btn-primary">
+                            <i class="fas fa-headset"></i>
+                            Request Support
+                        </a>
+                        <a href="/knowledge" class="btn btn-outline">
+                            <i class="fas fa-book"></i>
+                            Browse Knowledge Base
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-  <script src="/global.js"></script>
-  <script>
-    // Umumiy xato boshqaruv funksiyasi
-    function handleError(errorElement, successElement, resultElement, errorMessage) {
-      errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
-      if (successElement) successElement.style.display = 'none';
-      if (resultElement) resultElement.innerHTML = '';
-    }
+        <!-- Quick Stats -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalRequests">5</h3>
+                            <p>Total Requests</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pendingRequests">2</h3>
+                            <p>Pending Requests</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon completed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="completedRequests">3</h3>
+                            <p>Completed Requests</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="avgRating">4.5</h3>
+                            <p>Average Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    // About Me
-    async function fetchAbout() {
-      const error = document.getElementById('about-error');
-      const success = document.getElementById('about-success');
-      const result = document.getElementById('about-result');
-      error.style.display = 'none';
-      success.style.display = 'none';
-      result.innerHTML = '';
+        <!-- Recent Requests -->
 
-      try {
-        const response = await apiFetch('/api/business/about', { method: 'POST' });
-        if (!response) return;
+        <style>
+            /* Unique CSS classes for enhanced request card design to avoid conflicts */
+            .rq-card-wrapper-2025 {
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
 
-        const data = await response.json();
-        console.log(data);
-        if (!response) {
-          handleError(error, success, result, 'No profile data found');
-          return;
-        }
+            .rq-card-wrapper-2025:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            }
 
-        result.innerHTML = `
-          <p><strong>Name:</strong> ${data.firstName}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Role:</strong> ${data.role}</p>
-          <p><strong>Status:</strong> ${data.status}</p>
-        `;
-        success.textContent = 'Profile fetched successfully';
-        success.style.display = 'block';
-      } catch (err) {
-        console.error('About error:', err);
-        handleError(error, success, result, err.message || 'Something went wrong');
-      }
-    }
+            .rq-card-header-2025 {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1rem;
+                border-bottom: 1px solid #e5e7eb;
+                padding-bottom: 0.5rem;
+            }
 
-    // Edit Profile
-    async function editProfile() {
-      const error = document.getElementById('edit-error');
-      const success = document.getElementById('edit-success');
-      error.style.display = 'none';
-      success.style.display = 'none';
+            .rq-card-title-2025 {
+                font-family: 'Inter', sans-serif;
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #1f2937;
+                margin: 0;
+            }
 
-      const firstName = document.getElementById('edit-firstName').value.trim();
-      const email = document.getElementById('edit-email').value.trim();
+            .rq-card-id-2025 {
+                font-family: 'Inter', sans-serif;
+                font-size: 0.875rem;
+                color: #6b7280;
+                margin: 0.25rem 0 0 0;
+            }
 
-      if (!firstName || !email) {
-        handleError(error, success, null, 'First name and email are required');
-        return;
-      }
+            .rq-card-status-2025 {
+                padding: 0.5rem 1rem;
+                border-radius: 20px;
+                font-family: 'Inter', sans-serif;
+                font-size: 0.875rem;
+                font-weight: 500;
+                text-transform: capitalize;
+            }
 
-      try {
-        const response = await apiFetch('/api/business/edit-profile', {
-          method: 'POST',
-          body: JSON.stringify({ firstName, email }),
+            .rq-card-status-2025.status-pending {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .rq-card-status-2025.status-in-process {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+
+            .rq-card-status-2025.status-done {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            .rq-card-content-2025 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .rq-card-section-2025 {
+                margin-bottom: 0.75rem;
+            }
+
+            .rq-card-label-2025 {
+                font-family: 'Inter', sans-serif;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #4b5563;
+                margin-bottom: 0.25rem;
+            }
+
+            .rq-card-value-2025 {
+                font-family: 'Inter', sans-serif;
+                font-size: 1rem;
+                color: #1f2937;
+                margin: 0;
+            }
+
+            .rq-card-description-2025 {
+                grid-column: span 2;
+                background: #f9fafb;
+                padding: 1rem;
+                border-radius: 8px;
+                font-family: 'Inter', sans-serif;
+                font-size: 0.9375rem;
+                color: #374151;
+                line-height: 1.5;
+            }
+
+            .rq-card-footer-2025 {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 0.75rem;
+                border-top: 1px solid #e5e7eb;
+            }
+
+            .rq-card-date-2025 {
+                display: flex;
+                align-items: center;
+                font-family: 'Inter', sans-serif;
+                font-size: 0.875rem;
+                color: #6b7280;
+            }
+
+            .rq-card-date-2025 i {
+                margin-right: 0.5rem;
+                color: #3b82f6;
+            }
+
+            .rq-card-btn-2025 {
+                padding: 0.5rem 1rem;
+                background: #3b82f6;
+                color: white;
+                border-radius: 8px;
+                text-decoration: none;
+                font-family: 'Inter', sans-serif;
+                font-size: 0.875rem;
+                font-weight: 500;
+                transition: background 0.2s ease;
+            }
+
+            .rq-card-btn-2025:hover {
+                background: #2563eb;
+            }
+        </style>
+
+        <section class="recent-requests">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Recent Support Requests</h2>
+                </div>
+
+                <style>
+                    /* Unique CSS classes for loading state to avoid conflicts */
+                    .rq-loading-wrapper-2025 {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 2rem;
+                        min-height: 200px;
+                        background: #f9fafb;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                    }
+
+                    .rq-spinner-2025 {
+                        width: 40px;
+                        height: 40px;
+                        border: 4px solid #e5e7eb;
+                        border-top: 4px solid #3b82f6;
+                        border-radius: 50%;
+                        animation: rq-spin-2025 1s linear infinite;
+                        margin-bottom: 1rem;
+                    }
+
+                    @keyframes rq-spin-2025 {
+                        0% {
+                            transform: rotate(0deg);
+                        }
+
+                        100% {
+                            transform: rotate(360deg);
+                        }
+                    }
+
+                    .rq-loading-text-2025 {
+                        font-family: 'Inter', sans-serif;
+                        font-size: 1rem;
+                        color: #6b7280;
+                        font-weight: 400;
+                        text-align: center;
+                    }
+                </style>
+
+                <div class="requests-container" id="recentRequestsContainer">
+                    <div class="rq-loading-wrapper-2025">
+                        <div class="rq-spinner-2025"></div>
+                        <p class="rq-loading-text-2025">Loading your recent requests...</p>
+                    </div>
+                </div>
+
+                <script>
+                    // Unique function to handle loading state and avoid conflicts
+                    function rqInitLoadingState2025() {
+                        const rqContainer = document.getElementById('recentRequestsContainer');
+                        if (!rqContainer) return;
+
+                        // Optional: Simulate loading delay for testing
+                        setTimeout(() => {
+                            const rqWrapper = document.querySelector('.rq-loading-wrapper-2025');
+                            if (rqWrapper) {
+                                rqWrapper.style.opacity = '1';
+                                rqWrapper.style.transition = 'opacity 0.3s ease';
+                            }
+                        }, 100);
+                    }
+
+                    // Trigger loading state on page load
+                    document.addEventListener('DOMContentLoaded', rqInitLoadingState2025);
+                </script>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions">
+            <div class="container">
+                <h2>Quick Actions</h2>
+                <div class="actions-grid">
+                    <a href="/support-request" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h3>New Support Request</h3>
+                        <p>Submit a new technical support request</p>
+                    </a>
+                    <a href="/profile" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-user-cog"></i>
+                        </div>
+                        <h3>Account Settings</h3>
+                        <p>Update your profile and preferences</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Dern-Support</h3>
+                    <p>Professional IT support services for individuals and businesses.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="/support-request">Request Support</a></li>
+                        <li><a href="/knowledge">Knowledge Base</a></li>
+                        <li><a href="/my-requests">My Requests</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="/profile">Profile Settings</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:support@dern-support.com">support@dern-support.com</a></li>
+                        <li><a href="tel:+1234567890">+1 (234) 567-890</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Dern-Support. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/global.js"></script>
+
+    <script>
+        let currentUser = {
+            firstName: "John",
+            lastName: "Doe"
+        };
+
+        // DOM elements
+        const userName = document.getElementById("userName");
+        const welcomeUserName = document.getElementById("welcomeUserName");
+        const userProfileToggle = document.getElementById("userProfileToggle");
+        const profileDropdown = document.getElementById("profileDropdown");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const recentRequestsContainer = document.getElementById("recentRequestsContainer");
+        const knowledgePreview = document.getElementById("knowledgePreview");
+
+        // Stats elements
+        const totalRequests = document.getElementById("totalRequests");
+        const pendingRequests = document.getElementById("pendingRequests");
+        const completedRequests = document.getElementById("completedRequests");
+        const avgRating = document.getElementById("avgRating");
+
+        // Initialize dashboard
+        document.addEventListener("DOMContentLoaded", async () => {
+            const response = await apiFetch('/api/individual/about', { method: 'POST' });
+            if (!response) {
+                return;
+            }
+            const data = await response.json();
+            currentUser = data.data;
+            initializeEventListeners();
+            updateUserDisplay();
+            rqFetchSupportRequests2025();
         });
-        if (!response) return;
 
-        const data = await response.json();
-        if (!data.success) {
-          handleError(error, success, null, 'Profile update failed');
-          return;
+        // Event listeners
+        function initializeEventListeners() {
+            // Profile dropdown toggle
+            userProfileToggle.addEventListener("click", (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle("show");
+                userProfileToggle.classList.toggle("active");
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener("click", (e) => {
+                if (!e.target.closest(".user-profile")) {
+                    profileDropdown.classList.remove("show");
+                    userProfileToggle.classList.remove("active");
+                }
+            });
+
+            // Logout functionality
+            logoutBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                handleLogout();
+            });
+
+            // Mobile navigation
+            const hamburger = document.querySelector(".hamburger");
+            const navMenu = document.querySelector(".nav-menu");
+
+            if (hamburger && navMenu) {
+                hamburger.addEventListener("click", () => {
+                    hamburger.classList.toggle("active");
+                    navMenu.classList.toggle("active");
+                });
+
+                document.querySelectorAll(".nav-link").forEach((n) =>
+                    n.addEventListener("click", () => {
+                        hamburger.classList.remove("active");
+                        navMenu.classList.remove("active");
+                    })
+                );
+            }
+
+            // Keyboard shortcuts
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    profileDropdown.classList.remove("show");
+                    userProfileToggle.classList.remove("active");
+                }
+            });
         }
 
-        success.textContent = 'Profile updated successfully';
-        success.style.display = 'block';
-      } catch (err) {
-        console.error('Edit profile error:', err);
-        handleError(error, success, null, err.message || 'Something went wrong');
-      }
-    }
-
-    // Send Support Request (Business account)
-    async function sendSupportRequest() {
-      const error = document.getElementById('request-error');
-      const success = document.getElementById('request-success');
-      error.style.display = 'none';
-      success.style.display = 'none';
-
-      const issueDescription = document.getElementById('request-issueDescription').value.trim();
-
-      if (!issueDescription) {
-        handleError(error, success, null, 'Issue description is required');
-        return;
-      }
-
-      try {
-        const response = await apiFetch('/api/business/send-support-request', {
-          method: 'POST',
-          body: JSON.stringify({ issueDescription }), // preferredMethod removed
-        });
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success) {
-          handleError(error, success, null, data.error || 'Request sending failed');
-          return;
+        // Update user display
+        function updateUserDisplay() {
+            if (currentUser) {
+                const fullName = `${currentUser.firstName} ${currentUser.lastName}`;
+                userName.textContent = fullName;
+                welcomeUserName.textContent = currentUser.firstName;
+            }
         }
 
-        success.textContent = 'Support request sent successfully';
-        success.style.display = 'block';
-        document.getElementById('request-issueDescription').value = '';
-      } catch (err) {
-        console.error('Send request error:', err);
-        handleError(error, success, null, err.message || 'Something went wrong');
-      }
-    }
-
-
-    // Logout
-    async function logout() {
-      try {
-        const response = await apiFetch('/api/auth/logout', { method: 'POST' });
-        if (!response) return;
-        window.location.href = '/'; // Redirect to login page
-      } catch (err) {
-        console.error('Logout error:', err);
-      }
-    }
-
-    // Get Support Requests
-    async function fetchSupportRequests() {
-      const error = document.getElementById('requests-error');
-      const success = document.getElementById('requests-success');
-      const result = document.getElementById('requests-result');
-      error.style.display = 'none';
-      success.style.display = 'none';
-      result.innerHTML = '';
-
-      try {
-        const response = await apiFetch('/api/business/get-support-requests', { method: 'GET' });
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success || !data.data) {
-          handleError(error, success, result, 'No requests found');
-          return;
+        // Handle logout
+        async function handleLogout() {
+            try {
+                const response = await apiFetch("/api/auth/logout", { method: "POST" });
+                if (!response) return;
+                showNotification("Logged out successfully", "success");
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 1000);
+            } catch (error) {
+                console.error("Logout error:", error);
+                showNotification("Error logging out. Please try again.", "error");
+            }
         }
 
-        result.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Submitted At</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.data.map(req => `
-            <tr>
-              <td>${req.issueDescription}</td>
-              <td>${req.status}</td>
-              <td>${new Date(req.submittedAt).toLocaleString()}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substr(0, maxLength).trim() + "...";
+        }
+
+        function stripMarkdown(text) {
+            return text
+                .replace(/#{1,6}\s+/g, "") // Remove headers
+                .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+                .replace(/\*(.*?)\*/g, "$1") // Remove italic
+                .replace(/`(.*?)`/g, "$1") // Remove inline code
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Remove links
+                .replace(/\n+/g, " ") // Replace newlines with spaces
+                .trim();
+        }
+
+        function showNotification(message, type = "info") {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll(".notification");
+            existingNotifications.forEach((n) => n.remove());
+
+            const notification = document.createElement("div");
+            notification.className = `notification notification-${type}`;
+            notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === "success" ? "#10b981" : type === "error" ? "#ef4444" : "#3b82f6"};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        max-width: 400px;
     `;
-        success.textContent = 'Requests fetched successfully';
-        success.style.display = 'block';
-      } catch (err) {
-        console.error('Fetch requests error:', err);
-        handleError(error, success, result, err.message || 'Something went wrong');
-      }
-    }
+            notification.textContent = message;
 
-  </script>
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = "translateX(0)";
+            }, 100);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.style.transform = "translateX(100%)";
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        function rqParseIssueDescription2025(issueDescription) {
+            const parsed = {
+                issueType: 'N/A',
+                priority: 'N/A',
+                serviceType: 'N/A',
+                summary: 'N/A',
+                description: 'N/A',
+                preferredMethod: 'N/A',
+                phone: 'N/A',
+                estimatedCost: 'N/A'
+            };
+
+            try {
+                const lines = issueDescription.split('\n').map(line => line.trim());
+                let currentSection = '';
+
+                lines.forEach(line => {
+                    if (line.startsWith('**Support Request Details**')) {
+                        currentSection = 'details';
+                    } else if (line.startsWith('**Issue Type:**')) {
+                        parsed.issueType = line.replace('**Issue Type:**', '').trim() || 'N/A';
+                    } else if (line.startsWith('**Priority:**')) {
+                        parsed.priority = line.replace('**Priority:**', '').trim() || 'N/A';
+                    } else if (line.startsWith('**Service Type:**')) {
+                        parsed.serviceType = line.replace('**Service Type:**', '').trim() || 'N/A';
+                    } else if (line.startsWith('**Summary:**')) {
+                        parsed.summary = line.replace('**Summary:**', '').trim() || 'N/A';
+                    } else if (line.startsWith('**Description:**')) {
+                        currentSection = 'description';
+                    } else if (line.startsWith('**Contact Information:**')) {
+                        currentSection = 'contact';
+                    } else if (line.startsWith('**Estimated Cost:**')) {
+                        parsed.estimatedCost = line.replace('**Estimated Cost:**', '').trim() || 'N/A';
+                        currentSection = '';
+                    } else if (currentSection === 'description' && line) {
+                        parsed.description = parsed.description === 'N/A' ? line : parsed.description + '\n' + line;
+                    } else if (currentSection === 'contact') {
+                        if (line.startsWith('- Preferred Method:')) {
+                            parsed.preferredMethod = line.replace('- Preferred Method:', '').trim() || 'N/A';
+                        } else if (line.startsWith('- Phone:')) {
+                            parsed.phone = line.replace('- Phone:', '').trim() || 'N/A';
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Error parsing issueDescription:', err);
+            }
+            return parsed;
+        }
+
+        // Unique function to fetch and display support requests
+        async function rqFetchSupportRequests2025() {
+            const error = document.getElementById('requests-error');
+            const success = document.getElementById('requests-success');
+            const result = document.getElementById('recentRequestsContainer');
+            if (error) error.style.display = 'none';
+            if (success) success.style.display = 'none';
+            result.innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your recent requests...</p>
+    </div>
+  `;
+
+            try {
+                const response = await apiFetch('/api/individual/get-support-requests', { method: 'GET' });
+                if (!response) return;
+
+                const data = await response.json();
+                if (!data.success || !data.data || data.data.length === 0) {
+                    result.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h3>No Support Requests Yet</h3>
+          <p>You haven't submitted any support requests. Get started by creating your first request.</p>
+          <a href="/support-request" class="btn btn-primary">Create Request</a>
+        </div>
+      `;
+                    return;
+                }
+
+                result.innerHTML = data.data.map(req => {
+                    const parsed = rqParseIssueDescription2025(req.issueDescription);
+                    return `
+        <div class="rq-card-wrapper-2025">
+          <div class="rq-card-header-2025">
+            <div>
+              <h3 class="rq-card-title-2025">${parsed.summary}</h3>
+              <p class="rq-card-id-2025">Request #${req.id || 'N/A'}</p>
+            </div>
+            <span class="rq-card-status-2025 status-${req.status.toLowerCase().replace(' ', '-')}">${req.status}</span>
+          </div>
+          <div class="rq-card-content-2025">
+            <div class="rq-card-section-2025">
+              <p class="rq-card-label-2025">Issue Type</p>
+              <p class="rq-card-value-2025">${parsed.issueType}</p>
+            </div>
+            <div class="rq-card-section-2025">
+              <p class="rq-card-label-2025">Priority</p>
+              <p class="rq-card-value-2025">${parsed.priority}</p>
+            </div>
+            <div class="rq-card-section-2025">
+              <p class="rq-card-label-2025">Service Type</p>
+              <p class="rq-card-value-2025">${parsed.serviceType}</p>
+            </div>
+            <div class="rq-card-section-2025">
+              <p class="rq-card-label-2025">Contact Method</p>
+              <p class="rq-card-value-2025">${parsed.preferredMethod}</p>
+            </div>
+            <div class="rq-card-section-2025">
+              <p class="rq-card-label-2025">Phone</p>
+              <p class="rq-card-value-2025">${parsed.phone}</p>
+            </div>
+            <div class="rq-card-section-2025">
+              <p class="rq-card-label-2025">Estimated Cost</p>
+              <p class="rq-card-value-2025">${parsed.estimatedCost}</p>
+            </div>
+            <div class="rq-card-description-2025">
+              <p class="rq-card-label-2025">Description</p>
+              <p class="rq-card-value-2025">${parsed.description}</p>
+            </div>
+          </div>
+          <div class="rq-card-footer-2025">
+            <div class="rq-card-date-2025">
+              <i class="fas fa-calendar"></i>
+              ${new Date(req.submittedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    })}
+            </div>
+          </div>
+        </div>
+      `;
+                }).join('');
+                if (success) {
+                    success.textContent = 'Requests fetched successfully';
+                    success.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Fetch requests error:', err);
+                result.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3>Unable to Load Requests</h3>
+        <p>There was an error loading your recent requests. Please try again.</p>
+        <button onclick="rqFetchSupportRequests2025()" class="btn btn-primary">Retry</button>
+      </div>
+    `;
+                if (error) {
+                    error.textContent = err.message || 'Something went wrong';
+                    error.style.display = 'block';
+                }
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -4,7 +4,7 @@ const requestSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   type: { type: String, enum: ['individual', 'business'], required: true },
   issueDescription: { type: String, required: true },
-  preferredMethod: { type: String, enum: ['drop-off', 'courier', 'on-site'], required: true },
+  preferredMethod: { type: String, required: true },
   status: { type: String, enum: ['pending', 'in-process', 'done'], default: 'pending' },
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }, // technician
   usedInventories: [{
