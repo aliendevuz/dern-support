@@ -6,7 +6,7 @@ const adminSchema = new mongoose.Schema({
   lastName:  { type: String, required: true },
   email:     { type: String, required: true, unique: true },
   password:  { type: String, required: true },
-  pinCode:   { type: String, required: true },
+  pinCode:   { type: String},
   kpi: { // faqat technician uchun
     totalCompleted: { type: Number, default: 0 },
     avgCompletionTime: { type: Number, default: 0 }, // in minutes

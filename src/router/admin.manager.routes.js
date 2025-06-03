@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
     about,
+    allAdmin,
     assignRequest,
     refreshAccessToken,
     allInventory,
@@ -16,6 +17,9 @@ const adminManagerMiddleware = require('../middleware/admin.manager.middleware')
 // Admin
 // get /about - about admin's profile
 router.get('/about', adminManagerMiddleware, about);
+
+// get /all-admin - get admins list
+router.get('/all-admin', adminManagerMiddleware, allAdmin);
 
 // post /assign-request - assign request to technician
 router.post('/assign-request', adminManagerMiddleware, assignRequest);

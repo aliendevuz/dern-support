@@ -2,35 +2,6 @@ const Admin = require("../models/Admin");
 const Request = require("../models/Request");
 const Inventory = require("../models/Inventory");
 
-const aboutMe = async (req, res) => {
-  try {
-    if (!req.admin || !req.admin.id) {
-      return res.status(403).json({ error: "Unauthorized access" });
-    }
-
-    const admin = await Admin.findById(req.admin.id).select(
-      "email role _id firstName lastName"
-    );
-    if (!admin) {
-      return res.status(404).json({ error: "Admin not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: {
-        id: admin._id,
-        email: admin.email,
-        role: admin.role,
-        firstName: admin.firstName,
-        lastName: admin.lastName,
-      },
-    });
-  } catch (err) {
-    console.error("❌ aboutMe error:", err);
-    res.status(500).json({ error: "Something went wrong" });
-  }
-};
-
 const about = async (req, res) => {
   try {
     if (!req.admin || !req.admin.id) {
@@ -60,6 +31,41 @@ const about = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ about error:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
+const allAdmin = async (req, res) => {
+  try {
+    if (!req.admin || !req.admin.id) {
+      return res.status(403).json({ error: "Unauthorized access" });
+    }
+
+    const admin = await Admin.findById(req.admin.id).select("role");
+    if (!admin) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    if (admin.role !== "super-admin") {
+      return res.status(403).json({ error: "Access restricted to super-admins" });
+    }
+
+    const admins = await Admin.find().select("email role firstName lastName createdAt kpi assignedTasks");
+    res.status(200).json({
+      success: true,
+      data: admins.map((admin) => ({
+        id: admin._id,
+        email: admin.email,
+        role: admin.role,
+        firstName: admin.firstName,
+        lastName: admin.lastName,
+        createdAt: admin.createdAt,
+        kpi: admin.kpi,
+        assignedTasks: admin.assignedTasks
+      })),
+    });
+  } catch (err) {
+    console.error("❌ allAdmin error:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 };
@@ -308,6 +314,7 @@ const myRequests = async (req, res) => {
 
 module.exports = {
   about,
+  allAdmin,
   assignRequest,
   refreshAccessToken,
   allInventory,

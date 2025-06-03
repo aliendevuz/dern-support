@@ -35,7 +35,7 @@ const aboutMe = async (req, res) => {
 };
 
 const addAdmin = async (req, res) => {
-  const { role, firstName, lastName, email, password, pinCode } = req.body;
+  const { role, firstName, lastName, email, password } = req.body;
 
   try {
     if (!req.admin || !req.admin.id) {
@@ -47,8 +47,12 @@ const addAdmin = async (req, res) => {
       return res.status(409).json({ error: "Email already registered" });
     }
 
+    // if (!pinCode) {
+    //   const pinCode = '1234';
+    // }
+
     const passwordHash = await bcrypt.hash(password, 12);
-    const pinCodeHash = await bcrypt.hash(pinCode, 12);
+    // const pinCodeHash = await bcrypt.hash(pinCode, 12);
 
     if (!["super-admin", "manager", "technician"].includes(role)) {
       return res.status(400).json({ error: "Invalid role" });
@@ -59,8 +63,7 @@ const addAdmin = async (req, res) => {
       firstName,
       lastName,
       email,
-      password: passwordHash,
-      pinCode: pinCodeHash,
+      password: passwordHash
     });
 
     await newAdmin.save();
@@ -325,22 +328,27 @@ const updateKnowledge = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized access" });
     }
 
-    const { knowledgeId, title, category, description, articleId, articleContent, similars } = req.body;
-    if (!knowledgeId || !articleId) {
-      return res.status(400).json({ error: "knowledgeId and articleId are required" });
+    const { knowledgeId, title, category, description, articleContent, similars } = req.body;
+    if (!knowledgeId) {
+      return res.status(400).json({ error: "knowledgeId is required" });
     }
 
     const knowledge = await Knowledge.findById(knowledgeId);
     if (!knowledge) {
+      console.error(`No Knowledge found for knowledgeId: ${knowledgeId}`);
       return res.status(404).json({ error: "Knowledge not found" });
     }
 
-    const article = await KnowledgeArticle.findById(articleId);
+    // Find KnowledgeArticle by knowledge field
+    const article = await KnowledgeArticle.findOne({ knowledge: knowledgeId });
     if (!article) {
+      console.error(`No KnowledgeArticle found for knowledgeId: ${knowledgeId}`);
       return res.status(404).json({ error: "Knowledge article not found" });
     }
 
-    // Similars ni yangilash
+    console.log(`Updating KnowledgeArticle for knowledge ID: ${knowledgeId}`);
+
+    // Update similars
     let similarIds = knowledge.similars;
     if (similars && Array.isArray(similars)) {
       const validSimilars = await KnowledgeArticle.find({
@@ -349,12 +357,14 @@ const updateKnowledge = async (req, res) => {
       similarIds = validSimilars.map((article) => article._id);
     }
 
+    // Update Knowledge
     knowledge.title = title || knowledge.title;
     knowledge.category = category || knowledge.category;
     knowledge.description = description || knowledge.description;
-    knowledge.similars = similarIds; // Similars maydonini yangilash
+    knowledge.similars = similarIds;
     await knowledge.save();
 
+    // Update KnowledgeArticle
     article.title = title || article.title;
     article.content = articleContent || article.content;
     await article.save();

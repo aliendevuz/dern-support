@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Manager Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .inventory-card {
+            transition: all 0.3s ease;
+        }
+        .inventory-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .stock-level {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+        }
+        .stock-low {
+            background-color: #fef2f2;
+            color: #dc2626;
+        }
+        .stock-medium {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        .stock-high {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Mobile menu overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">Manager Panel</h1>
+            <button id="close-sidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-6 mb-6">
+                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-tie text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Manager</p>
+                        <p class="text-xs text-gray-500">Inventory Control</p>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="space-y-2 px-4">
+                <li>
+                    <a href="/admin/" class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-tasks w-5"></i>
+                        <span>Task Assignment</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="inventory-link" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg bg-blue-50 border-r-4 border-blue-500">
+                        <i class="fas fa-boxes w-5"></i>
+                        <span class="font-medium">Inventory Management</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-200">
+            <button onclick="logout()" class="w-full flex items-center space-x-3 px-4 py-3 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="lg:ml-64">
+        <!-- Top bar -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between h-16 px-6">
+                <div class="flex items-center space-x-4">
+                    <button id="menu-toggle" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-2xl font-bold text-gray-800">Inventory Management</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="openAddModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Item</span>
+                    </button>
+                    <button onclick="fetchInventory()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-tie text-white text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main content -->
+        <main class="p-6">
+            <!-- Loading state -->
+            <div id="loading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-gray-600">Loading inventory...</p>
+            </div>
+            
+            <!-- Error message -->
+            <div id="error-message" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span id="error-text"></span>
+            </div>
+            
+            <!-- Success message -->
+            <div id="success-message" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span id="success-text"></span>
+            </div>
+            
+            <!-- Content -->
+            <div id="content" class="hidden">
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Items</p>
+                                <p id="total-items" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-boxes text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-red-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Low Stock</p>
+                                <p id="low-stock-items" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Quantity</p>
+                                <p id="total-quantity" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-warehouse text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Categories</p>
+                                <p id="total-categories" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-tags text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search and Filter -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                        <div class="flex-1 max-w-md">
+                            <div class="relative">
+                                <input type="text" id="search-input" placeholder="Search inventory..." 
+                                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <select id="stock-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">All Stock Levels</option>
+                                <option value="low">Low Stock</option>
+                                <option value="medium">Medium Stock</option>
+                                <option value="high">High Stock</option>
+                            </select>
+                            <button onclick="applyFilters()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-filter mr-2"></i>
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Grid -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-warehouse mr-2 text-blue-500"></i>
+                            Inventory Items
+                        </h3>
+                    </div>
+                    
+                    <div id="inventory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <!-- Inventory items will be loaded here -->
+                    </div>
+                    
+                    <!-- Empty state -->
+                    <div id="empty-state" class="hidden text-center py-12">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-boxes text-gray-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No inventory items found</h3>
+                        <p class="text-gray-500 mb-4">Get started by adding your first inventory item.</p>
+                        <button onclick="openAddModal()" class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Add/Edit Modal -->
+    <div id="item-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="modal-title" class="text-lg font-semibold text-gray-900">Add New Item</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="item-form" class="space-y-4">
+                <input type="hidden" id="item-id">
+                
+                <div>
+                    <label for="item-name" class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                    <input type="text" id="item-name" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label for="item-part-number" class="block text-sm font-medium text-gray-700 mb-1">Part Number</label>
+                    <input type="text" id="item-part-number" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label for="item-quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                    <input type="number" id="item-quantity" min="0" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label for="item-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="item-description" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submit-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        Add Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Delete Item</h3>
+                    <p class="text-sm text-gray-500">This action cannot be undone</p>
+                </div>
+            </div>
+            
+            <p class="text-gray-700 mb-6">Are you sure you want to delete "<span id="delete-item-name" class="font-semibold"></span>"?</p>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeDeleteModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmDelete()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                    Delete Item
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/admin/global.js"></script>
+    <script>
+        let inventoryData = [];
+        let filteredInventory = [];
+        let editingItemId = null;
+        let itemToDelete = null;
+        
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mobileOverlay.classList.remove('hidden');
+        });
+        
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+        
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+        
+        // Show error message
+        function showError(message) {
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            document.getElementById('success-text').textContent = message;
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+        }
+        
+        // Hide messages
+        function hideMessages() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+        
+        // Get stock level badge
+        function getStockLevelBadge(quantity) {
+            if (quantity <= 5) {
+                return '<span class="stock-level stock-low">Low Stock</span>';
+            } else if (quantity <= 20) {
+                return '<span class="stock-level stock-medium">Medium Stock</span>';
+            } else {
+                return '<span class="stock-level stock-high">High Stock</span>';
+            }
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+        
+        // Render inventory
+        function renderInventory() {
+            const inventoryGrid = document.getElementById('inventory-grid');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (filteredInventory.length === 0) {
+                inventoryGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            inventoryGrid.innerHTML = filteredInventory.map(item => `
+                <div class="inventory-card border border-gray-200 rounded-lg p-6 bg-white">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-1">${item.name}</h4>
+                            ${item.partNumber ? `<p class="text-sm text-gray-500 mb-2">Part: ${item.partNumber}</p>` : ''}
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="editItem('${item.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteItem('${item.id}', '${item.name.replace(/'/g, "\\'")}'))" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-2xl font-bold text-gray-900">${item.quantity}</span>
+                            ${getStockLevelBadge(item.quantity)}
+                        </div>
+                        <div class="text-sm text-gray-600">units in stock</div>
+                    </div>
+                    
+                    ${item.description ? `
+                        <p class="text-sm text-gray-600 mb-4">${item.description}</p>
+                    ` : ''}
+                    
+                    <div class="text-xs text-gray-500">
+                        Updated: ${formatDate(item.updatedAt)}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Update stats
+        function updateStats() {
+            const totalItems = inventoryData.length;
+            const lowStockItems = inventoryData.filter(item => item.quantity <= 5).length;
+            const totalQuantity = inventoryData.reduce((sum, item) => sum + item.quantity, 0);
+            
+            // Count unique categories (if you have categories in your data)
+            const categories = [...new Set(inventoryData.map(item => item.category).filter(Boolean))];
+            
+            document.getElementById('total-items').textContent = totalItems;
+            document.getElementById('low-stock-items').textContent = lowStockItems;
+            document.getElementById('total-quantity').textContent = totalQuantity;
+            document.getElementById('total-categories').textContent = categories.length;
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const stockFilter = document.getElementById('stock-filter').value;
+            
+            filteredInventory = inventoryData.filter(item => {
+                const matchesSearch = !searchTerm || 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    (item.partNumber && item.partNumber.toLowerCase().includes(searchTerm)) ||
+                    (item.description && item.description.toLowerCase().includes(searchTerm));
+                
+                let matchesStock = true;
+                if (stockFilter === 'low') {
+                    matchesStock = item.quantity <= 5;
+                } else if (stockFilter === 'medium') {
+                    matchesStock = item.quantity > 5 && item.quantity <= 20;
+                } else if (stockFilter === 'high') {
+                    matchesStock = item.quantity > 20;
+                }
+                
+                return matchesSearch && matchesStock;
+            });
+            
+            renderInventory();
+        }
+        
+        // Search input event listener
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        
+        // Open add modal
+        function openAddModal() {
+            editingItemId = null;
+            document.getElementById('modal-title').textContent = 'Add New Item';
+            document.getElementById('submit-btn').textContent = 'Add Item';
+            document.getElementById('item-form').reset();
+            document.getElementById('item-modal').classList.remove('hidden');
+        }
+        
+        // Edit item
+        function editItem(itemId) {
+            const item = inventoryData.find(i => i.id === itemId);
+            if (!item) return;
+            
+            editingItemId = itemId;
+            document.getElementById('modal-title').textContent = 'Edit Item';
+            document.getElementById('submit-btn').textContent = 'Update Item';
+            
+            document.getElementById('item-id').value = item.id;
+            document.getElementById('item-name').value = item.name;
+            document.getElementById('item-part-number').value = item.partNumber || '';
+            document.getElementById('item-quantity').value = item.quantity;
+            document.getElementById('item-description').value = item.description || '';
+            
+            document.getElementById('item-modal').classList.remove('hidden');
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('item-modal').classList.add('hidden');
+            editingItemId = null;
+        }
+        
+        // Delete item
+        function deleteItem(itemId, itemName) {
+            itemToDelete = itemId;
+            document.getElementById('delete-item-name').textContent = itemName;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+        
+        // Close delete modal
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            itemToDelete = null;
+        }
+        
+        // Confirm delete
+        async function confirmDelete() {
+            if (!itemToDelete) return;
+            
+            try {
+                const response = await apiFetch('/admin/api/manager/delete-inventory', {
+                    method: 'POST',
+                    body: JSON.stringify({ inventoryId: itemToDelete }),
+                }, 'read');
+                
+                if (!response) {
+                    showError('Failed to delete item');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    showError(data.error || 'Failed to delete item');
+                    return;
+                }
+                
+                showSuccess('Item deleted successfully');
+                closeDeleteModal();
+                fetchInventory();
+                
+            } catch (error) {
+                console.error('Delete item error:', error);
+                showError('Something went wrong while deleting item');
+            }
+        }
+        
+        // Handle form submission
+        document.getElementById('item-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.textContent;
+            
+            const formData = {
+                name: document.getElementById('item-name').value.trim(),
+                partNumber: document.getElementById('item-part-number').value.trim(),
+                quantity: parseInt(document.getElementById('item-quantity').value),
+                description: document.getElementById('item-description').value.trim()
+            };
+            
+            if (!formData.name || isNaN(formData.quantity) || formData.quantity < 0) {
+                showError('Name and valid quantity are required');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = editingItemId ? 'Updating...' : 'Adding...';
+            hideMessages();
+            
+            try {
+                let response;
+                
+                if (editingItemId) {
+                    // Update existing item
+                    response = await apiFetch('/admin/api/manager/update-inventory', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            inventoryId: editingItemId,
+                            ...formData
+                        }),
+                    }, 'read');
+                } else {
+                    // Add new item
+                    response = await apiFetch('/admin/api/manager/add-inventory', {
+                        method: 'POST',
+                        body: JSON.stringify(formData),
+                    }, 'read');
+                }
+                
+                if (!response) {
+                    showError('Failed to save item');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    showError(data.error || 'Failed to save item');
+                    return;
+                }
+                
+                showSuccess(editingItemId ? 'Item updated successfully' : 'Item added successfully');
+                closeModal();
+                fetchInventory();
+                
+            } catch (error) {
+                console.error('Save item error:', error);
+                showError('Something went wrong while saving item');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+        
+        // Fetch inventory
+        async function fetchInventory() {
+            hideMessages();
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('content').classList.add('hidden');
+            
+            try {
+                const response = await apiFetch('/admin/api/manager/all-inventory', { method: 'GET' }, 'read');
+                
+                if (!response) {
+                    document.getElementById('loading').classList.add('hidden');
+                    showError('Failed to fetch inventory');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success || !data.data) {
+                    document.getElementById('loading').classList.add('hidden');
+                    showError('No inventory found');
+                    return;
+                }
+                
+                inventoryData = data.data;
+                filteredInventory = [...inventoryData];
+                
+                updateStats();
+                renderInventory();
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Fetch inventory error:', error);
+                document.getElementById('loading').classList.add('hidden');
+                showError('Something went wrong while fetching inventory');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            fetch('/admin/api/auth/logout', { method: 'POST' })
+                .then(result => {
+                    if (result) {
+                        window.location.href = '/admin/';
+                    }
+                })
+                .catch(err => {
+                    console.error('Logout error:', err);
+                    window.location.href = '/admin/';
+                });
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchInventory();
+        });
+    </script>
+</body>
+</html>

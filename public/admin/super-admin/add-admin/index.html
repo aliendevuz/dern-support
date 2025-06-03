@@ -407,15 +407,6 @@
                     <div class="error-message" id="confirmPasswordError"></div>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="pinCode">PIN Code* (4 digits)</label>
-                <div class="input-icon">
-                    <input type="password" id="pinCode" name="pinCode" maxlength="4" pattern="[0-9]*" inputmode="numeric" required aria-describedby="pinCodeError">
-                    <i class="fas fa-key"></i>
-                </div>
-                <div class="error-message" id="pinCodeError"></div>
-            </div>
             
             <button type="submit" class="btn" id="addButton">
                 Add Administrator
@@ -508,7 +499,6 @@
                 email: document.getElementById('email'),
                 password: document.getElementById('password'),
                 confirmPassword: document.getElementById('confirmPassword'),
-                pinCode: document.getElementById('pinCode'),
             },
             errors: {
                 firstName: document.getElementById('firstNameError'),
@@ -516,7 +506,6 @@
                 email: document.getElementById('emailError'),
                 password: document.getElementById('passwordError'),
                 confirmPassword: document.getElementById('confirmPasswordError'),
-                pinCode: document.getElementById('pinCodeError'),
             },
             roles: {
                 manager: document.getElementById('managerRole'),
@@ -613,8 +602,6 @@
                 { input: elements.inputs.password, error: elements.errors.password, message: 'Please create a stronger password', condition: elements.inputs.password.value && checkPasswordStrength(elements.inputs.password.value) < 3 },
                 { input: elements.inputs.confirmPassword, error: elements.errors.confirmPassword, message: 'Please confirm your password', condition: !elements.inputs.confirmPassword.value },
                 { input: elements.inputs.confirmPassword, error: elements.errors.confirmPassword, message: 'Passwords do not match', condition: elements.inputs.confirmPassword.value !== elements.inputs.password.value },
-                { input: elements.inputs.pinCode, error: elements.errors.pinCode, message: 'PIN code is required', condition: !elements.inputs.pinCode.value },
-                { input: elements.inputs.pinCode, error: elements.errors.pinCode, message: 'PIN must be exactly 4 digits', condition: elements.inputs.pinCode.value.length !== 4 },
             ];
 
             validations.forEach(({ input, error, message, condition }) => {
@@ -637,7 +624,6 @@
                     email: elements.inputs.email.value.trim(),
                     password: elements.inputs.password.value,
                     role: elements.roles.technician.checked ? 'technician' : 'manager',
-                    pinCode: elements.inputs.pinCode.value,
                 };
 
                 const response = await apiFetch('/admin/api/super-admin/add-admin', {

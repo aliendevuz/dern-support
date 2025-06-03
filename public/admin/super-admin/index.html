@@ -1,468 +1,792 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super-Admin Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-
-    /* Custom Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-fadeIn {
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    .hover-scale {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .hover-scale:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .shadow-md {
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
 </head>
-
-<body class="bg-gray-100">
-  <div class="min-h-screen bg-gray-100 text-gray-900">
-    <!-- Header -->
-    <header class="bg-blue-800 p-4 sticky top-0 z-10 animate-fadeIn">
-      <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-3xl font-bold tracking-tight text-white">Super-Admin Dashboard</h1>
-        <nav class="space-x-4">
-          <a href="/admin/admins" class="text-white hover:text-blue-200 transition-colors duration-300">Manage Admins</a>
-          <a href="/admin/knowledges" class="text-white hover:text-blue-200 transition-colors duration-300">Manage Knowledge</a>
-          <a href="/admin/login" class="text-white hover:text-blue-200 transition-colors duration-300">Login</a>
-          <button onclick="logout()" class="text-white hover:text-blue-200 transition-colors duration-300">Logout</button>
+<body class="bg-gray-50">
+    <!-- Mobile menu overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">Admin Panel</h1>
+            <button id="close-sidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-6 mb-6">
+                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Super Admin</p>
+                        <p class="text-xs text-gray-500">Administrator</p>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="space-y-2 px-4">
+                <li>
+                    <a href="#" id="dashboard-link" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg bg-blue-50 border-r-4 border-blue-500">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/admins" class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-users-cog w-5"></i>
+                        <span>Administrators</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/knowledges" class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-book w-5"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                </li>
+            </ul>
         </nav>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="container mx-auto p-8 space-y-8">
-      <!-- KPI Section -->
-      <section class="bg-white rounded-xl p-6 shadow-md animate-fadeIn">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">Technicians KPI</h2>
-        <div id="kpi-loading" class="flex items-center justify-center h-32">
-          <div class="w-8 h-8 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+        
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-200">
+            <button onclick="logout()" class="w-full flex items-center space-x-3 px-4 py-3 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
         </div>
-        <div class="chart-container">
-          <canvas id="kpiChart"></canvas>
-        </div>
-        <div id="kpi-table" class="overflow-x-auto"></div>
-        <p class="error hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg animate-fadeIn" id="kpi-error"></p>
-        <p class="success hidden mt-4 p-4 bg-green-100 text-green-700 rounded-lg animate-fadeIn" id="kpi-success"></p>
-      </section>
+    </div>
+    
+    <!-- Main content -->
+    <div class="lg:ml-64">
+        <!-- Top bar -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between h-16 px-6">
+                <div class="flex items-center space-x-4">
+                    <button id="menu-toggle" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Dashboard content -->
+        <main class="p-6">  
 
-      <!-- Analytics Section -->
-      <section class="bg-white rounded-xl p-6 shadow-md animate-fadeIn">
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">System Analytics</h2>
-        <div id="analytics-loading" class="flex items-center justify-center h-32">
-          <div class="w-8 h-8 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6" id="analytics-stats"></div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="chart-container">
-            <canvas id="requestsChart"></canvas>
-          </div>
-          <div class="chart-container">
-            <canvas id="inventoryChart"></canvas>
-          </div>
-        </div>
-        <div id="analytics-details" class="mt-6"></div>
-        <p class="error hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg animate-fadeIn" id="analytics-error"></p>
-        <p class="success hidden mt-4 p-4 bg-green-100 text-green-700 rounded-lg animate-fadeIn" id="analytics-success"></p>
-      </section>
-    </main>
-  </div>
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users-cog text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Manage Admins</h4>
+                            <p class="text-sm text-gray-600">Add, edit, or remove administrators</p>
+                        </div>
+                    </div>
+                    <a href="/admin/admins" class="mt-4 inline-block w-full text-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        Go to Admins
+                    </a>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-book text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Knowledge Base</h4>
+                            <p class="text-sm text-gray-600">Manage articles and content</p>
+                        </div>
+                    </div>
+                    <a href="/admin/knowledges" class="mt-4 inline-block w-full text-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        Go to Knowledge
+                    </a>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Refresh Data</h4>
+                            <p class="text-sm text-gray-600">Update analytics and KPI data</p>
+                        </div>
+                    </div>
+                    <button onclick="refreshAllData()" class="mt-4 w-full px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                        Refresh All
+                    </button>
+                </div>
+            </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/admin/global.js"></script>
-  <script>
-    // Error handling function
-    function handleError(errorElement, successElement, resultElements, errorMessage) {
-      errorElement.textContent = errorMessage;
-      errorElement.classList.remove('hidden');
-      if (successElement) successElement.classList.add('hidden');
-      resultElements.forEach(el => (el.innerHTML = ''));
-    }
+            <!-- Loading states -->
+            <div id="analytics-loading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-gray-600">Loading analytics...</p>
+            </div>
+            
+            <div id="kpi-loading" class="text-center py-8 hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-gray-600">Loading KPI data...</p>
+            </div>
+            
+            <!-- Success/Error messages -->
+            <div id="analytics-success" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span></span>
+            </div>
+            
+            <div id="analytics-error" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span></span>
+            </div>
+            
+            <div id="kpi-success" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span></span>
+            </div>
+            
+            <div id="kpi-error" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span></span>
+            </div>
 
-    // Chart.js contexts
-    let requestsChartInstance = null;
-    let inventoryChartInstance = null;
-    let kpiChartInstance = null;
-
-    // Test data function
-    function renderTestData() {
-      const testData = {
-        analytics: {
-          success: true,
-          data: {
-            requests: {
-              total: 100,
-              pending: 20,
-              inProcess: 30,
-              done: 50,
-              avgPrice: 500,
-            },
-            technicians: {
-              total: 5,
-              totalCompleted: 150,
-              avgCompletionTime: 45,
-              topTechnicians: [
-                { id: '1', name: 'John Doe', totalCompleted: 60 },
-                { id: '2', name: 'Jane Smith', totalCompleted: 50 },
-                { id: '3', name: 'Bob Johnson', totalCompleted: 40 },
-              ],
-            },
-            inventory: {
-              total: 200,
-              lowStock: 10,
-              topUsed: [
-                { id: '1', name: 'Cable', totalUsed: 100 },
-                { id: '2', name: 'Battery', totalUsed: 80 },
-                { id: '3', name: 'Screw', totalUsed: 60 },
-              ],
-            },
-          },
-        },
-        kpi: {
-          success: true,
-          data: [
-            {
-              id: '1',
-              name: 'John Doe',
-              email: 'john@example.com',
-              kpi: { totalCompleted: 60, avgCompletionTime: '45.00' },
-              assignedTasksCount: 5,
-              recentRequests: [
-                { id: 'r1', issueDescription: 'Fix cable', status: 'done', completedAt: new Date() },
-              ],
-            },
-            {
-              id: '2',
-              name: 'Jane Smith',
-              email: 'jane@example.com',
-              kpi: { totalCompleted: 50, avgCompletionTime: '40.00' },
-              assignedTasksCount: 3,
-              recentRequests: [],
-            },
-          ],
-        },
-      };
-
-      renderAnalytics(testData.analytics);
-      renderKpi(testData.kpi);
-      document.getElementById('analytics-success').textContent = 'Test data displayed';
-      document.getElementById('analytics-success').classList.remove('hidden');
-      document.getElementById('kpi-success').textContent = 'Test KPI data displayed';
-      document.getElementById('kpi-success').classList.remove('hidden');
-      document.getElementById('analytics-loading').classList.add('hidden');
-      document.getElementById('kpi-loading').classList.add('hidden');
-    }
-
-    // Render analytics data
-    function renderAnalytics(data) {
-      const analytics = data.data;
-      document.getElementById('analytics-stats').innerHTML = `
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
-            <h3 class="text-lg font-semibold text-gray-700">Total Requests</h3>
-            <p class="text-2xl font-bold text-blue-600">${analytics.requests.total}</p>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
-            <h3 class="text-lg font-semibold text-gray-700">Pending Requests</h3>
-            <p class="text-2xl font-bold text-blue-600">${analytics.requests.pending}</p>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
-            <h3 class="text-lg font-semibold text-gray-700">In-Process Requests</h3>
-            <p class="text-2xl font-bold text-blue-600">${analytics.requests.inProcess}</p>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
-            <h3 class="text-lg font-semibold text-gray-700">Done Requests</h3>
-            <p class="text-2xl font-bold text-blue-600">${analytics.requests.done}</p>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-md text-center hover-scale">
-            <h3 class="text-lg font-semibold text-gray-700">Avg Request Price</h3>
-            <p class="text-2xl font-bold text-blue-600">$${analytics.requests.avgPrice}</p>
-          </div>
-        </div>
-      `;
-      document.getElementById('analytics-details').innerHTML = `
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Top Technicians</h3>
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="p-3 text-left text-gray-700">Name</th>
-              <th class="p-3 text-left text-gray-700">Completed Requests</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${analytics.technicians.topTechnicians
-              .map(t => `
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                  <td class="p-3 border-t">${t.name}</td>
-                  <td class="p-3 border-t">${t.totalCompleted}</td>
-                </tr>
-              `)
-              .join('')}
-          </tbody>
-        </table>
-        <h3 class="text-lg font-semibold text-gray-800 mt-4 mb-2">Top Used Inventories</h3>
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="p-3 text-left text-gray-700">Name</th>
-              <th class="p-3 text-left text-gray-700">Total Used</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${analytics.inventory.topUsed
-              .map(i => `
-                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                  <td class="p-3 border-t">${i.name}</td>
-                  <td class="p-3 border-t">${i.totalUsed}</td>
-                </tr>
-              `)
-              .join('')}
-          </tbody>
-        </table>
-      `;
-
-      // Requests Chart
-      if (requestsChartInstance) requestsChartInstance.destroy();
-      const requestsCtx = document.getElementById('requestsChart').getContext('2d');
-      requestsChartInstance = new Chart(requestsCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Pending', 'In-Process', 'Done'],
-          datasets: [{
-            data: [
-              analytics.requests.pending,
-              analytics.requests.inProcess,
-              analytics.requests.done,
-            ],
-            backgroundColor: ['#f87171', '#60a5fa', '#34d399'],
-            borderColor: ['#fff', '#fff', '#fff'],
-            borderWidth: 2,
-          }],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'top', labels: { color: '#374151' } },
-            title: { display: true, text: 'Request Status Distribution', color: '#374151', font: { size: 16 } },
-          },
-          animation: {
-            animateScale: true,
-            animateRotate: true,
-          },
-        },
-      });
-
-      // Inventory Chart
-      if (inventoryChartInstance) inventoryChartInstance.destroy();
-      const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
-      inventoryChartInstance = new Chart(inventoryCtx, {
-        type: 'pie',
-        data: {
-          labels: analytics.inventory.topUsed.map(i => i.name),
-          datasets: [{
-            data: analytics.inventory.topUsed.map(i => i.totalUsed),
-            backgroundColor: ['#f87171', '#60a5fa', '#34d399'],
-            borderColor: ['#fff', '#fff', '#fff'],
-            borderWidth: 2,
-          }],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'top', labels: { color: '#374151' } },
-            title: { display: true, text: 'Top Used Inventories', color: '#374151', font: { size: 16 } },
-          },
-          animation: {
-            animateScale: true,
-            animateRotate: true,
-          },
-        },
-      });
-
-      document.getElementById('analytics-loading').classList.add('hidden');
-    }
-
-    // Render KPI data
-    function renderKpi(data) {
-      const kpi = data.data;
-      document.getElementById('kpi-table').innerHTML = `
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gray-100">
-              <th class="p-3 text-left text-gray-700">Name</th>
-              <th class="p-3 text-left text-gray-700">Email</th>
-              <th class="p-3 text-left text-gray-700">Total Completed</th>
-              <th class="p-3 text-left text-gray-700">Avg Completion Time (hrs)</th>
-              <th class="p-3 text-left text-gray-700">Assigned Tasks</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${kpi
-              .map(
-                t => `
-                  <tr class="hover:bg-gray-50 transition-colors duration-200">
-                    <td class="p-3 border-t">${t.name}</td>
-                    <td class="p-3 border-t">${t.email}</td>
-                    <td class="p-3 border-t">${t.kpi.totalCompleted}</td>
-                    <td class="p-3 border-t">${(parseFloat(t.kpi.avgCompletionTime) / 60).toFixed(2)}</td>
-                    <td class="p-3 border-t">${t.assignedTasksCount}</td>
-                  </tr>
-                `
-              )
-              .join('')}
-          </tbody>
-        </table>
-      `;
-
-      // KPI Chart
-      if (kpiChartInstance) kpiChartInstance.destroy();
-      const kpiCtx = document.getElementById('kpiChart').getContext('2d');
-      kpiChartInstance = new Chart(kpiCtx, {
-        type: 'bar',
-        data: {
-          labels: kpi.map(t => t.name),
-          datasets: [
-            {
-              label: 'Total Completed',
-              data: kpi.map(t => t.kpi.totalCompleted),
-              backgroundColor: '#60a5fa',
-              borderColor: '#fff',
-              borderWidth: 1,
-            },
-            {
-              label: 'Avg Completion Time (hrs)',
-              data: kpi.map(t => parseFloat(t.kpi.avgCompletionTime) / 60),
-              backgroundColor: '#f87171',
-              borderColor: '#fff',
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'top', labels: { color: '#374151' } },
-            title: { display: true, text: 'Technicians KPI', color: '#374151', font: { size: 16 } },
-          },
-          scales: {
-            y: { beginAtZero: true, ticks: { color: '#374151' } },
-            x: { ticks: { color: '#374151' } },
-          },
-          animation: {
-            duration: 1000,
-            easing: 'easeOutQuart',
-          },
-        },
-      });
-
-      document.getElementById('kpi-loading').classList.add('hidden');
-    }
-
-    // Analytics Fetch
-    async function fetchAnalytics() {
-      const error = document.getElementById('analytics-error');
-      const success = document.getElementById('analytics-success');
-      const resultElements = [
-        document.getElementById('analytics-stats'),
-        document.getElementById('analytics-details'),
-      ];
-      error.classList.add('hidden');
-      success.classList.add('hidden');
-      resultElements.forEach(el => (el.innerHTML = ''));
-      document.getElementById('analytics-loading').classList.remove('hidden');
-
-      try {
-        const response = await apiFetch('/admin/api/super-admin/analytics', { method: 'GET' }, 'read');
-        if (!response) {
-          document.getElementById('analytics-loading').classList.add('hidden');
-          return;
+            <!-- Analytics Stats -->
+            <div id="analytics-stats" class="hidden"></div>
+            
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 hidden" id="charts-section">
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="chart-container">
+                        <canvas id="requestsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm card-hover">
+                    <div class="chart-container">
+                        <canvas id="inventoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analytics Details -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8 hidden" id="analytics-details-section">
+                <div id="analytics-details"></div>
+            </div>
+            
+            <!-- KPI Section -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8 hidden" id="kpi-section">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-chart-bar mr-2 text-blue-500"></i>
+                        Technicians KPI
+                    </h3>
+                    <button onclick="fetchKpi()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>
+                        Refresh
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <div id="kpi-table"></div>
+                </div>
+                
+                <div class="mt-8">
+                    <div class="chart-container">
+                        <canvas id="kpiChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 200px;"></div>
+        </main>
+    </div>
+    
+    <script src="/admin/global.js"></script>
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mobileOverlay.classList.remove('hidden');
+        });
+        
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+        
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+        
+        // Chart instances
+        let requestsChartInstance = null;
+        let inventoryChartInstance = null;
+        let kpiChartInstance = null;
+        
+        // Error handling function
+        function handleError(errorElement, successElement, resultElements, errorMessage) {
+            errorElement.textContent = errorMessage;
+            errorElement.classList.remove('hidden');
+            if (successElement) successElement.classList.add('hidden');
+            resultElements.forEach(el => (el.innerHTML = ''));
         }
-
-        const data = await response.json();
-        if (!data.success || !data.data) {
-          renderTestData();
-          handleError(error, success, resultElements, 'No analytics data found, showing test data');
-          return;
+        
+        // Show sections when data is loaded
+        function showSections() {
+            document.getElementById('charts-section').classList.remove('hidden');
+            document.getElementById('analytics-details-section').classList.remove('hidden');
+            document.getElementById('kpi-section').classList.remove('hidden');
         }
-
-        renderAnalytics(data);
-        success.textContent = 'Analytics fetched successfully';
-        success.classList.remove('hidden');
-      } catch (err) {
-        console.error('Analytics error:', err);
-        renderTestData();
-        handleError(error, success, resultElements, 'Error fetching analytics, showing test data');
-      }
-    }
-
-    // KPI Fetch
-    async function fetchKpi() {
-      const error = document.getElementById('kpi-error');
-      const success = document.getElementById('kpi-success');
-      const resultElements = [document.getElementById('kpi-table')];
-      error.classList.add('hidden');
-      success.classList.add('hidden');
-      resultElements.forEach(el => (el.innerHTML = ''));
-      document.getElementById('kpi-loading').classList.remove('hidden');
-
-      try {
-        const response = await apiFetch('/admin/api/super-admin/get-kpi', { method: 'GET' }, 'read');
-        if (!response) {
-          document.getElementById('kpi-loading').classList.add('hidden');
-          return;
+        
+        // Test data function
+        function renderTestData() {
+            const testData = {
+                analytics: {
+                    success: true,
+                    data: {
+                        requests: {
+                            total: 100,
+                            pending: 20,
+                            inProcess: 30,
+                            done: 50,
+                            avgPrice: 500,
+                        },
+                        technicians: {
+                            total: 5,
+                            totalCompleted: 150,
+                            avgCompletionTime: 45,
+                            topTechnicians: [
+                                { id: '1', name: 'John Doe', totalCompleted: 60 },
+                                { id: '2', name: 'Jane Smith', totalCompleted: 50 },
+                                { id: '3', name: 'Bob Johnson', totalCompleted: 40 },
+                            ],
+                        },
+                        inventory: {
+                            total: 200,
+                            lowStock: 10,
+                            topUsed: [
+                                { id: '1', name: 'Cable', totalUsed: 100 },
+                                { id: '2', name: 'Battery', totalUsed: 80 },
+                                { id: '3', name: 'Screw', totalUsed: 60 },
+                            ],
+                        },
+                    },
+                },
+                kpi: {
+                    success: true,
+                    data: [
+                        {
+                            id: '1',
+                            name: 'John Doe',
+                            email: 'john@example.com',
+                            kpi: { totalCompleted: 60, avgCompletionTime: '45.00' },
+                            assignedTasksCount: 5,
+                            recentRequests: [
+                                { id: 'r1', issueDescription: 'Fix cable', status: 'done', completedAt: new Date() },
+                            ],
+                        },
+                        {
+                            id: '2',
+                            name: 'Jane Smith',
+                            email: 'jane@example.com',
+                            kpi: { totalCompleted: 50, avgCompletionTime: '40.00' },
+                            assignedTasksCount: 3,
+                            recentRequests: [],
+                        },
+                    ],
+                },
+            };
+            
+            renderAnalytics(testData.analytics);
+            renderKpi(testData.kpi);
+            showSections();
+            document.getElementById('analytics-success').textContent = 'Test data displayed';
+            document.getElementById('analytics-success').classList.remove('hidden');
+            document.getElementById('kpi-success').textContent = 'Test KPI data displayed';
+            document.getElementById('kpi-success').classList.remove('hidden');
+            document.getElementById('analytics-loading').classList.add('hidden');
+            document.getElementById('kpi-loading').classList.add('hidden');
         }
-
-        const data = await response.json();
-        if (!data.success || !data.data || data.data.length === 0) {
-          renderTestData();
-          handleError(error, success, resultElements, 'No KPI data found, showing test data');
-          return;
+        
+        // Render analytics data
+        function renderAnalytics(data) {
+            const analytics = data.data;
+            document.getElementById('analytics-stats').innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Requests</p>
+                                <p class="text-3xl font-bold text-gray-900">${analytics.requests.total}</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-yellow-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Pending</p>
+                                <p class="text-3xl font-bold text-gray-900">${analytics.requests.pending}</p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-orange-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">In Process</p>
+                                <p class="text-3xl font-bold text-gray-900">${analytics.requests.inProcess}</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-cog text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Completed</p>
+                                <p class="text-3xl font-bold text-gray-900">${analytics.requests.done}</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Avg Price</p>
+                                <p class="text-3xl font-bold text-gray-900">$${analytics.requests.avgPrice}</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('analytics-stats').classList.remove('hidden');
+            
+            document.getElementById('analytics-details').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                            Top Technicians
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50 rounded-lg">
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Name</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Completed</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${analytics.technicians.topTechnicians
+                                        .map((t, index) => `
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 flex items-center space-x-3">
+                                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <span class="text-sm font-medium text-blue-600">${index + 1}</span>
+                                                    </div>
+                                                    <span class="font-medium text-gray-900">${t.name}</span>
+                                                </td>
+                                                <td class="px-4 py-3 text-gray-700">${t.totalCompleted}</td>
+                                            </tr>
+                                        `)
+                                        .join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-boxes text-blue-500 mr-2"></i>
+                            Top Used Inventories
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50 rounded-lg">
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Item</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Used</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${analytics.inventory.topUsed
+                                        .map((i, index) => `
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 flex items-center space-x-3">
+                                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                        <span class="text-sm font-medium text-green-600">${index + 1}</span>
+                                                    </div>
+                                                    <span class="font-medium text-gray-900">${i.name}</span>
+                                                </td>
+                                                <td class="px-4 py-3 text-gray-700">${i.totalUsed}</td>
+                                            </tr>
+                                        `)
+                                        .join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Requests Chart
+            if (requestsChartInstance) requestsChartInstance.destroy();
+            const requestsCtx = document.getElementById('requestsChart').getContext('2d');
+            requestsChartInstance = new Chart(requestsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'In-Process', 'Done'],
+                    datasets: [{
+                        data: [
+                            analytics.requests.pending,
+                            analytics.requests.inProcess,
+                            analytics.requests.done,
+                        ],
+                        backgroundColor: ['#f59e0b', '#3b82f6', '#10b981'],
+                        borderColor: ['#fff', '#fff', '#fff'],
+                        borderWidth: 3,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                color: '#374151', 
+                                font: { size: 14 },
+                                padding: 20
+                            } 
+                        },
+                        title: { 
+                            display: true, 
+                            text: 'Request Status Distribution', 
+                            color: '#374151', 
+                            font: { size: 16, weight: 'bold' },
+                            padding: 20
+                        },
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                    },
+                },
+            });
+            
+            // Inventory Chart
+            if (inventoryChartInstance) inventoryChartInstance.destroy();
+            const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+            inventoryChartInstance = new Chart(inventoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: analytics.inventory.topUsed.map(i => i.name),
+                    datasets: [{
+                        data: analytics.inventory.topUsed.map(i => i.totalUsed),
+                        backgroundColor: ['#ef4444', '#3b82f6', '#10b981'],
+                        borderColor: ['#fff', '#fff', '#fff'],
+                        borderWidth: 3,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                color: '#374151', 
+                                font: { size: 14 },
+                                padding: 20
+                            } 
+                        },
+                        title: { 
+                            display: true, 
+                            text: 'Top Used Inventories', 
+                            color: '#374151', 
+                            font: { size: 16, weight: 'bold' },
+                            padding: 20
+                        },
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                    },
+                },
+            });
+            
+            document.getElementById('analytics-loading').classList.add('hidden');
         }
-
-        renderKpi(data);
-        success.textContent = 'KPIs fetched successfully';
-        success.classList.remove('hidden');
-      } catch (err) {
-        console.error('KPI error:', err);
-        renderTestData();
-        handleError(error, success, resultElements, 'Error fetching KPIs, showing test data');
-      }
-    }
-
-    function logout() {
-      const result = fetch('/admin/api/auth/logout', { method: 'POST' });
-
-      if (result) {
-        window.location.href = '/admin/'; // Redirect to login page
-      }
-    }
-
-    // Initial fetch
-    fetchAnalytics();
-    fetchKpi();
-  </script>
+        
+        // Render KPI data
+        function renderKpi(data) {
+            const kpi = data.data;
+            document.getElementById('kpi-table').innerHTML = `
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Technician</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Email</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Completed</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Avg Time (hrs)</th>
+                            <th class="px-6 py-4 text-left text-sm font-medium text-gray-700">Assigned Tasks</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        ${kpi
+                            .map(
+                                t => `
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                    <i class="fas fa-user text-blue-600"></i>
+                                                </div>
+                                                <span class="font-medium text-gray-900">${t.name}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-700">${t.email}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                ${t.kpi.totalCompleted}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-700">${(parseFloat(t.kpi.avgCompletionTime) / 60).toFixed(2)}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                ${t.assignedTasksCount}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `
+                            )
+                            .join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            // KPI Chart
+            if (kpiChartInstance) kpiChartInstance.destroy();
+            const kpiCtx = document.getElementById('kpiChart').getContext('2d');
+            kpiChartInstance = new Chart(kpiCtx, {
+                type: 'bar',
+                data: {
+                    labels: kpi.map(t => t.name),
+                    datasets: [
+                        {
+                            label: 'Total Completed',
+                            data: kpi.map(t => t.kpi.totalCompleted),
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#1d4ed8',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Avg Completion Time (hrs)',
+                            data: kpi.map(t => parseFloat(t.kpi.avgCompletionTime) / 60),
+                            backgroundColor: '#ef4444',
+                            borderColor: '#dc2626',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'top', 
+                            labels: { 
+                                color: '#374151', 
+                                font: { size: 14 },
+                                padding: 20
+                            } 
+                        },
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { 
+                                color: '#374151', 
+                                font: { size: 12 } 
+                            },
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        },
+                        x: { 
+                            ticks: { 
+                                color: '#374151', 
+                                font: { size: 12 } 
+                            },
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        },
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart',
+                    },
+                },
+            });
+            
+            document.getElementById('kpi-loading').classList.add('hidden');
+        }
+        
+        // Analytics Fetch
+        async function fetchAnalytics() {
+            const error = document.getElementById('analytics-error');
+            const success = document.getElementById('analytics-success');
+            const resultElements = [
+                document.getElementById('analytics-stats'),
+                document.getElementById('analytics-details'),
+            ];
+            error.classList.add('hidden');
+            success.classList.add('hidden');
+            resultElements.forEach(el => (el.innerHTML = ''));
+            document.getElementById('analytics-loading').classList.remove('hidden');
+            
+            try {
+                const response = await apiFetch('/admin/api/super-admin/analytics', { method: 'GET' }, 'read');
+                if (!response) {
+                    document.getElementById('analytics-loading').classList.add('hidden');
+                    return;
+                }
+                
+                const data = await response.json();
+                if (!data.success || !data.data) {
+                    renderTestData();
+                    handleError(error, success, resultElements, 'No analytics data found, showing test data');
+                    return;
+                }
+                
+                renderAnalytics(data);
+                showSections();
+                success.textContent = 'Analytics fetched successfully';
+                success.classList.remove('hidden');
+            } catch (err) {
+                console.error('Analytics error:', err);
+                renderTestData();
+                handleError(error, success, resultElements, 'Error fetching analytics, showing test data');
+            }
+        }
+        
+        // KPI Fetch
+        async function fetchKpi() {
+            const error = document.getElementById('kpi-error');
+            const success = document.getElementById('kpi-success');
+            const resultElements = [document.getElementById('kpi-table')];
+            error.classList.add('hidden');
+            success.classList.add('hidden');
+            resultElements.forEach(el => (el.innerHTML = ''));
+            document.getElementById('kpi-loading').classList.remove('hidden');
+            
+            try {
+                const response = await apiFetch('/admin/api/super-admin/get-kpi', { method: 'GET' }, 'read');
+                if (!response) {
+                    document.getElementById('kpi-loading').classList.add('hidden');
+                    return;
+                }
+                
+                const data = await response.json();
+                if (!data.success || !data.data || data.data.length === 0) {
+                    renderTestData();
+                    handleError(error, success, resultElements, 'No KPI data found, showing test data');
+                    return;
+                }
+                
+                renderKpi(data);
+                success.textContent = 'KPIs fetched successfully';
+                success.classList.remove('hidden');
+            } catch (err) {
+                console.error('KPI error:', err);
+                renderTestData();
+                handleError(error, success, resultElements, 'Error fetching KPIs, showing test data');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            fetch('/admin/api/auth/logout', { method: 'POST' })
+                .then(result => {
+                    if (result) {
+                        window.location.href = '/admin/';
+                    }
+                })
+                .catch(err => {
+                    console.error('Logout error:', err);
+                    window.location.href = '/admin/';
+                });
+        }
+        
+        // Refresh all data
+        function refreshAllData() {
+            fetchAnalytics();
+            fetchKpi();
+        }
+        
+        // Initial fetch
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchAnalytics();
+            fetchKpi();
+        });
+    </script>
 </body>
-
 </html>

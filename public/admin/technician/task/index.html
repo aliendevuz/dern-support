@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Details - Technician Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .inventory-item {
+            transition: all 0.3s ease;
+        }
+
+        .inventory-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-in-process {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-done {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Mobile menu overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">Technician Panel</h1>
+            <button id="close-sidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="mt-6">
+            <div class="px-6 mb-6">
+                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-cog text-white"></i>
+                    </div>
+                    <div>
+                        <p id="tech-name" class="text-sm font-medium text-gray-900">Technician</p>
+                        <p class="text-xs text-gray-500">Service Specialist</p>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="space-y-2 px-4">
+                <li>
+                    <a href="/admin/"
+                        class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg bg-blue-50 border-r-4 border-blue-500">
+                        <i class="fas fa-clipboard-list w-5"></i>
+                        <span class="font-medium">My Tasks</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/" onclick="showInventorySection()"
+                        class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-boxes w-5"></i>
+                        <span>Inventory</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-200">
+            <button onclick="logout()"
+                class="w-full flex items-center space-x-3 px-4 py-3 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="lg:ml-64">
+        <!-- Top bar -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between h-16 px-6">
+                <div class="flex items-center space-x-4">
+                    <button id="menu-toggle" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-2xl font-bold text-gray-800">Task Details</h2>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="/admin/"
+                        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Tasks</span>
+                    </a>
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-cog text-white text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="p-6">
+            <!-- Loading state -->
+            <div id="loading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-gray-600">Loading task details...</p>
+            </div>
+
+            <!-- Error message -->
+            <div id="error-message" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span id="error-text"></span>
+            </div>
+
+            <!-- Success message -->
+            <div id="success-message"
+                class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span id="success-text"></span>
+            </div>
+
+            <!-- Task Details -->
+            <div id="task-details" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Task Information -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    <i class="fas fa-clipboard-check mr-2 text-blue-500"></i>
+                                    Task Information
+                                </h3>
+                                <div id="task-status-badge"></div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 mb-1">Task Type</h4>
+                                    <p id="task-type" class="text-xl font-semibold text-gray-900"></p>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 mb-1">Issue Description</h4>
+                                    <p id="task-description" class="text-gray-700"></p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-500 mb-1">Submitted By</h4>
+                                        <p id="task-user" class="text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-500 mb-1">Submitted On</h4>
+                                        <p id="task-submitted" class="text-gray-900"></p>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-medium text-gray-500 mb-1">Assigned On</h4>
+                                        <p id="task-assigned" class="text-gray-900"></p>
+                                    </div>
+                                </div>
+
+                                <div class="text-sm text-gray-500">
+                                    Task ID: <span id="task-id"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inventory Usage -->
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    <i class="fas fa-boxes mr-2 text-blue-500"></i>
+                                    Inventory Usage
+                                </h3>
+                                <button onclick="openInventoryModal()"
+                                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Add Items</span>
+                                </button>
+                            </div>
+
+                            <div id="inventory-usage" class="space-y-4">
+                                <!-- Inventory usage will be rendered here -->
+                            </div>
+
+                            <!-- Empty state -->
+                            <div id="empty-inventory" class="text-center py-8">
+                                <div
+                                    class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-boxes text-gray-400 text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">No inventory used yet</h3>
+                                <p class="text-gray-500 mb-4">Add inventory items that you've used for this task.</p>
+                                <button onclick="openInventoryModal()"
+                                    class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Add Items
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Panel -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm p-6 sticky top-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                                <i class="fas fa-tools mr-2 text-blue-500"></i>
+                                Task Actions
+                            </h3>
+
+                            <div class="space-y-6">
+                                <div id="task-progress" class="hidden">
+                                    <h4 class="text-sm font-medium text-gray-500 mb-2">Task Progress</h4>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="progress-bar" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%">
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between mt-1 text-xs text-gray-500">
+                                        <span>Started</span>
+                                        <span>In Progress</span>
+                                        <span>Completed</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500 mb-2">Task Status</h4>
+                                    <div id="task-status-display" class="p-3 bg-gray-50 rounded-lg text-sm"></div>
+                                </div>
+
+                                <div id="action-buttons" class="space-y-3">
+                                    <button id="start-btn" onclick="startTask()"
+                                        class="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2">
+                                        <i class="fas fa-play"></i>
+                                        <span>Start Task</span>
+                                    </button>
+
+                                    <button id="complete-btn" onclick="completeTask()"
+                                        class="hidden w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center space-x-2">
+                                        <i class="fas fa-check"></i>
+                                        <span>Mark as Complete</span>
+                                    </button>
+                                </div>
+
+                                <div id="completed-info" class="hidden space-y-3">
+                                    <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                                        <div class="flex items-center space-x-3">
+                                            <div
+                                                class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-check text-green-600"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-green-800">Task Completed</h4>
+                                                <p id="completed-date" class="text-sm text-green-600"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div id="inventory-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Add Inventory Items</h3>
+                <button onclick="closeInventoryModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <div class="relative">
+                    <input type="text" id="inventory-search" placeholder="Search inventory..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="inventory-list" class="space-y-4 max-h-96 overflow-y-auto">
+                <!-- Inventory items will be loaded here -->
+            </div>
+
+            <div class="mt-6 border-t border-gray-200 pt-4">
+                <h4 class="font-medium text-gray-900 mb-3">Selected Items</h4>
+                <div id="selected-items" class="space-y-3 mb-4">
+                    <!-- Selected items will be added here -->
+                    <p id="no-selected-items" class="text-gray-500 text-sm">No items selected</p>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeInventoryModal()"
+                        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="useInventoryItems()" id="use-inventory-btn"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                        Use Selected Items
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/global.js"></script>
+    <script>
+        // Global variables
+        let taskId = null;
+        let taskData = null;
+        let inventoryData = [];
+        let selectedInventory = [];
+        let usedInventory = [];
+
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mobileOverlay.classList.remove('hidden');
+        });
+
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+
+        // Show error message
+        function showError(message) {
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            document.getElementById('success-text').textContent = message;
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
+        // Hide messages
+        function hideMessages() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+
+        // Get status badge
+        function getStatusBadge(status) {
+            const statusClasses = {
+                'pending': 'status-pending',
+                'in-process': 'status-in-process',
+                'done': 'status-done'
+            };
+
+            return `<span class="status-badge ${statusClasses[status] || 'bg-gray-200 text-gray-800'}">${status}</span>`;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Open inventory modal
+        function openInventoryModal() {
+            document.getElementById('inventory-modal').classList.remove('hidden');
+            fetchInventory();
+        }
+
+        // Close inventory modal
+        function closeInventoryModal() {
+            document.getElementById('inventory-modal').classList.add('hidden');
+        }
+
+        // Add inventory item to selection
+        function addInventoryItem(id) {
+            const item = inventoryData.find(i => i.id === id);
+            if (!item) return;
+
+            // Check if already selected
+            const existingIndex = selectedInventory.findIndex(i => i.inventoryId === id);
+            if (existingIndex !== -1) {
+                // Update quantity
+                selectedInventory[existingIndex].quantity += 1;
+            } else {
+                // Add new item
+                selectedInventory.push({
+                    inventoryId: id,
+                    name: item.name,
+                    quantity: 1,
+                    available: item.quantity
+                });
+            }
+
+            renderSelectedItems();
+        }
+
+        // Remove inventory item from selection
+        function removeInventoryItem(id) {
+            selectedInventory = selectedInventory.filter(item => item.inventoryId !== id);
+            renderSelectedItems();
+        }
+
+        // Update inventory item quantity
+        function updateItemQuantity(id, quantity) {
+            const index = selectedInventory.findIndex(item => item.inventoryId === id);
+            if (index === -1) return;
+
+            const available = selectedInventory[index].available;
+
+            // Validate quantity
+            if (quantity < 1) quantity = 1;
+            if (quantity > available) quantity = available;
+
+            selectedInventory[index].quantity = quantity;
+            renderSelectedItems();
+        }
+
+        // Render inventory list
+        function renderInventoryList() {
+            const inventoryList = document.getElementById('inventory-list');
+            const searchTerm = document.getElementById('inventory-search').value.toLowerCase();
+
+            const filteredInventory = inventoryData.filter(item =>
+                item.name.toLowerCase().includes(searchTerm) ||
+                (item.partNumber && item.partNumber.toLowerCase().includes(searchTerm))
+            );
+
+            if (filteredInventory.length === 0) {
+                inventoryList.innerHTML = `
+            <div class="text-center py-8">
+                <p class="text-gray-500">No inventory items found</p>
+            </div>
+        `;
+                return;
+            }
+
+            inventoryList.innerHTML = filteredInventory.map(item => `
+        <div class="inventory-item border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h4 class="font-medium text-gray-900">${item.name}</h4>
+                    ${item.partNumber ? `<p class="text-sm text-gray-500">Part #: ${item.partNumber}</p>` : ''}
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full 
+                        ${item.quantity <= 5 ? 'bg-red-100 text-red-800' :
+                    item.quantity <= 20 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'}">
+                        ${item.quantity} in stock
+                    </span>
+                    <button onclick="addInventoryItem('${item.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" ${item.quantity < 1 ? 'disabled' : ''}>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            ${item.description ? `<p class="text-sm text-gray-600 mt-2">${item.description}</p>` : ''}
+        </div>
+    `).join('');
+        }
+
+        // Render selected items
+        function renderSelectedItems() {
+            const selectedItemsContainer = document.getElementById('selected-items');
+            const noSelectedItems = document.getElementById('no-selected-items');
+            const useInventoryBtn = document.getElementById('use-inventory-btn');
+
+            if (selectedInventory.length === 0) {
+                noSelectedItems.classList.remove('hidden');
+                useInventoryBtn.disabled = true;
+                selectedItemsContainer.innerHTML = '';
+                selectedItemsContainer.appendChild(noSelectedItems);
+                return;
+            }
+
+            noSelectedItems.classList.add('hidden');
+            useInventoryBtn.disabled = false;
+
+            selectedItemsContainer.innerHTML = selectedInventory.map(item => `
+        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex-1">
+                <p class="font-medium text-gray-900">${item.name}</p>
+                <p class="text-xs text-gray-500">Available: ${item.available}</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-1">
+                    <button onclick="updateItemQuantity('${item.inventoryId}', ${item.quantity - 1})" class="p-1 text-gray-600 hover:bg-gray-200 rounded">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <input type="number" value="${item.quantity}" min="1" max="${item.available}" 
+                           class="w-12 px-2 py-1 text-center border border-gray-300 rounded"
+                           onchange="updateItemQuantity('${item.inventoryId}', parseInt(this.value))">
+                    <button onclick="updateItemQuantity('${item.inventoryId}', ${item.quantity + 1})" class="p-1 text-gray-600 hover:bg-gray-200 rounded">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <button onclick="removeInventoryItem('${item.inventoryId}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+        }
+
+        // Render used inventory
+        function renderUsedInventory() {
+            const inventoryUsage = document.getElementById('inventory-usage');
+            const emptyInventory = document.getElementById('empty-inventory');
+
+            if (usedInventory.length === 0) {
+                inventoryUsage.innerHTML = '';
+                emptyInventory.classList.remove('hidden');
+                return;
+            }
+
+            emptyInventory.classList.add('hidden');
+
+            inventoryUsage.innerHTML = usedInventory.map(item => `
+        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div>
+                <h4 class="font-medium text-gray-900">${item.name}</h4>
+                <p class="text-sm text-gray-500">Used: ${item.quantity} units</p>
+            </div>
+            <span class="text-xs text-gray-500">${formatDate(item.usedAt)}</span>
+        </div>
+    `).join('');
+        }
+
+        // Use inventory items
+        async function useInventoryItems() {
+            if (selectedInventory.length === 0 || !taskId) return;
+
+            const useInventoryBtn = document.getElementById('use-inventory-btn');
+            const originalText = useInventoryBtn.textContent;
+
+            useInventoryBtn.disabled = true;
+            useInventoryBtn.textContent = 'Processing...';
+            hideMessages();
+
+            try {
+                const inventories = selectedInventory.map(item => ({
+                    inventoryId: item.inventoryId,
+                    quantity: item.quantity
+                }));
+
+                const response = await apiFetch('/admin/api/technician/use-inventories', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        requestId: taskId,
+                        inventories: inventories
+                    }),
+                }, 'read');
+
+                if (!response) {
+                    showError('Failed to use inventory items');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showError(data.error || 'Failed to use inventory items');
+                    return;
+                }
+
+                showSuccess('Inventory items used successfully');
+
+                // Add used items to the list with current timestamp
+                const now = new Date();
+                selectedInventory.forEach(item => {
+                    usedInventory.push({
+                        name: item.name,
+                        quantity: item.quantity,
+                        usedAt: now
+                    });
+                });
+
+                // Clear selection
+                selectedInventory = [];
+                renderSelectedItems();
+                renderUsedInventory();
+
+                // Close modal
+                closeInventoryModal();
+
+                // Refresh inventory data
+                fetchInventory();
+
+            } catch (error) {
+                console.error('Use inventory error:', error);
+                showError('Something went wrong while using inventory items');
+            } finally {
+                useInventoryBtn.disabled = false;
+                useInventoryBtn.textContent = originalText;
+            }
+        }
+
+        // Start task
+        async function startTask() {
+            if (!taskId || taskData.status === 'in-process' || taskData.status === 'done') return;
+
+            const startBtn = document.getElementById('start-btn');
+            const originalText = startBtn.textContent;
+
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Starting...';
+            hideMessages();
+
+            try {
+                // Update task status to in-process (this is a mock since there's no specific API for this)
+                // In a real app, you might have a specific API endpoint for this
+                // For now, we'll just update the UI
+
+                showSuccess('Task started successfully');
+
+                // Update task data
+                taskData.status = 'in-process';
+
+                // Update UI
+                updateTaskUI();
+
+            } catch (error) {
+                console.error('Start task error:', error);
+                showError('Something went wrong while starting the task');
+            } finally {
+                startBtn.disabled = false;
+                startBtn.innerHTML = originalText;
+            }
+        }
+
+        // Complete task
+        async function completeTask() {
+            if (!taskId || taskData.status === 'done') return;
+
+            const completeBtn = document.getElementById('complete-btn');
+            const originalText = completeBtn.textContent;
+
+            completeBtn.disabled = true;
+            completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Completing...';
+            hideMessages();
+
+            try {
+                const response = await apiFetch('/admin/api/technician/done-request', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        requestId: taskId
+                    }),
+                }, 'read');
+
+                if (!response) {
+                    showError('Failed to complete task');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showError(data.error || 'Failed to complete task');
+                    return;
+                }
+
+                showSuccess('Task completed successfully');
+
+                // Update task data
+                taskData.status = 'done';
+                taskData.completedAt = new Date().toISOString();
+
+                // Update UI
+                updateTaskUI();
+
+            } catch (error) {
+                console.error('Complete task error:', error);
+                showError('Something went wrong while completing the task');
+            } finally {
+                completeBtn.disabled = false;
+                completeBtn.innerHTML = originalText;
+            }
+        }
+
+        // Update task UI based on status
+        function updateTaskUI() {
+            // Update status badge
+            document.getElementById('task-status-badge').innerHTML = getStatusBadge(taskData.status);
+
+            // Update status display
+            const statusDisplay = document.getElementById('task-status-display');
+            if (taskData.status === 'pending') {
+                statusDisplay.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                <span class="font-medium text-yellow-700">Pending</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Task has not been started yet</p>
+        `;
+            } else if (taskData.status === 'in-process') {
+                statusDisplay.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span class="font-medium text-blue-700">In Progress</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Task is currently being worked on</p>
+        `;
+            } else if (taskData.status === 'done') {
+                statusDisplay.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <span class="font-medium text-green-700">Completed</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Task has been completed</p>
+        `;
+            }
+
+            // Update progress bar
+            const progressBar = document.getElementById('progress-bar');
+            const taskProgress = document.getElementById('task-progress');
+
+            if (taskData.status === 'pending') {
+                progressBar.style.width = '0%';
+                taskProgress.classList.remove('hidden');
+            } else if (taskData.status === 'in-process') {
+                progressBar.style.width = '50%';
+                taskProgress.classList.remove('hidden');
+            } else if (taskData.status === 'done') {
+                progressBar.style.width = '100%';
+                taskProgress.classList.remove('hidden');
+            }
+
+            // Update action buttons
+            const startBtn = document.getElementById('start-btn');
+            const completeBtn = document.getElementById('complete-btn');
+            const actionButtons = document.getElementById('action-buttons');
+            const completedInfo = document.getElementById('completed-info');
+
+            if (taskData.status === 'pending') {
+                startBtn.classList.remove('hidden');
+                completeBtn.classList.add('hidden');
+                actionButtons.classList.remove('hidden');
+                completedInfo.classList.add('hidden');
+            } else if (taskData.status === 'in-process') {
+                startBtn.classList.add('hidden');
+                completeBtn.classList.remove('hidden');
+                actionButtons.classList.remove('hidden');
+                completedInfo.classList.add('hidden');
+            } else if (taskData.status === 'done') {
+                actionButtons.classList.add('hidden');
+                completedInfo.classList.remove('hidden');
+                document.getElementById('completed-date').textContent = `Completed on ${formatDate(taskData.completedAt)}`;
+            }
+        }
+
+        // Parse detailed issue description function (script boshiga qo'shish)
+        function parseDetailedIssueDescription(issueDescription) {
+            if (!issueDescription) return 'No description provided';
+
+            // Parse the formatted description
+            const lines = issueDescription.split('\n');
+            let parsed = {};
+            let currentSection = '';
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (line.startsWith('**') && line.endsWith('**') && !line.includes(':')) {
+                    currentSection = line.replace(/\*\*/g, '');
+                } else if (line.includes('**') && line.includes(':')) {
+                    const match = line.match(/\*\*(.+?):\*\* (.+)/);
+                    if (match) {
+                        parsed[match[1]] = match[2];
+                    }
+                } else if (line.startsWith('- ')) {
+                    const match = line.match(/- (.+?): (.+)/);
+                    if (match) {
+                        if (!parsed['Contact']) parsed['Contact'] = {};
+                        parsed['Contact'][match[1]] = match[2];
+                    }
+                } else if (currentSection === 'Description' && line) {
+                    parsed['Description'] = (parsed['Description'] || '') + line + ' ';
+                }
+            });
+
+            // Build formatted HTML
+            let html = '';
+
+            if (parsed['Summary']) {
+                html += `<div class="mb-4">
+            <h5 class="font-medium text-gray-800 mb-1">Summary</h5>
+            <p class="text-gray-700">${parsed['Summary']}</p>
+        </div>`;
+            }
+
+            if (parsed['Description']) {
+                html += `<div class="mb-4">
+            <h5 class="font-medium text-gray-800 mb-1">Description</h5>
+            <p class="text-gray-700">${parsed['Description'].trim()}</p>
+        </div>`;
+            }
+
+            // Service details
+            const serviceDetails = [];
+            if (parsed['Issue Type']) serviceDetails.push(`Issue Type: ${parsed['Issue Type']}`);
+            if (parsed['Priority']) serviceDetails.push(`Priority: ${parsed['Priority']}`);
+            if (parsed['Service Type']) serviceDetails.push(`Service Type: ${parsed['Service Type']}`);
+            if (parsed['Estimated Cost']) serviceDetails.push(`Estimated Cost: ${parsed['Estimated Cost']}`);
+
+            if (serviceDetails.length > 0) {
+                html += `<div class="mb-4">
+            <h5 class="font-medium text-gray-800 mb-2">Service Details</h5>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                ${serviceDetails.map(detail => `<span class="text-gray-600">${detail}</span>`).join('')}
+            </div>
+        </div>`;
+            }
+
+            // Contact information
+            if (parsed['Contact']) {
+                html += `<div>
+            <h5 class="font-medium text-gray-800 mb-1">Contact Information</h5>
+            <div class="text-sm text-gray-600">
+                ${Object.entries(parsed['Contact']).map(([key, value]) =>
+                    `<span class="block">${key}: ${value}</span>`
+                ).join('')}
+            </div>
+        </div>`;
+            }
+
+            return html || issueDescription;
+        }
+
+        // Render task details
+        function renderTaskDetails() {
+            if (!taskData) return;
+
+            document.getElementById('task-type').textContent = taskData.type;
+            document.getElementById('task-description').innerHTML = parseDetailedIssueDescription(taskData.issueDescription);
+            document.getElementById('task-id').textContent = taskData.id;
+
+            // User info
+            if (taskData.user) {
+                document.getElementById('task-user').textContent = `${taskData.user.firstName} ${taskData.user.lastName} (${taskData.user.email})`;
+            } else {
+                document.getElementById('task-user').textContent = 'Unknown User';
+            }
+
+            // Dates
+            document.getElementById('task-submitted').textContent = formatDate(taskData.submittedAt);
+            document.getElementById('task-assigned').textContent = formatDate(taskData.assignedAt);
+
+            // Status badge
+            document.getElementById('task-status-badge').innerHTML = getStatusBadge(taskData.status);
+
+            // Update UI based on status
+            updateTaskUI();
+        }
+
+        // Fetch task details
+        async function fetchTaskDetails() {
+            try {
+                // Since there's no specific API to get a single task, we'll fetch all tasks and filter
+                const response = await apiFetch('/admin/api/technician/my-requests', { method: 'GET' }, 'read');
+
+                if (!response) {
+                    showError('Failed to fetch task details');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success || !data.data) {
+                    showError('No tasks found');
+                    return;
+                }
+
+                const task = data.data.find(t => t.id === taskId);
+
+                if (!task) {
+                    showError('Task not found');
+                    return;
+                }
+
+                taskData = task;
+                renderTaskDetails();
+
+                // Show task details
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('task-details').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Fetch task details error:', error);
+                showError('Something went wrong while fetching task details');
+            }
+        }
+
+        // Fetch inventory
+        async function fetchInventory() {
+            try {
+                const response = await apiFetch('/admin/api/technician/all-inventory', { method: 'GET' }, 'read');
+
+                if (!response) {
+                    showError('Failed to fetch inventory');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success || !data.data) {
+                    showError('No inventory found');
+                    return;
+                }
+
+                inventoryData = data.data;
+                renderInventoryList();
+
+            } catch (error) {
+                console.error('Fetch inventory error:', error);
+                showError('Something went wrong while fetching inventory');
+            }
+        }
+
+        // Fetch technician profile
+        async function fetchProfile() {
+            try {
+                const response = await apiFetch('/admin/api/technician/about', { method: 'GET' }, 'read');
+
+                if (!response) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success || !data.data) {
+                    return;
+                }
+
+                // Update name in sidebar
+                document.getElementById('tech-name').textContent = `${data.data.firstName} ${data.data.lastName}`;
+
+            } catch (error) {
+                console.error('Fetch profile error:', error);
+            }
+        }
+
+        // Search inventory
+        document.getElementById('inventory-search').addEventListener('input', renderInventoryList);
+
+        // Logout function
+        function logout() {
+            fetch('/admin/api/auth/logout', { method: 'POST' })
+                .then(result => {
+                    if (result) {
+                        window.location.href = '/admin/';
+                    }
+                })
+                .catch(err => {
+                    console.error('Logout error:', err);
+                    window.location.href = '/admin/';
+                });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get task ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            taskId = urlParams.get('id');
+
+            if (!taskId) {
+                showError('No task ID provided');
+                document.getElementById('loading').classList.add('hidden');
+                return;
+            }
+
+            // Fetch data
+            Promise.all([fetchProfile(), fetchTaskDetails()]);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Editor - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* Custom styles for the preview content */
+        .preview-content {
+            line-height: 1.6;
+        }
+
+        .preview-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem;
+            color: #1f2937;
+        }
+
+        .preview-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1.25rem 0 0.75rem;
+            color: #1f2937;
+        }
+
+        .preview-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+            color: #1f2937;
+        }
+
+        .preview-content p {
+            margin: 0.75rem 0;
+            color: #374151;
+        }
+
+        .preview-content ul,
+        .preview-content ol {
+            margin: 0.75rem 0;
+            padding-left: 2rem;
+        }
+
+        .preview-content li {
+            margin: 0.5rem 0;
+            color: #374151;
+        }
+
+        .preview-content code {
+            background-color: #f3f4f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #d32f2f;
+        }
+
+        .preview-content pre {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            color: #1f2937;
+            margin: 1rem 0;
+        }
+
+        .preview-content blockquote {
+            border-left: 4px solid #2563eb;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #4b5563;
+            font-style: italic;
+        }
+
+        .preview-content a {
+            color: #2563eb;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+
+        .preview-content a:hover {
+            color: #1d4ed8;
+        }
+
+        .preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .preview-content th,
+        .preview-content td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .preview-content th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #1f2937;
+        }
+    </style>
+
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .editor-container {
+            height: calc(100vh - 200px);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* Editor panel styles */
+        .editor-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .editor-textarea {
+            resize: none;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            white-space: pre;
+            padding: 1rem;
+        }
+
+        /* Preview panel styles */
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .preview-content-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .preview-content {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            padding: 1rem;
+        }
+
+        .preview-content h1 {
+            @apply text-3xl font-bold mb-4 text-gray-900;
+        }
+
+        .preview-content h2 {
+            @apply text-2xl font-bold mb-3 text-gray-900;
+        }
+
+        .preview-content h3 {
+            @apply text-xl font-bold mb-2 text-gray-900;
+        }
+
+        .preview-content h4 {
+            @apply text-lg font-bold mb-2 text-gray-900;
+        }
+
+        .preview-content h5 {
+            @apply text-base font-bold mb-2 text-gray-900;
+        }
+
+        .preview-content h6 {
+            @apply text-sm font-bold mb-2 text-gray-900;
+        }
+
+        .preview-content p {
+            @apply mb-4 text-gray-700;
+        }
+
+        .preview-content ul {
+            @apply mb-4 pl-6 list-disc text-gray-700;
+        }
+
+        .preview-content ol {
+            @apply mb-4 pl-6 list-decimal text-gray-700;
+        }
+
+        .preview-content li {
+            @apply mb-1;
+        }
+
+        .preview-content blockquote {
+            @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-4;
+        }
+
+        .preview-content code {
+            @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-800;
+        }
+
+        .preview-content pre {
+            @apply bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+        }
+
+        .preview-content pre code {
+            @apply bg-transparent p-0;
+        }
+
+        .preview-content table {
+            @apply w-full border-collapse mb-4;
+        }
+
+        .preview-content th {
+            @apply border border-gray-300 px-4 py-2 bg-gray-100 font-bold text-left;
+        }
+
+        .preview-content td {
+            @apply border border-gray-300 px-4 py-2;
+        }
+
+        .preview-content a {
+            @apply text-blue-600 hover:text-blue-800 underline;
+        }
+
+        .preview-content img {
+            @apply max-w-full h-auto rounded-lg mb-4;
+        }
+
+        .preview-content hr {
+            @apply border-t border-gray-300 my-6;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Mobile menu overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">Admin Panel</h1>
+            <button id="close-sidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="mt-6">
+            <div class="px-6 mb-6">
+                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Super Admin</p>
+                        <p class="text-xs text-gray-500">Administrator</p>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="space-y-2 px-4">
+                <li>
+                    <a href="/admin/"
+                        class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-chart-line w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/admins"
+                        class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-users-cog w-5"></i>
+                        <span>Administrators</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/knowledges"
+                        class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-book w-5"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-200">
+            <button onclick="logout()"
+                class="w-full flex items-center space-x-3 px-4 py-3 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="lg:ml-64">
+        <!-- Top bar -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between h-16 px-6">
+                <div class="flex items-center space-x-4">
+                    <button id="menu-toggle" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 id="page-title" class="text-2xl font-bold text-gray-800">Article Editor</h2>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="/admin/knowledges"
+                        class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Articles</span>
+                    </a>
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Loading state -->
+        <div id="loading" class="hidden p-6 text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p class="mt-2 text-gray-600">Loading article...</p>
+        </div>
+
+        <!-- Error message -->
+        <div id="error-message" class="hidden mx-6 mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span id="error-text"></span>
+        </div>
+
+        <!-- Success message -->
+        <div id="success-message"
+            class="hidden mx-6 mt-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="success-text"></span>
+        </div>
+
+        <!-- Article Form -->
+        <div id="article-form" class="p-6">
+            <!-- Article Info -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                    Article Information
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                        <input type="text" id="title" placeholder="Enter article title..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <input type="text" id="category" placeholder="Enter category..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea id="description" rows="3" placeholder="Enter article description..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+            </div>
+
+            <!-- Editor -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="border-b border-gray-200 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-edit mr-2 text-blue-500"></i>
+                            Content Editor
+                        </h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-600">Auto-save:</span>
+                                <div id="autosave-indicator" class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                            </div>
+                            <button onclick="updatePreview()"
+                                class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-sync-alt mr-1"></i>
+                                Refresh Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 editor-container">
+                    <!-- Editor Panel -->
+                    <div class="editor-panel border-r border-gray-200">
+                        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 flex-shrink-0">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-700">
+                                    <i class="fas fa-code mr-1"></i>
+                                    Markdown Editor
+                                </span>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="insertMarkdown('**', '**')"
+                                        class="p-1 text-gray-600 hover:text-gray-800" title="Bold">
+                                        <i class="fas fa-bold"></i>
+                                    </button>
+                                    <button onclick="insertMarkdown('*', '*')"
+                                        class="p-1 text-gray-600 hover:text-gray-800" title="Italic">
+                                        <i class="fas fa-italic"></i>
+                                    </button>
+                                    <button onclick="insertMarkdown('`', '`')"
+                                        class="p-1 text-gray-600 hover:text-gray-800" title="Code">
+                                        <i class="fas fa-code"></i>
+                                    </button>
+                                    <button onclick="insertMarkdown('## ', '')"
+                                        class="p-1 text-gray-600 hover:text-gray-800" title="Heading">
+                                        <i class="fas fa-heading"></i>
+                                    </button>
+                                    <button onclick="insertMarkdown('- ', '')"
+                                        class="p-1 text-gray-600 hover:text-gray-800" title="List">
+                                        <i class="fas fa-list"></i>
+                                    </button>
+                                    <button onclick="insertMarkdown('[', '](url)')"
+                                        class="p-1 text-gray-600 hover:text-gray-800" title="Link">
+                                        <i class="fas fa-link"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <textarea id="content-editor" placeholder="Write your article content in Markdown..."
+                            class="editor-textarea"></textarea>
+                    </div>
+
+                    <!-- Preview Panel -->
+                    <div class="preview-panel">
+                        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 flex-shrink-0">
+                            <span class="text-sm font-medium text-gray-700">
+                                <i class="fas fa-eye mr-1"></i>
+                                Live Preview
+                            </span>
+                        </div>
+                        <div class="preview-content-container">
+                            <div id="content-preview" class="preview-content">
+                                <div class="text-center text-gray-500 py-8">
+                                    <i class="fas fa-file-alt text-4xl mb-4"></i>
+                                    <p>Start typing to see the preview...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    <span id="save-status">Ready to save</span>
+                </div>
+                <button id="save-btn" onclick="saveArticle()"
+                    class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+                    <i class="fas fa-save"></i>
+                    <span id="save-btn-text">Save Article</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.0.12/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+    <script>
+        let isEditMode = false;
+        let articleId = null;
+        let knowledgeId = null;
+        let autoSaveTimeout = null;
+
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mobileOverlay.classList.remove('hidden');
+        });
+
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+
+        // Show error message
+        function showError(message) {
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            document.getElementById('success-text').textContent = message;
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+        }
+
+        // Hide messages
+        function hideMessages() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+        }
+
+        // Update save status
+        function updateSaveStatus(status, color = 'text-gray-600') {
+            const saveStatus = document.getElementById('save-status');
+            saveStatus.textContent = status;
+            saveStatus.className = `text-sm ${color}`;
+        }
+
+        // Update autosave indicator
+        function updateAutosaveIndicator(status) {
+            const indicator = document.getElementById('autosave-indicator');
+            const colors = {
+                idle: 'bg-gray-400',
+                saving: 'bg-yellow-400',
+                saved: 'bg-green-400',
+                error: 'bg-red-400'
+            };
+            indicator.className = `w-2 h-2 rounded-full ${colors[status] || colors.idle}`;
+        }
+
+        // Insert markdown
+        function insertMarkdown(before, after) {
+            const editor = document.getElementById('content-editor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            const replacement = before + selectedText + after;
+
+            editor.value = editor.value.substring(0, start) + replacement + editor.value.substring(end);
+            editor.focus();
+            editor.setSelectionRange(start + before.length, start + before.length + selectedText.length);
+
+            updatePreview();
+        }
+
+        // Update preview
+        function updatePreview() {
+            const content = document.getElementById('content-editor').value;
+            const preview = document.getElementById('content-preview');
+
+            if (content.trim()) {
+                try {
+                    preview.innerHTML = marked.parse(content);
+                } catch (error) {
+                    preview.innerHTML = '<div class="text-red-500">Error parsing markdown</div>';
+                }
+            } else {
+                preview.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-file-alt text-4xl mb-4"></i>
+                        <p>Start typing to see the preview...</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-save functionality
+        function scheduleAutoSave() {
+            if (autoSaveTimeout) {
+                clearTimeout(autoSaveTimeout);
+            }
+
+            updateAutosaveIndicator('saving');
+            updateSaveStatus('Auto-saving...', 'text-yellow-600');
+
+            autoSaveTimeout = setTimeout(() => {
+                // Simulate auto-save (you can implement actual auto-save here)
+                updateAutosaveIndicator('saved');
+                updateSaveStatus('Auto-saved', 'text-green-600');
+
+                setTimeout(() => {
+                    updateAutosaveIndicator('idle');
+                    updateSaveStatus('Ready to save', 'text-gray-600');
+                }, 2000);
+            }, 1000);
+        }
+
+        // Load article for editing
+        async function loadArticle(articleId) {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('article-form').classList.add('hidden');
+
+            try {
+                const response = await apiFetch(`/admin/api/super-admin/details-knowledge?articleId=${articleId}`, { method: 'GET' }, 'read');
+
+                if (!response) {
+                    document.getElementById('loading').classList.add('hidden');
+                    showError('Failed to load article');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success || !data.data) {
+                    document.getElementById('loading').classList.add('hidden');
+                    showError('Article not found');
+                    return;
+                }
+
+                // Populate form
+                document.getElementById('title').value = data.data.knowledge?.title || '';
+                document.getElementById('category').value = data.data.knowledge?.category || '';
+                document.getElementById('description').value = data.data.knowledge?.description || '';
+                document.getElementById('content-editor').value = data.data.content || '';
+
+                knowledgeId = data.data.knowledge?.id;
+
+                updatePreview();
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('article-form').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Load article error:', error);
+                document.getElementById('loading').classList.add('hidden');
+                showError('Something went wrong while loading article');
+            }
+        }
+
+        // Save article
+        async function saveArticle() {
+            const saveBtn = document.getElementById('save-btn');
+            const saveBtnText = document.getElementById('save-btn-text');
+            const originalText = saveBtnText.textContent;
+
+            // Get form data
+            const title = document.getElementById('title').value.trim();
+            const category = document.getElementById('category').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const content = document.getElementById('content-editor').value.trim();
+
+            if (!title || !content) {
+                showError('Title and content are required');
+                return;
+            }
+
+            // Update button state
+            saveBtn.disabled = true;
+            saveBtnText.textContent = 'Saving...';
+            updateSaveStatus('Saving article...', 'text-blue-600');
+            hideMessages();
+
+            try {
+                let response;
+
+                if (isEditMode && knowledgeId && articleId) {
+                    // Update existing article
+                    response = await apiFetch('/admin/api/super-admin/update-knowledge', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            knowledgeId: knowledgeId,
+                            title: title,
+                            category: category,
+                            description: description,
+                            articleId: articleId,
+                            articleContent: content,
+                            similars: []
+                        }),
+                    }, 'password');
+                } else {
+                    // Create new article
+                    response = await apiFetch('/admin/api/super-admin/add-knowledge', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            title: title,
+                            category: category,
+                            description: description,
+                            articleContent: content,
+                            similars: []
+                        }),
+                    }, 'password');
+                }
+
+                if (!response) {
+                    showError('Failed to save article');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    showError(data.error || 'Failed to save article');
+                    return;
+                }
+
+                showSuccess(isEditMode ? 'Article updated successfully' : 'Article created successfully');
+                updateSaveStatus('Saved successfully', 'text-green-600');
+
+                // If it was a new article, redirect to edit mode
+                if (!isEditMode && data.data) {
+                    setTimeout(() => {
+                        window.location.href = `/admin/edit?articleId=${data.data.id}`;
+                    }, 1500);
+                }
+
+            } catch (error) {
+                console.error('Save article error:', error);
+                showError('Something went wrong while saving article');
+                updateSaveStatus('Save failed', 'text-red-600');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtnText.textContent = originalText;
+            }
+        }
+
+        // Logout function
+        function logout() {
+            fetch('/admin/api/auth/logout', { method: 'POST' })
+                .then(result => {
+                    if (result) {
+                        window.location.href = '/admin/';
+                    }
+                })
+                .catch(err => {
+                    console.error('Logout error:', err);
+                    window.location.href = '/admin/';
+                });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            articleId = urlParams.get('articleId');
+
+            if (articleId) {
+                isEditMode = true;
+                document.getElementById('page-title').textContent = 'Edit Article';
+                document.getElementById('save-btn-text').textContent = 'Update Article';
+                loadArticle(articleId);
+            } else {
+                isEditMode = false;
+                document.getElementById('page-title').textContent = 'Create New Article';
+                document.getElementById('save-btn-text').textContent = 'Create Article';
+                document.getElementById('article-form').classList.remove('hidden');
+            }
+
+            // Add event listeners
+            const contentEditor = document.getElementById('content-editor');
+            contentEditor.addEventListener('input', () => {
+                updatePreview();
+                scheduleAutoSave();
+            });
+
+            // Initial preview update
+            updatePreview();
+        });
+    </script>
+</body>
+
+</html>

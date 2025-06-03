@@ -1,611 +1,664 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manager Admin Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f0f2f5;
-    }
-
-    .header {
-      background: #007bff;
-      padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
-
-    .header a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .header a:hover {
-      text-decoration: underline;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
-    }
-
-    .section {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .section h2 {
-      margin: 0 0 10px;
-      font-size: 1.5em;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    button {
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-
-    .error,
-    .success {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 4px;
-      display: none;
-    }
-
-    .error {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    .success {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    table,
-    th,
-    td {
-      border: 1px solid #ddd;
-    }
-
-    th,
-    td {
-      padding: 10px;
-      text-align: left;
-    }
-
-    th {
-      background: #f4f4f4;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .request-card {
+            transition: all 0.3s ease;
+        }
+        .request-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .technician-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .technician-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .technician-card.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-in-process {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .status-done {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+    </style>
 </head>
-
-<body>
-  <div class="header">
-    <h2 style="margin: 0 10px;">Manager Admin Dashboard</h2>
-    <div>
-      <button onclick="logout()">Logout</button>
+<body class="bg-gray-50">
+    <!-- Mobile menu overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-800">Manager Panel</h1>
+            <button id="close-sidebar" class="lg:hidden text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="mt-6">
+            <div class="px-6 mb-6">
+                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-tie text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Manager</p>
+                        <p class="text-xs text-gray-500">Task Assignment</p>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="space-y-2 px-4">
+                <li>
+                    <a href="#" id="dashboard-link" class="flex items-center space-x-3 px-4 py-3 text-gray-700 rounded-lg bg-blue-50 border-r-4 border-blue-500">
+                        <i class="fas fa-tasks w-5"></i>
+                        <span class="font-medium">Task Assignment</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/inventory" class="flex items-center space-x-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-boxes w-5"></i>
+                        <span>Inventory Management</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-200">
+            <button onclick="logout()" class="w-full flex items-center space-x-3 px-4 py-3 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </button>
+        </div>
     </div>
-  </div>
-  <div class="container">
-    <!-- About Section -->
-    <div class="section">
-      <h2>About</h2>
-      <button onclick="fetchAbout()">Get Profile Info</button>
-      <div id="about-result"></div>
-      <p class="error" id="about-error"></p>
-      <p class="success" id="about-success"></p>
+    
+    <!-- Main content -->
+    <div class="lg:ml-64">
+        <!-- Top bar -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between h-16 px-6">
+                <div class="flex items-center space-x-4">
+                    <button id="menu-toggle" class="lg:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-2xl font-bold text-gray-800">Task Assignment Dashboard</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="refreshData()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                    <button class="relative p-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-tie text-white text-sm"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main content -->
+        <main class="p-6">
+            <!-- Loading state -->
+            <div id="loading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p class="mt-2 text-gray-600">Loading dashboard...</p>
+            </div>
+            
+            <!-- Error message -->
+            <div id="error-message" class="hidden mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span id="error-text"></span>
+            </div>
+            
+            <!-- Success message -->
+            <div id="success-message" class="hidden mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span id="success-text"></span>
+            </div>
+            
+            <!-- Content -->
+            <div id="content" class="hidden">
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Requests</p>
+                                <p id="total-requests" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-yellow-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Unassigned</p>
+                                <p id="unassigned-requests" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Available Technicians</p>
+                                <p id="available-technicians" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm card-hover border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Assignments Today</p>
+                                <p id="assignments-today" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Assignment Interface -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Unassigned Requests -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    <i class="fas fa-clipboard-list mr-2 text-yellow-500"></i>
+                                    Unassigned Requests
+                                </h3>
+                                <button onclick="fetchRequests()" class="p-2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <div id="unassigned-list" class="space-y-3 max-h-96 overflow-y-auto">
+                                <!-- Unassigned requests will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Available Technicians -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    <i class="fas fa-users mr-2 text-green-500"></i>
+                                    Available Technicians
+                                </h3>
+                                <button onclick="fetchTechnicians()" class="p-2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            
+                            <div id="technicians-list" class="space-y-3 max-h-96 overflow-y-auto">
+                                <!-- Technicians will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Assignment Panel -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-6">
+                                <i class="fas fa-hand-point-right mr-2 text-blue-500"></i>
+                                Assign Task
+                            </h3>
+                            
+                            <div id="assignment-form" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Selected Request</label>
+                                    <div id="selected-request" class="p-3 bg-gray-50 rounded-lg text-sm text-gray-500">
+                                        No request selected
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Selected Technician</label>
+                                    <div id="selected-technician" class="p-3 bg-gray-50 rounded-lg text-sm text-gray-500">
+                                        No technician selected
+                                    </div>
+                                </div>
+                                
+                                <button id="assign-btn" onclick="assignTask()" disabled 
+                                        class="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+                                    <i class="fas fa-arrow-right"></i>
+                                    <span>Assign Task</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-
-    <!-- Assign Request Section -->
-    <div class="section">
-      <h2>Assign Request</h2>
-      <div class="form-group">
-        <label for="assign-requestId">Request ID</label>
-        <input type="text" id="assign-requestId" placeholder="Enter request ID">
-      </div>
-      <div class="form-group">
-        <label for="assign-technicianId">Technician ID</label>
-        <input type="text" id="assign-technicianId" placeholder="Enter technician ID">
-      </div>
-      <button onclick="assignRequest()">Assign Request</button>
-      <p class="error" id="assign-error"></p>
-      <p class="success" id="assign-success"></p>
-    </div>
-
-    <!-- Refresh Access Token Section -->
-    <div class="section">
-      <h2>Refresh Access Token</h2>
-      <button onclick="refreshAccessToken()">Refresh Token</button>
-      <p class="error" id="refresh-error"></p>
-      <p class="success" id="refresh-success"></p>
-    </div>
-
-    <!-- All Inventory Section -->
-    <div class="section">
-      <h2>All Inventory</h2>
-      <button onclick="fetchAllInventory()">Get Inventory List</button>
-      <div id="inventory-result"></div>
-      <p class="error" id="inventory-error"></p>
-      <p class="success" id="inventory-success"></p>
-    </div>
-
-    <!-- Add Inventory Section -->
-    <div class="section">
-      <h2>Add Inventory</h2>
-      <div class="form-group">
-        <label for="add-name">Name</label>
-        <input type="text" id="add-name" placeholder="Enter inventory name">
-      </div>
-      <div class="form-group">
-        <label for="add-partNumber">Part Number</label>
-        <input type="text" id="add-partNumber" placeholder="Enter part number (optional)">
-      </div>
-      <div class="form-group">
-        <label for="add-quantity">Quantity</label>
-        <input type="number" id="add-quantity" min="0" placeholder="Enter quantity">
-      </div>
-      <div class="form-group">
-        <label for="add-description">Description</label>
-        <textarea id="add-description" rows="4" placeholder="Enter description (optional)"></textarea>
-      </div>
-      <button onclick="addInventory()">Add Inventory</button>
-      <p class="error" id="add-inventory-error"></p>
-      <p class="success" id="add-inventory-success"></p>
-    </div>
-
-    <!-- Update Inventory Section -->
-    <div class="section">
-      <h2>Update Inventory</h2>
-      <div class="form-group">
-        <label for="update-inventoryId">Inventory ID</label>
-        <input type="text" id="update-inventoryId" placeholder="Enter inventory ID">
-      </div>
-      <div class="form-group">
-        <label for="update-name">Name</label>
-        <input type="text" id="update-name" placeholder="Enter inventory name">
-      </div>
-      <div class="form-group">
-        <label for="update-partNumber">Part Number</label>
-        <input type="text" id="update-partNumber" placeholder="Enter part number (optional)">
-      </div>
-      <div class="form-group">
-        <label for="update-quantity">Quantity</label>
-        <input type="number" id="update-quantity" min="0" placeholder="Enter quantity">
-      </div>
-      <div class="form-group">
-        <label for="update-description">Description</label>
-        <textarea id="update-description" rows="4" placeholder="Enter description (optional)"></textarea>
-      </div>
-      <button onclick="updateInventory()">Update Inventory</button>
-      <p class="error" id="update-inventory-error"></p>
-      <p class="success" id="update-inventory-success"></p>
-    </div>
-
-    <!-- Delete Inventory Section -->
-    <div class="section">
-      <h2>Delete Inventory</h2>
-      <div class="form-group">
-        <label for="delete-inventoryId">Inventory ID</label>
-        <input type="text" id="delete-inventoryId" placeholder="Enter inventory ID">
-      </div>
-      <button onclick="deleteInventory()">Delete Inventory</button>
-      <p class="error" id="delete-inventory-error"></p>
-      <p class="success" id="delete-inventory-success"></p>
-    </div>
-
-    <!-- All Requests Section for Manager -->
-    <div class="section">
-      <h2>All Support Requests</h2>
-      <button onclick="fetchMyRequests()">Get All Requests</button>
-      <div id="requests-result"></div>
-      <p class="error" id="requests-error"></p>
-      <p class="success" id="requests-success"></p>
-    </div>
-
-  </div>
-
-  <script src="/admin/global.js"></script>
-  <script>
-    // Umumiy xato boshqaruv funksiyasi
-    function handleError(errorElement, successElement, resultElement, errorMessage) {
-      errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
-      if (successElement) successElement.style.display = 'none';
-      if (resultElement) resultElement.innerHTML = '';
-    }
-
-    // About
-    async function fetchAbout() {
-      const error = document.getElementById('about-error');
-      const success = document.getElementById('about-success');
-      const result = document.getElementById('about-result');
-      error.style.display = 'none';
-      success.style.display = 'none';
-      result.innerHTML = '';
-
-      try {
-        const response = await apiFetch('/admin/api/manager/about', { method: 'GET' }, 'read');
-        if (!response) return; // 403 uchun /admin/login/ ga yo'naltiriladi
-
-        const data = await response.json();
-        if (!data.success || !data.data) {
-          handleError(error, success, result, 'No profile data found');
-          return;
+    
+    <script src="/admin/global.js"></script>
+    <script>
+        let selectedRequestId = null;
+        let selectedTechnicianId = null;
+        let requestsData = [];
+        let techniciansData = [];
+        
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mobileOverlay.classList.remove('hidden');
+        });
+        
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+        
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        });
+        
+        // Show error message
+        function showError(message) {
+            document.getElementById('error-text').textContent = message;
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('success-message').classList.add('hidden');
         }
-
-        result.innerHTML = `
-          <p><strong>ID:</strong> ${data.data.id}</p>
-          <p><strong>First Name:</strong> ${data.data.firstName}</p>
-          <p><strong>Last Name:</strong> ${data.data.lastName}</p>
-          <p><strong>Email:</strong> ${data.data.email}</p>
-          <p><strong>Role:</strong> ${data.data.role}</p>
-        `;
-        success.textContent = 'Profile fetched successfully';
-        success.style.display = 'block';
-      } catch (err) {
-        console.error('About error:', err);
-        handleError(error, success, result, err.message || 'Something went wrong');
-      }
-    }
-
-    function logout() {
-      const result = fetch('/admin/api/auth/logout', { method: 'POST' });
-
-      if (result) {
-        window.location.href = '/admin/'; // Redirect to login page
-      }
-    }
-
-    // Assign Request
-    async function assignRequest() {
-      const error = document.getElementById('assign-error');
-      const success = document.getElementById('assign-success');
-      error.style.display = 'none';
-      success.style.display = 'none';
-
-      const requestId = document.getElementById('assign-requestId').value.trim();
-      const technicianId = document.getElementById('assign-technicianId').value.trim();
-
-      if (!requestId || !technicianId) {
-        handleError(error, success, null, 'Request ID and Technician ID are required');
-        return;
-      }
-
-      try {
-        const response = await apiFetch('/admin/api/manager/assign-request', {
-          method: 'POST',
-          body: JSON.stringify({ requestId, technicianId }),
-        }, 'read');
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success) {
-          handleError(error, success, null, data.error || 'Request assignment failed');
-          return;
+        
+        // Show success message
+        function showSuccess(message) {
+            document.getElementById('success-text').textContent = message;
+            document.getElementById('success-message').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
         }
-
-        success.textContent = 'Request assigned successfully';
-        success.style.display = 'block';
-        document.getElementById('assign-requestId').value = '';
-        document.getElementById('assign-technicianId').value = '';
-      } catch (err) {
-        console.error('Assign request error:', err);
-        handleError(error, success, null, err.message || 'Something went wrong');
-      }
-    }
-
-    // Refresh Access Token
-    async function refreshAccessToken() {
-      const error = document.getElementById('refresh-error');
-      const success = document.getElementById('refresh-success');
-      error.style.display = 'none';
-      success.style.display = 'none';
-
-      try {
-        const response = await apiFetch('/admin/api/manager/refresh-access-token', { method: 'POST' }, 'read');
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success) {
-          handleError(error, success, null, 'Token refresh failed');
-          return;
+        
+        // Hide messages
+        function hideMessages() {
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
         }
-
-        success.textContent = data.message || 'Token refreshed successfully';
-        success.style.display = 'block';
-      } catch (err) {
-        console.error('Refresh token error:', err);
-        handleError(error, success, null, err.message || 'Something went wrong');
-      }
-    }
-
-    // All Inventory
-    async function fetchAllInventory() {
-      const error = document.getElementById('inventory-error');
-      const success = document.getElementById('inventory-success');
-      const result = document.getElementById('inventory-result');
-      error.style.display = 'none';
-      success.style.display = 'none';
-      result.innerHTML = '';
-
-      try {
-        const response = await apiFetch('/admin/api/manager/all-inventory', { method: 'GET' }, 'read');
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success || !data.data) {
-          handleError(error, success, result, 'No inventory found');
-          return;
+        
+        // Get status badge
+        function getStatusBadge(status) {
+            const statusClasses = {
+                'pending': 'status-pending',
+                'in-process': 'status-in-process', 
+                'done': 'status-done'
+            };
+            
+            return `<span class="status-badge ${statusClasses[status] || 'bg-gray-200 text-gray-800'}">${status}</span>`;
         }
-
-        result.innerHTML = `
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Part Number</th>
-                <th>Quantity</th>
-                <th>Description</th>
-                <th>Updated At</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.data.map(inv => `
-                <tr>
-                  <td>${inv.id}</td>
-                  <td>${inv.name}</td>
-                  <td>${inv.partNumber || '-'}</td>
-                  <td>${inv.quantity}</td>
-                  <td>${inv.description || '-'}</td>
-                  <td>${new Date(inv.updatedAt).toLocaleString()}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
-        success.textContent = 'Inventory fetched successfully';
-        success.style.display = 'block';
-      } catch (err) {
-        console.error('Fetch inventory error:', err);
-        handleError(error, success, result, err.message || 'Something went wrong');
-      }
-    }
-
-    // Add Inventory
-    async function addInventory() {
-      const error = document.getElementById('add-inventory-error');
-      const success = document.getElementById('add-inventory-success');
-      error.style.display = 'none';
-      success.style.display = 'none';
-
-      const name = document.getElementById('add-name').value.trim();
-      const partNumber = document.getElementById('add-partNumber').value.trim();
-      const quantity = parseInt(document.getElementById('add-quantity').value);
-      const description = document.getElementById('add-description').value.trim();
-
-      if (!name || isNaN(quantity) || quantity < 0) {
-        handleError(error, success, null, 'Name and valid quantity are required');
-        return;
-      }
-
-      try {
-        const response = await apiFetch('/admin/api/manager/add-inventory', {
-          method: 'POST',
-          body: JSON.stringify({ name, partNumber, quantity, description }),
-        }, 'read');
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success) {
-          handleError(error, success, null, data.error || 'Failed to add inventory');
-          return;
+        
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
-
-        success.textContent = 'Inventory added successfully';
-        success.style.display = 'block';
-        document.getElementById('add-name').value = '';
-        document.getElementById('add-partNumber').value = '';
-        document.getElementById('add-quantity').value = '';
-        document.getElementById('add-description').value = '';
-      } catch (err) {
-        console.error('Add inventory error:', err);
-        handleError(error, success, null, err.message || 'Something went wrong');
-      }
-    }
-
-    // Update Inventory
-    async function updateInventory() {
-      const error = document.getElementById('update-inventory-error');
-      const success = document.getElementById('update-inventory-success');
-      error.style.display = 'none';
-      success.style.display = 'none';
-
-      const inventoryId = document.getElementById('update-inventoryId').value.trim();
-      const name = document.getElementById('update-name').value.trim();
-      const partNumber = document.getElementById('update-partNumber').value.trim();
-      const quantity = parseInt(document.getElementById('update-quantity').value);
-      const description = document.getElementById('update-description').value.trim();
-
-      if (!inventoryId || !name || isNaN(quantity) || quantity < 0) {
-        handleError(error, success, null, 'Inventory ID, name, and valid quantity are required');
-        return;
-      }
-
-      try {
-        const response = await apiFetch('/admin/api/manager/update-inventory', {
-          method: 'POST',
-          body: JSON.stringify({ inventoryId, name, partNumber, quantity, description }),
-        }, 'read');
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success) {
-          handleError(error, success, null, data.error || 'Failed to update inventory');
-          return;
+        
+        // Select request
+        function selectRequest(requestId) {
+            selectedRequestId = requestId;
+            const request = requestsData.find(r => r.id === requestId);
+            
+            // Update UI
+            document.querySelectorAll('.request-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-blue-500');
+            });
+            document.querySelector(`[data-request-id="${requestId}"]`).classList.add('ring-2', 'ring-blue-500');
+            
+            // Update selected request display
+            document.getElementById('selected-request').innerHTML = `
+                <div class="font-medium text-gray-900">${request.type}</div>
+                <div class="text-sm text-gray-600">${request.issueDescription}</div>
+                <div class="text-xs text-gray-500 mt-1">ID: ${request.id}</div>
+            `;
+            
+            updateAssignButton();
         }
-
-        success.textContent = 'Inventory updated successfully';
-        success.style.display = 'block';
-        document.getElementById('update-inventoryId').value = '';
-        document.getElementById('update-name').value = '';
-        document.getElementById('update-partNumber').value = '';
-        document.getElementById('update-quantity').value = '';
-        document.getElementById('update-description').value = '';
-      } catch (err) {
-        console.error('Update inventory error:', err);
-        handleError(error, success, null, err.message || 'Something went wrong');
-      }
-    }
-
-    // Delete Inventory
-    async function deleteInventory() {
-      const error = document.getElementById('delete-inventory-error');
-      const success = document.getElementById('delete-inventory-success');
-      error.style.display = 'none';
-      success.style.display = 'none';
-
-      const inventoryId = document.getElementById('delete-inventoryId').value.trim();
-
-      if (!inventoryId) {
-        handleError(error, success, null, 'Inventory ID is required');
-        return;
-      }
-
-      try {
-        const response = await apiFetch('/admin/api/manager/delete-inventory', {
-          method: 'POST',
-          body: JSON.stringify({ inventoryId }),
-        }, 'read');
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success) {
-          handleError(error, success, null, data.error || 'Failed to delete inventory');
-          return;
+        
+        // Select technician
+        function selectTechnician(technicianId) {
+            selectedTechnicianId = technicianId;
+            const technician = techniciansData.find(t => t.id === technicianId);
+            
+            // Update UI
+            document.querySelectorAll('.technician-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-technician-id="${technicianId}"]`).classList.add('selected');
+            
+            // Update selected technician display
+            document.getElementById('selected-technician').innerHTML = `
+                <div class="font-medium text-gray-900">${technician.firstName} ${technician.lastName}</div>
+                <div class="text-sm text-gray-600">${technician.email}</div>
+                <div class="text-xs text-gray-500 mt-1">
+                    Completed: ${technician.kpi?.totalCompleted || 0} | 
+                    Assigned: ${technician.assignedTasks?.length || 0}
+                </div>
+            `;
+            
+            updateAssignButton();
         }
-
-        success.textContent = data.message || 'Inventory deleted successfully';
-        success.style.display = 'block';
-        document.getElementById('delete-inventoryId').value = '';
-      } catch (err) {
-        console.error('Delete inventory error:', err);
-        handleError(error, success, null, err.message || 'Something went wrong');
-      }
-    }
-
-    // Fetch All Requests for Manager
-    async function fetchMyRequests() {
-      const error = document.getElementById('requests-error');
-      const success = document.getElementById('requests-success');
-      const result = document.getElementById('requests-result');
-      error.style.display = 'none';
-      success.style.display = 'none';
-      result.innerHTML = '';
-
-      try {
-        const response = await apiFetch('/admin/api/manager/my-requests', { method: 'GET' }, 'read');
-        if (!response) return;
-
-        const data = await response.json();
-        if (!data.success || !data.data) {
-          handleError(error, success, result, 'No requests found');
-          return;
+        
+        // Update assign button state
+        function updateAssignButton() {
+            const assignBtn = document.getElementById('assign-btn');
+            assignBtn.disabled = !selectedRequestId || !selectedTechnicianId;
         }
-
-        result.innerHTML = `
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>User</th>
-        <th>Type</th>
-        <th>Issue</th>
-        <th>Status</th>
-        <th>Submitted</th>
-        <th>Assigned</th>
-        <th>Technician</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${data.data.map(req => `
-        <tr>
-          <td>${req.id}</td>
-          <td>
-            ${req.user
-            ? `${req.user.firstName} ${req.user.lastName} (${req.user.email})`
-            : '<em>Unknown User</em>'}
-          </td>
-          <td>${req.type}</td>
-          <td>${req.issueDescription}</td>
-          <td>${req.status}</td>
-          <td>${new Date(req.submittedAt).toLocaleString()}</td>
-          <td>${req.assignedAt ? new Date(req.assignedAt).toLocaleString() : '-'}</td>
-          <td>
-            ${req.assignedTo
-            ? `${req.assignedTo.firstName} ${req.assignedTo.lastName} (${req.assignedTo.email})`
-            : '<em>Unassigned</em>'}
-          </td>
-        </tr>
-      `).join('')}
-    </tbody>
-  </table>
-`;
-
-        success.textContent = 'Requests fetched successfully';
-        success.style.display = 'block';
-      } catch (err) {
-        console.error('Fetch requests error:', err);
-        handleError(error, success, result, err.message || 'Something went wrong');
-      }
-    }
-
-  </script>
+        
+        // Render unassigned requests
+        function renderUnassignedRequests() {
+            const unassignedList = document.getElementById('unassigned-list');
+            const unassignedRequests = requestsData.filter(request => !request.assignedTo);
+            
+            if (unassignedRequests.length === 0) {
+                unassignedList.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check-circle text-gray-400 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-500">All requests are assigned!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            unassignedList.innerHTML = unassignedRequests.map(request => `
+                <div class="request-card border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50" 
+                     data-request-id="${request.id}" onclick="selectRequest('${request.id}')">
+                    <div class="flex items-start justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">${request.type}</h4>
+                        ${getStatusBadge(request.status)}
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${request.issueDescription}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>${request.user ? `${request.user.firstName} ${request.user.lastName}` : 'Unknown User'}</span>
+                        <span>${formatDate(request.submittedAt)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Render technicians
+        function renderTechnicians() {
+            const techniciansList = document.getElementById('technicians-list');
+            const technicians = techniciansData.filter(admin => admin.role === 'technician');
+            
+            if (technicians.length === 0) {
+                techniciansList.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-gray-400 text-2xl"></i>
+                        </div>
+                        <p class="text-gray-500">No technicians available</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort technicians by workload (least assigned tasks first)
+            technicians.sort((a, b) => {
+                const aWorkload = (a.assignedTasks?.length || 0);
+                const bWorkload = (b.assignedTasks?.length || 0);
+                return aWorkload - bWorkload;
+            });
+            
+            techniciansList.innerHTML = technicians.map(technician => `
+                <div class="technician-card border border-gray-200 rounded-lg p-4" 
+                     data-technician-id="${technician.id}" onclick="selectTechnician('${technician.id}')">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-gray-900 truncate">${technician.firstName} ${technician.lastName}</p>
+                            <p class="text-sm text-gray-500 truncate">${technician.email}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="text-center p-2 bg-green-50 rounded">
+                            <div class="font-semibold text-green-600">${technician.kpi?.totalCompleted || 0}</div>
+                            <div class="text-xs text-green-500">Completed</div>
+                        </div>
+                        <div class="text-center p-2 bg-blue-50 rounded">
+                            <div class="font-semibold text-blue-600">${technician.assignedTasks?.length || 0}</div>
+                            <div class="text-xs text-blue-500">Assigned</div>
+                        </div>
+                    </div>
+                    
+                    ${technician.kpi?.avgCompletionTime ? `
+                        <div class="mt-2 text-xs text-gray-500 text-center">
+                            Avg time: ${(technician.kpi.avgCompletionTime / 60).toFixed(1)}h
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Update stats
+        function updateStats() {
+            const totalRequests = requestsData.length;
+            const unassignedRequests = requestsData.filter(r => !r.assignedTo).length;
+            const availableTechnicians = techniciansData.filter(a => a.role === 'technician').length;
+            
+            // Calculate assignments today
+            const today = new Date().toDateString();
+            const assignmentsToday = requestsData.filter(r => 
+                r.assignedAt && new Date(r.assignedAt).toDateString() === today
+            ).length;
+            
+            document.getElementById('total-requests').textContent = totalRequests;
+            document.getElementById('unassigned-requests').textContent = unassignedRequests;
+            document.getElementById('available-technicians').textContent = availableTechnicians;
+            document.getElementById('assignments-today').textContent = assignmentsToday;
+        }
+        
+        // Fetch requests
+        async function fetchRequests() {
+            try {
+                const response = await apiFetch('/admin/api/manager/my-requests', { method: 'GET' }, 'read');
+                
+                if (!response) {
+                    showError('Failed to fetch requests');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success || !data.data) {
+                    showError('No requests found');
+                    return;
+                }
+                
+                requestsData = data.data;
+                renderUnassignedRequests();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Fetch requests error:', error);
+                showError('Something went wrong while fetching requests');
+            }
+        }
+        
+        // Fetch technicians
+        async function fetchTechnicians() {
+            try {
+                const response = await apiFetch('/admin/api/super-admin/all-admin', { method: 'GET' }, 'read');
+                
+                if (!response) {
+                    showError('Failed to fetch technicians');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success || !data.data) {
+                    showError('No technicians found');
+                    return;
+                }
+                
+                techniciansData = data.data;
+                renderTechnicians();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Fetch technicians error:', error);
+                showError('Something went wrong while fetching technicians');
+            }
+        }
+        
+        // Assign task
+        async function assignTask() {
+            if (!selectedRequestId || !selectedTechnicianId) {
+                showError('Please select both a request and a technician');
+                return;
+            }
+            
+            const assignBtn = document.getElementById('assign-btn');
+            const originalText = assignBtn.innerHTML;
+            
+            assignBtn.disabled = true;
+            assignBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Assigning...';
+            hideMessages();
+            
+            try {
+                const response = await apiFetch('/admin/api/manager/assign-request', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        requestId: selectedRequestId,
+                        technicianId: selectedTechnicianId
+                    }),
+                }, 'read');
+                
+                if (!response) {
+                    showError('Failed to assign task');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    showError(data.error || 'Failed to assign task');
+                    return;
+                }
+                
+                showSuccess('Task assigned successfully');
+                
+                // Reset selection
+                selectedRequestId = null;
+                selectedTechnicianId = null;
+                document.getElementById('selected-request').innerHTML = '<div class="text-gray-500">No request selected</div>';
+                document.getElementById('selected-technician').innerHTML = '<div class="text-gray-500">No technician selected</div>';
+                
+                // Refresh data
+                await refreshData();
+                
+            } catch (error) {
+                console.error('Assign task error:', error);
+                showError('Something went wrong while assigning task');
+            } finally {
+                assignBtn.disabled = false;
+                assignBtn.innerHTML = originalText;
+                updateAssignButton();
+            }
+        }
+        
+        // Refresh all data
+        async function refreshData() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('content').classList.add('hidden');
+            hideMessages();
+            
+            try {
+                await Promise.all([fetchRequests(), fetchTechnicians()]);
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Refresh data error:', error);
+                document.getElementById('loading').classList.add('hidden');
+                showError('Failed to refresh data');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            fetch('/admin/api/auth/logout', { method: 'POST' })
+                .then(result => {
+                    if (result) {
+                        window.location.href = '/admin/';
+                    }
+                })
+                .catch(err => {
+                    console.error('Logout error:', err);
+                    window.location.href = '/admin/';
+                });
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+        });
+    </script>
 </body>
-
 </html>
